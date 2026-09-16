@@ -29,7 +29,7 @@ describe('metadata', () => {
 
   it('does not append the site name twice on the homepage', () => {
     const metadata = buildMetadata({ title: site.name, description: site.description, path: '/' });
-    expect(metadata.title).toBe(`${site.name} — ${site.tagline}`);
+    expect(metadata.title).toEqual({ absolute: `${site.name} — ${site.tagline}` });
   });
 
   it('suffixes the site name on every non-home route', () => {
@@ -38,7 +38,36 @@ describe('metadata', () => {
       description: 'x'.repeat(120),
       path: '/tools/loan-calculator',
     });
-    expect(metadata.title).toBe(`Loan Payment Calculator | ${site.name}`);
+    expect(metadata.title).toEqual({ absolute: `Loan Payment Calculator | ${site.name}` });
+  });
+
+  it('returns an absolute title so the layout template cannot double the site name', () => {
+    // Regression: a bare string title is fed through the root layout's
+    // `%s | ToolNimbly` template, producing "… | ToolNimbly | ToolNimbly".
+    const everyRoute = [
+      buildMetadata({ title: site.name, description: site.description, path: '/' }),
+      ...categories.map((category) =>
+        buildMetadata({
+          title: category.title,
+          description: category.description,
+          path: `/${category.slug}`,
+        }),
+      ),
+      ...tools.map((tool) =>
+        buildMetadata({
+          title: tool.title,
+          description: tool.description,
+          path: `/tools/${tool.slug}`,
+        }),
+      ),
+    ];
+
+    for (const metadata of everyRoute) {
+      expect(typeof metadata.title).toBe('object');
+      const resolved = (metadata.title as { absolute: string }).absolute;
+      const occurrences = resolved.split(site.name).length - 1;
+      expect(occurrences, `"${resolved}" names the site more than once`).toBeLessThanOrEqual(1);
+    }
   });
 
   it('honours an explicit noIndex request', () => {

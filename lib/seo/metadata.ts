@@ -41,7 +41,9 @@ export function buildMetadata({
   const indexable = isIndexable && !noIndex;
 
   return {
-    title: fullTitle,
+    // `absolute` bypasses the root layout's title template. Returning a bare
+    // string here would let the template append the site name a second time.
+    title: { absolute: fullTitle },
     description,
     alternates: {
       // Self-referencing absolute canonical, query strings excluded.
