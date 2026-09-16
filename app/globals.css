@@ -1,0 +1,362 @@
+@import 'tailwindcss';
+
+/* Explicit theme control: `data-theme="dark"` / `data-theme="light"` on <html>
+   overrides the system preference; absent, the system preference wins. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens (spec §9)
+   Semantic custom properties first; Tailwind utilities are mapped from them in
+   the `@theme inline` block below so every utility and every hand-written rule
+   read the same source of truth.
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Neutral ramp */
+  --tn-neutral-0: oklch(100% 0 0);
+  --tn-neutral-25: oklch(99% 0.002 250);
+  --tn-neutral-50: oklch(98.2% 0.003 250);
+  --tn-neutral-100: oklch(96.3% 0.005 250);
+  --tn-neutral-200: oklch(92.4% 0.007 250);
+  --tn-neutral-300: oklch(86.5% 0.009 250);
+  --tn-neutral-400: oklch(70.5% 0.013 250);
+  --tn-neutral-500: oklch(58.5% 0.014 250);
+  --tn-neutral-600: oklch(48.5% 0.014 250);
+  --tn-neutral-700: oklch(38.5% 0.013 250);
+  --tn-neutral-800: oklch(27.5% 0.012 250);
+  --tn-neutral-900: oklch(19.5% 0.011 250);
+  --tn-neutral-950: oklch(14.5% 0.012 250);
+
+  /* One restrained brand accent */
+  --tn-brand-50: oklch(97% 0.02 195);
+  --tn-brand-100: oklch(93.5% 0.04 195);
+  --tn-brand-200: oklch(88% 0.07 195);
+  --tn-brand-300: oklch(80% 0.1 195);
+  --tn-brand-400: oklch(70% 0.12 197);
+  --tn-brand-500: oklch(61% 0.123 200);
+  --tn-brand-600: oklch(52% 0.115 202);
+  --tn-brand-700: oklch(43.5% 0.098 204);
+  --tn-brand-800: oklch(35% 0.078 206);
+  --tn-brand-900: oklch(28% 0.06 208);
+
+  /* Status colours. Always paired with an icon or text label — never colour
+     alone (spec §5.5). */
+  --tn-success: oklch(52% 0.13 152);
+  --tn-success-surface: oklch(96.5% 0.03 152);
+  --tn-success-border: oklch(86% 0.07 152);
+  --tn-warning: oklch(52% 0.13 75);
+  --tn-warning-surface: oklch(97% 0.04 85);
+  --tn-warning-border: oklch(87% 0.08 82);
+  --tn-danger: oklch(52% 0.19 27);
+  --tn-danger-surface: oklch(96.8% 0.02 27);
+  --tn-danger-border: oklch(87% 0.06 27);
+  --tn-info: oklch(50% 0.13 255);
+  --tn-info-surface: oklch(96.8% 0.025 255);
+  --tn-info-border: oklch(87% 0.06 255);
+
+  /* Semantic surface roles */
+  --background: var(--tn-neutral-50);
+  --foreground: var(--tn-neutral-900);
+  --muted: var(--tn-neutral-600);
+  --subtle: var(--tn-neutral-500);
+  --surface: var(--tn-neutral-0);
+  --surface-raised: var(--tn-neutral-0);
+  --surface-sunken: var(--tn-neutral-100);
+  --border: var(--tn-neutral-200);
+  --border-strong: var(--tn-neutral-300);
+  --brand: var(--tn-brand-600);
+  --brand-hover: var(--tn-brand-700);
+  --brand-contrast: var(--tn-neutral-0);
+  --brand-surface: var(--tn-brand-50);
+  --brand-border: var(--tn-brand-200);
+  --focus-ring: var(--tn-brand-600);
+
+  /* Typography */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* Spacing, radii, shadows, motion */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  --shadow-xs: 0 1px 2px 0 oklch(0% 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 oklch(0% 0 0 / 0.07), 0 1px 2px -1px oklch(0% 0 0 / 0.06);
+  --shadow-md: 0 4px 10px -2px oklch(0% 0 0 / 0.08), 0 2px 4px -2px oklch(0% 0 0 / 0.05);
+  --shadow-lg: 0 12px 28px -8px oklch(0% 0 0 / 0.14), 0 4px 10px -4px oklch(0% 0 0 / 0.07);
+
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 280ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Measure: ~70–75 characters for editorial text (spec §9) */
+  --measure: 68ch;
+
+  /* Minimum interactive target (spec §5.4) */
+  --touch-target: 2.75rem;
+}
+
+/* System dark preference, unless the user explicitly chose light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --background: var(--tn-neutral-950);
+    --foreground: oklch(96% 0.004 250);
+    --muted: var(--tn-neutral-400);
+    --subtle: var(--tn-neutral-500);
+    --surface: var(--tn-neutral-900);
+    --surface-raised: oklch(22.5% 0.012 250);
+    --surface-sunken: oklch(17% 0.011 250);
+    --border: oklch(30% 0.012 250);
+    --border-strong: oklch(38% 0.013 250);
+    --brand: var(--tn-brand-300);
+    --brand-hover: var(--tn-brand-200);
+    --brand-contrast: var(--tn-neutral-950);
+    --brand-surface: oklch(26% 0.05 202);
+    --brand-border: oklch(40% 0.07 202);
+    --focus-ring: var(--tn-brand-300);
+
+    --tn-success: oklch(80% 0.14 152);
+    --tn-success-surface: oklch(26% 0.05 152);
+    --tn-success-border: oklch(40% 0.08 152);
+    --tn-warning: oklch(83% 0.13 85);
+    --tn-warning-surface: oklch(28% 0.05 80);
+    --tn-warning-border: oklch(42% 0.08 80);
+    --tn-danger: oklch(76% 0.15 25);
+    --tn-danger-surface: oklch(27% 0.07 25);
+    --tn-danger-border: oklch(42% 0.1 25);
+    --tn-info: oklch(80% 0.1 255);
+    --tn-info-surface: oklch(26% 0.05 255);
+    --tn-info-border: oklch(40% 0.07 255);
+
+    --shadow-xs: 0 1px 2px 0 oklch(0% 0 0 / 0.5);
+    --shadow-sm: 0 1px 3px 0 oklch(0% 0 0 / 0.55);
+    --shadow-md: 0 4px 10px -2px oklch(0% 0 0 / 0.6);
+    --shadow-lg: 0 12px 28px -8px oklch(0% 0 0 / 0.7);
+  }
+}
+
+/* Explicit dark choice wins in both directions. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --background: var(--tn-neutral-950);
+  --foreground: oklch(96% 0.004 250);
+  --muted: var(--tn-neutral-400);
+  --subtle: var(--tn-neutral-500);
+  --surface: var(--tn-neutral-900);
+  --surface-raised: oklch(22.5% 0.012 250);
+  --surface-sunken: oklch(17% 0.011 250);
+  --border: oklch(30% 0.012 250);
+  --border-strong: oklch(38% 0.013 250);
+  --brand: var(--tn-brand-300);
+  --brand-hover: var(--tn-brand-200);
+  --brand-contrast: var(--tn-neutral-950);
+  --brand-surface: oklch(26% 0.05 202);
+  --brand-border: oklch(40% 0.07 202);
+  --focus-ring: var(--tn-brand-300);
+
+  --tn-success: oklch(80% 0.14 152);
+  --tn-success-surface: oklch(26% 0.05 152);
+  --tn-success-border: oklch(40% 0.08 152);
+  --tn-warning: oklch(83% 0.13 85);
+  --tn-warning-surface: oklch(28% 0.05 80);
+  --tn-warning-border: oklch(42% 0.08 80);
+  --tn-danger: oklch(76% 0.15 25);
+  --tn-danger-surface: oklch(27% 0.07 25);
+  --tn-danger-border: oklch(42% 0.1 25);
+  --tn-info: oklch(80% 0.1 255);
+  --tn-info-surface: oklch(26% 0.05 255);
+  --tn-info-border: oklch(40% 0.07 255);
+
+  --shadow-xs: 0 1px 2px 0 oklch(0% 0 0 / 0.5);
+  --shadow-sm: 0 1px 3px 0 oklch(0% 0 0 / 0.55);
+  --shadow-md: 0 4px 10px -2px oklch(0% 0 0 / 0.6);
+  --shadow-lg: 0 12px 28px -8px oklch(0% 0 0 / 0.7);
+}
+
+/* Map semantic tokens onto Tailwind's utility namespace. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-border-default: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-contrast: var(--brand-contrast);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-border: var(--brand-border);
+  --color-success: var(--tn-success);
+  --color-success-surface: var(--tn-success-surface);
+  --color-success-border: var(--tn-success-border);
+  --color-warning: var(--tn-warning);
+  --color-warning-surface: var(--tn-warning-surface);
+  --color-warning-border: var(--tn-warning-border);
+  --color-danger: var(--tn-danger);
+  --color-danger-surface: var(--tn-danger-surface);
+  --color-danger-border: var(--tn-danger-border);
+  --color-info: var(--tn-info);
+  --color-info-surface: var(--tn-info-surface);
+  --color-info-border: var(--tn-info-border);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
+
+/* ---------------------------------------------------------------------------
+   Base layer
+--------------------------------------------------------------------------- */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Nothing may overflow horizontally at 320px (spec §3). */
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.22;
+    text-wrap: balance;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One consistent, always-visible keyboard focus treatment. */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Remove the default ring only where :focus-visible takes over. */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  ::selection {
+    background-color: var(--brand-surface);
+    color: var(--foreground);
+  }
+
+  /* Inputs inherit the type stack and never shrink below 16px on iOS, which
+     would otherwise trigger an unwanted zoom on focus. */
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  @media (max-width: 40rem) {
+    input,
+    select,
+    textarea {
+      font-size: max(1rem, 16px);
+    }
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  img,
+  svg,
+  canvas,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@layer utilities {
+  /* Visible only to assistive technology. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .measure {
+    max-width: var(--measure);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Honour reduced-motion (spec §5.5). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Forced-colors / high-contrast mode keeps borders and focus visible. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid CanvasText;
+  }
+}
