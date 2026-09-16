@@ -1,19 +1,80 @@
 /**
- * Security headers and Content Security Policy (spec §7.9).
+ * Security headers and Content Security Policy (spec §7.9, ADR 0006).
  *
- * The CSP is nonce-based and carries no `unsafe-eval` in production. It is
- * applied per-request by `middleware.ts` so each response gets a fresh nonce;
- * the remaining static headers are applied by `next.config.ts`.
+ * The policy is static-compatible: it carries no nonce, because every page in
+ * this product is prerendered at build time and a nonce must vary per request.
+ * See ADR 0006 for the full reasoning and the compensating controls.
  */
 
 export type HeaderEntry = { key: string; value: string };
 
 /**
- * Static response headers. These are safe to apply to every route including
- * static assets.
+ * Build the Content Security Policy.
+ *
+ * Notes on the directives that are not obvious:
+ * - `script-src 'self'` is the substantive control: no third-party script can
+ *   load, because no other origin is listed. The product embeds no third-party
+ *   scripts at all, so this costs nothing.
+ * - `'unsafe-inline'` is required for React's hydration bootstrap and the
+ *   inline RSC flight-data scripts, which are generated per page at build time
+ *   and cannot be hashed stably. It is NOT paired with a nonce, because a
+ *   browser ignores `'unsafe-inline'` whenever a nonce or hash is present — a
+ *   policy with both silently blocks every script on a prerendered page.
+ * - `'wasm-unsafe-eval'` is required by pdf.js, which compiles WebAssembly for
+ *   image decoding. It permits WebAssembly compilation only, never `eval`.
+ * - There is no `'unsafe-eval'` in production.
+ * - `worker-src blob:` is required because the image and PDF workers are
+ *   instantiated from bundled blob URLs.
+ * - `connect-src 'self'` is the directive that enforces the product's core
+ *   promise: no tool payload can be sent to any other origin, because no other
+ *   origin is reachable.
+ */
+export function buildContentSecurityPolicy(isDev: boolean): string {
+  const scriptSrc = isDev
+    ? // Next.js dev tooling (HMR, React Refresh) requires eval.
+      `'self' 'unsafe-eval' 'unsafe-inline' blob:`
+    : `'self' 'unsafe-inline' 'wasm-unsafe-eval'`;
+
+  const directives: Record<string, string> = {
+    'default-src': `'self'`,
+    'script-src': scriptSrc,
+    // Next.js injects the critical stylesheet inline and the style attribute is
+    // used for chart geometry. Styles cannot exfiltrate data on their own, and
+    // `connect-src` blocks outbound requests regardless.
+    'style-src': `'self' 'unsafe-inline'`,
+    'img-src': `'self' data: blob:`,
+    'font-src': `'self' data:`,
+    'connect-src': isDev ? `'self' ws: wss:` : `'self' blob: data:`,
+    'worker-src': `'self' blob:`,
+    'child-src': `'self' blob:`,
+    'object-src': `'none'`,
+    'base-uri': `'self'`,
+    'form-action': `'self'`,
+    'frame-ancestors': `'none'`,
+    'frame-src': `'none'`,
+    'manifest-src': `'self'`,
+    'media-src': `'self' blob:`,
+  };
+
+  const serialized = Object.entries(directives)
+    .map(([key, value]) => `${key} ${value}`)
+    .join('; ');
+
+  return isDev ? serialized : `${serialized}; upgrade-insecure-requests`;
+}
+
+/**
+ * All security response headers, including the CSP.
+ *
+ * Applied by `next.config.ts` rather than by the proxy, so they reach every
+ * response — including statically served files — and so the policy survives a
+ * static-export deployment (spec §13.2).
  */
 export function securityHeaders(): HeaderEntry[] {
+  const isDev = process.env.NODE_ENV !== 'production';
+
   const headers: HeaderEntry[] = [
+    { key: 'Content-Security-Policy', value: buildContentSecurityPolicy(isDev) },
     { key: 'X-Content-Type-Options', value: 'nosniff' },
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     { key: 'X-Frame-Options', value: 'DENY' },
@@ -41,7 +102,7 @@ export function securityHeaders(): HeaderEntry[] {
     { key: 'X-DNS-Prefetch-Control', value: 'off' },
   ];
 
-  if (process.env.NODE_ENV === 'production') {
+  if (!isDev) {
     headers.push({
       key: 'Strict-Transport-Security',
       value: 'max-age=63072000; includeSubDomains; preload',
@@ -49,52 +110,4 @@ export function securityHeaders(): HeaderEntry[] {
   }
 
   return headers;
-}
-
-/**
- * Build the Content Security Policy for one response.
- *
- * Notes on the directives that are not obvious:
- * - `wasm-unsafe-eval` is required by pdf.js, which compiles WebAssembly for
- *   image decoding. It permits WebAssembly compilation only, not `eval`.
- * - `worker-src blob:` is required because the image and PDF workers are
- *   instantiated from bundled blob URLs.
- * - `img-src blob: data:` covers canvas previews and generated thumbnails.
- * - `connect-src 'self'` is deliberate: no tool payload ever leaves the device,
- *   so no third-party endpoint is allowed by default.
- */
-export function buildContentSecurityPolicy(nonce: string, isDev: boolean): string {
-  const scriptSrc = isDev
-    ? // Next.js dev tooling (HMR, React Refresh) requires eval.
-      `'self' 'unsafe-eval' 'unsafe-inline' blob:`
-    : `'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval' blob:`;
-
-  const directives: Record<string, string> = {
-    'default-src': `'self'`,
-    'script-src': scriptSrc,
-    // Next.js injects the critical stylesheet inline; a hash set is not stable
-    // across builds, so styles keep 'unsafe-inline'. Styles cannot exfiltrate
-    // tool data on their own and `connect-src` blocks outbound requests.
-    'style-src': `'self' 'unsafe-inline'`,
-    'img-src': `'self' data: blob:`,
-    'font-src': `'self' data:`,
-    'connect-src': isDev ? `'self' ws: wss:` : `'self' blob: data:`,
-    'worker-src': `'self' blob:`,
-    'child-src': `'self' blob:`,
-    'object-src': `'none'`,
-    'base-uri': `'self'`,
-    'form-action': `'self'`,
-    'frame-ancestors': `'none'`,
-    'frame-src': `'none'`,
-    'manifest-src': `'self'`,
-    'media-src': `'self' blob:`,
-  };
-
-  const serialized = Object.entries(directives)
-    .map(([key, value]) => `${key} ${value}`)
-    .join('; ');
-
-  return process.env.NODE_ENV === 'production'
-    ? `${serialized}; upgrade-insecure-requests`
-    : serialized;
 }

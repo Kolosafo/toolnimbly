@@ -66,7 +66,7 @@ export const compoundInterestCalculatorContent: ToolContent = {
     {
       question: 'Does compounding frequency make much difference?',
       answer:
-        'Less than people expect at ordinary rates. Moving 10,000 at 5% for ten years from annual to daily compounding adds roughly 120 — about 0.7%. Rate and time matter far more than frequency.',
+        'Less than people expect at ordinary rates. Taking 10,000 at 5% for ten years, annual compounding ends at 16,288.95 and daily compounding at 16,486.65 — a difference of 197.70, or about 1.2%. Most of that gain arrives by the time you reach monthly compounding, which lands at 16,470.09. Rate and time matter far more than frequency.',
     },
     {
       question: 'Should contributions be at the beginning or the end of the period?',

@@ -37,10 +37,28 @@ remaining risks and their mitigations:
 
 ## Content Security Policy
 
-A nonce-based CSP is applied per request by `proxy.ts`. Production carries no
-`unsafe-eval`. `wasm-unsafe-eval` is present because pdf.js compiles WebAssembly
-for image decoding; it permits WebAssembly compilation only. `worker-src blob:`
-is required for the image and PDF workers.
+The CSP is applied by `next.config.ts` and is static-compatible: it carries no
+nonce, because every page is prerendered at build time and a nonce must vary per
+request. See [ADR 0006](docs/adr/0006-csp-without-nonce.md) for why, including
+the production outage this caused when it was first implemented as a nonce
+policy.
+
+What the policy enforces:
+
+- `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'` — no third-party script
+  can execute. `wasm-unsafe-eval` is required by pdf.js for WebAssembly image
+  decoding and permits compilation only. There is no `unsafe-eval` in
+  production.
+- `connect-src 'self'` — no request to another origin is possible. This is what
+  makes the local-processing promise enforceable by the browser and not only by
+  our code.
+- `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`,
+  `form-action 'self'`, `worker-src blob:` for the image and PDF workers.
+
+`'unsafe-inline'` for scripts is a real, accepted limitation. It is mitigated by
+there being no injection path: `react/no-danger` is enforced repo-wide, all user
+text renders as text nodes, and there is no server-rendered user content, no
+database and no user-generated content.
 
 ## Cryptography
 

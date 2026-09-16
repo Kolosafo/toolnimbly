@@ -50,7 +50,7 @@ export const bmiCalculatorContent: ToolContent = {
     'It says nothing about where fat is carried, and abdominal fat carries different health associations than fat elsewhere.',
     'The standard thresholds were derived largely from European-ancestry populations. Several health bodies apply lower cut-offs for people of South Asian and some East Asian ancestry.',
     'BMI is not meaningful during pregnancy, and it is a poor guide in older adults, where muscle loss can mask changes in body composition.',
-    'For anyone under 20, adult categories are not applied at all. The calculator reports the number and explains why the category is withheld.',
+    'For anyone under 20, adult categories are not applied at all. The calculator reports the BMI figure and explains why both the category and the healthy weight range are withheld — that range is derived from the adult band, so showing it would deliver the same classification by another route.',
   ],
   privacyNote:
     'Height, weight and age are sensitive health data. They stay in this page, are never transmitted, and are never included in any analytics event — not even in aggregate.',
@@ -75,7 +75,7 @@ export const bmiCalculatorContent: ToolContent = {
     {
       question: 'Why does the calculator refuse to categorise someone under 20?',
       answer:
-        'Because children and adolescents are still growing, and a healthy BMI changes substantially with age and differs between sexes. Paediatric assessment uses percentile charts rather than fixed thresholds, so applying the adult bands would be misleading.',
+        'Because children and adolescents are still growing, and a healthy BMI changes substantially with age and differs between sexes. Paediatric assessment uses percentile charts rather than fixed thresholds, so applying the adult bands would be misleading. For the same reason the healthy weight range is withheld below 20 as well, since it is calculated from those adult thresholds.',
     },
     {
       question: 'My BMI says overweight but I train regularly. What does that mean?',
