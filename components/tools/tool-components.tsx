@@ -66,7 +66,32 @@ const toolComponents: Record<string, ComponentType<ToolComponentProps>> = {
     { loading },
   ),
 
-  // Phase 3 — text and developer tools
+  // --- Phase 3: text and developer tools -----------------------------------
+  'qr-code-generator': dynamic(
+    () => import('@/components/tools/text/qr-code-generator').then((m) => m.QrCodeGenerator),
+    { loading },
+  ),
+  'password-generator': dynamic(
+    () => import('@/components/tools/text/password-generator').then((m) => m.PasswordGenerator),
+    { loading },
+  ),
+  'uuid-generator': dynamic(
+    () => import('@/components/tools/text/uuid-generator').then((m) => m.UuidGenerator),
+    { loading },
+  ),
+  'word-counter': dynamic(
+    () => import('@/components/tools/text/word-counter').then((m) => m.WordCounter),
+    { loading },
+  ),
+  'character-counter': dynamic(
+    () => import('@/components/tools/text/character-counter').then((m) => m.CharacterCounter),
+    { loading },
+  ),
+  'case-converter': dynamic(
+    () => import('@/components/tools/text/case-converter').then((m) => m.CaseConverter),
+    { loading },
+  ),
+
   // Phase 4 — image tools
   // Phase 5 — PDF tools
   // Phase 6 — business document generators

@@ -41,8 +41,8 @@ export const passwordGeneratorContent: ToolContent = {
     body: 'Every character is chosen with crypto.getRandomValues. Naively taking a random byte modulo the alphabet size would make the first few characters slightly more likely, so values that would introduce that bias are discarded and redrawn.',
     formulas: [
       'entropy (bits) = length × log₂(alphabet size)',
-      'lowercase 26 · uppercase 26 · digits 10 · symbols 30',
-      'all four sets: 92 characters → about 6.52 bits per character',
+      'lowercase 26 · uppercase 26 · digits 10 · symbols 27',
+      'all four sets: 89 characters → about 6.48 bits per character',
     ],
     notes: [
       'Math.random is never used. It is not a cryptographic generator and is unsuitable for anything that has to stay secret.',

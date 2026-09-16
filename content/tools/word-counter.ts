@@ -43,7 +43,7 @@ export const wordCounterContent: ToolContent = {
     notes: [
       'Unicode-aware segmentation is what makes the count correct for languages that do not put spaces between words.',
       'Where Intl.Segmenter is unavailable, the tool falls back to a documented regular-expression split and says so, because that fallback is less accurate for those scripts.',
-      'Hyphenated compounds such as "well-known" count as one word; an em dash between words does not join them.',
+      'Unicode segmentation breaks on a hyphen, so "well-known" counts as two words. Most word processors count it as one, which is the usual reason a figure here differs slightly from Word or Google Docs.',
     ],
   },
   limitations: [
@@ -51,6 +51,7 @@ export const wordCounterContent: ToolContent = {
     'Sentence detection is rule-based. Abbreviations such as "e.g." and decimal points inside numbers can occasionally be read as sentence endings.',
     'The stop-word list is small and English-only. Keyword frequency for other languages will include common function words.',
     'Keyword counts are literal string frequencies. There is no stemming, so "run" and "running" count separately.',
+    'Hyphenated compounds count as two words, following the Unicode rules. Word processors usually count them as one, so a hyphen-heavy document will read slightly longer here than in Word.',
     'Very large documents are debounced to keep typing responsive, so the counts may lag a keystroke or two behind.',
   ],
   privacyNote:
@@ -59,7 +60,7 @@ export const wordCounterContent: ToolContent = {
     {
       question: 'How is a word defined here?',
       answer:
-        'As a word-like segment under Unicode segmentation rules rather than as anything between two spaces. That distinction matters: it is what lets the tool count Japanese or Thai correctly, and it is why a hyphenated compound counts as one word.',
+        'As a word-like segment under Unicode segmentation rules rather than as anything between two spaces. That is what lets the tool count Japanese, Chinese and Thai correctly, where there are no spaces to split on. The same rules break on a hyphen, so "well-known" counts as two words here and as one in most word processors.',
     },
     {
       question: 'How accurate is the reading time?',
