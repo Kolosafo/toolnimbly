@@ -49,6 +49,12 @@ const config = [
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },
+  {
+    // Standalone Node scripts, run by hand rather than bundled. Printing what
+    // they produced is the point.
+    files: ['tests/fixtures/**/*.mjs', 'scripts/**/*.mjs'],
+    rules: { 'no-console': 'off' },
+  },
 ];
 
 export default config;

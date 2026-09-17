@@ -55,11 +55,14 @@ export function ToolPageLayout({
         </div>
       ) : null}
 
-      {/* 4 & 5. Interactive tool and its result region */}
-      <div className="mt-6">
+      {/* 4 & 5. Interactive tool and its result region.
+          The panel is a labelled landmark so screen-reader and keyboard users
+          can jump straight to the working part of the page, past the
+          explanatory content that follows it. */}
+      <section aria-label={`${tool.name} tool`} className="mt-6">
         <ToolPanel tool={tool} />
         {content.resultDisclaimer ? <ResultDisclaimer text={content.resultDisclaimer} /> : null}
-      </div>
+      </section>
 
       <AdSlot placement="below-result" />
 

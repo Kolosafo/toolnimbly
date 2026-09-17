@@ -92,7 +92,36 @@ const toolComponents: Record<string, ComponentType<ToolComponentProps>> = {
     { loading },
   ),
 
-  // Phase 4 — image tools
+  // --- Phase 4: image tools ------------------------------------------------
+  'image-compressor': dynamic(
+    () => import('@/components/tools/images/batch-tools').then((m) => m.ImageCompressor),
+    { loading },
+  ),
+  'jpg-compressor': dynamic(
+    () => import('@/components/tools/images/batch-tools').then((m) => m.JpgCompressor),
+    { loading },
+  ),
+  'png-compressor': dynamic(
+    () => import('@/components/tools/images/batch-tools').then((m) => m.PngCompressor),
+    { loading },
+  ),
+  'jpg-to-png': dynamic(
+    () => import('@/components/tools/images/batch-tools').then((m) => m.JpgToPng),
+    { loading },
+  ),
+  'png-to-jpg': dynamic(
+    () => import('@/components/tools/images/batch-tools').then((m) => m.PngToJpg),
+    { loading },
+  ),
+  'image-resizer': dynamic(
+    () => import('@/components/tools/images/image-resizer').then((m) => m.ImageResizer),
+    { loading },
+  ),
+  'image-cropper': dynamic(
+    () => import('@/components/tools/images/image-cropper').then((m) => m.ImageCropper),
+    { loading },
+  ),
+
   // Phase 5 — PDF tools
   // Phase 6 — business document generators
 };

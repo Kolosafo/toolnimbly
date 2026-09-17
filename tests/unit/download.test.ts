@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { escapeCsvField, toCsv } from '@/lib/download/csv';
 import { buildFilename, DOWNLOAD_TYPES, padIndex, sanitizeFilename } from '@/lib/download/file';
+import { FORMAT_DOWNLOAD_KINDS } from '@/lib/image/codec';
 
 describe('filename sanitation', () => {
   it('strips path separators so a name cannot escape the download folder', () => {
@@ -67,6 +68,20 @@ describe('filename construction', () => {
       expect(mime.length, kind).toBeGreaterThan(0);
       expect(buildFilename('file', kind as keyof typeof DOWNLOAD_TYPES)).toBe(`file.${extension}`);
     }
+  });
+
+  it('maps every image output format to a real download kind', () => {
+    // Regression: FORMAT_EXTENSIONS maps image/jpeg to "jpg", which is not a
+    // key of DOWNLOAD_TYPES. Passing it through a cast produced an undefined
+    // lookup that crashed every JPEG and WebP export at runtime.
+    for (const [mime, kind] of Object.entries(FORMAT_DOWNLOAD_KINDS)) {
+      expect(DOWNLOAD_TYPES[kind], `${mime} → ${kind}`).toBeDefined();
+      expect(buildFilename('photo', kind)).toMatch(/^photo\.(jpg|png|webp)$/);
+    }
+
+    expect(buildFilename('photo', FORMAT_DOWNLOAD_KINDS['image/jpeg'])).toBe('photo.jpg');
+    expect(buildFilename('photo', FORMAT_DOWNLOAD_KINDS['image/png'])).toBe('photo.png');
+    expect(buildFilename('photo', FORMAT_DOWNLOAD_KINDS['image/webp'])).toBe('photo.webp');
   });
 
   it('zero-pads indices so they sort correctly', () => {
