@@ -122,7 +122,32 @@ const toolComponents: Record<string, ComponentType<ToolComponentProps>> = {
     { loading },
   ),
 
-  // Phase 5 — PDF tools
+  // --- Phase 5: PDF tools --------------------------------------------------
+  'image-to-pdf': dynamic(
+    () => import('@/components/tools/pdf/image-to-pdf').then((m) => m.ImageToPdf),
+    { loading },
+  ),
+  'jpg-to-pdf': dynamic(
+    () => import('@/components/tools/pdf/image-to-pdf').then((m) => m.JpgToPdf),
+    { loading },
+  ),
+  'pdf-to-jpg': dynamic(
+    () => import('@/components/tools/pdf/pdf-to-jpg').then((m) => m.PdfToJpg),
+    { loading },
+  ),
+  'pdf-compressor': dynamic(
+    () => import('@/components/tools/pdf/pdf-compressor').then((m) => m.PdfCompressor),
+    { loading },
+  ),
+  'pdf-merger': dynamic(
+    () => import('@/components/tools/pdf/pdf-merger').then((m) => m.PdfMerger),
+    { loading },
+  ),
+  'pdf-splitter': dynamic(
+    () => import('@/components/tools/pdf/pdf-splitter').then((m) => m.PdfSplitter),
+    { loading },
+  ),
+
   // Phase 6 — business document generators
 };
 

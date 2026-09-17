@@ -2,7 +2,7 @@
   "name": "toolnimbly",
   "version": "0.1.0",
   "private": true,
-  "description": "ToolNimbly — fast, privacy-respecting browser utilities. All processing stays on the device.",
+  "description": "ToolNimbly \u2014 fast, privacy-respecting browser utilities. All processing stays on the device.",
   "engines": {
     "node": ">=22.11.0",
     "pnpm": ">=10"
@@ -23,7 +23,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "analyze": "ANALYZE=true next build",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "prepare:pdfjs": "node scripts/copy-pdfjs-assets.mjs",
+    "predev": "node scripts/copy-pdfjs-assets.mjs",
+    "prebuild": "node scripts/copy-pdfjs-assets.mjs"
   },
   "dependencies": {
     "big.js": "^7.0.1",

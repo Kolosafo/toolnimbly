@@ -16,6 +16,8 @@ const config = [
       'playwright-report/**',
       'test-results/**',
       'next-env.d.ts',
+      // Third-party runtime assets copied in by scripts/copy-pdfjs-assets.mjs.
+      'public/pdfjs/**',
     ],
   },
   ...nextCoreWebVitals,
