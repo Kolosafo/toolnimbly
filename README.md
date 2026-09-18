@@ -241,6 +241,24 @@ URL alive until the click is processed.
 
 ---
 
+## Auditing the tools
+
+`.claude/agents/tool-auditor.md` defines an exploratory QA agent. It drives the
+real tools in a real browser, checks each page's published worked example
+against what the tool actually does, probes edge cases and error states, and
+reports defects. It does not edit source.
+
+```bash
+pnpm build && pnpm start --port 3200      # give it something to test
+```
+
+Then ask Claude Code to audit the tools; it will use the agent. Shard by
+category for depth — calculators, text and image, PDF and business.
+
+The agent exists because the automated suite only checks what its author
+thought to check. An exploratory pass finds the awkward input, the second
+click, and the claim on the page that nobody verified.
+
 ## Documentation
 
 - `CONTRIBUTING.md` — coding, testing and content standards
