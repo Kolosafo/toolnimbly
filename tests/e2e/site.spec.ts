@@ -4,6 +4,7 @@ import { expect, test } from '@playwright/test';
  * Site-wide smoke coverage (spec §10.5, item 8).
  */
 
+/** All 30 canonical tool routes. */
 const TOOL_SLUGS = [
   'percentage-calculator',
   'loan-calculator',
@@ -14,6 +15,27 @@ const TOOL_SLUGS = [
   'date-difference-calculator',
   'bmi-calculator',
   'calorie-calculator',
+  'qr-code-generator',
+  'password-generator',
+  'uuid-generator',
+  'word-counter',
+  'character-counter',
+  'case-converter',
+  'image-compressor',
+  'jpg-compressor',
+  'png-compressor',
+  'image-resizer',
+  'image-cropper',
+  'jpg-to-png',
+  'png-to-jpg',
+  'image-to-pdf',
+  'pdf-to-jpg',
+  'jpg-to-pdf',
+  'pdf-compressor',
+  'pdf-merger',
+  'pdf-splitter',
+  'invoice-generator',
+  'receipt-generator',
 ];
 
 test.describe('routing and metadata', () => {
@@ -136,15 +158,41 @@ test.describe('site shell', () => {
     await expect(skipLink).toBeFocused();
   });
 
-  test('there is no horizontal overflow at 320 CSS pixels', async ({ page }) => {
+  test('there is no horizontal overflow at 320 CSS pixels on any route', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 720 });
 
-    for (const path of ['/', '/calculators', '/tools/loan-calculator', '/tools/invoice-generator']) {
+    // Every indexable route, not a sample. The business tools each overflowed
+    // by 8px because a grid item defaults to min-width:auto and the widest
+    // control set the column minimum — a sample of four routes had missed it.
+    const routes = [
+      '/',
+      '/about',
+      '/privacy',
+      '/terms',
+      '/contact',
+      '/calculators',
+      '/text-developer-tools',
+      '/image-tools',
+      '/pdf-tools',
+      '/business-tools',
+      ...TOOL_SLUGS.map((slug) => `/tools/${slug}`),
+    ];
+
+    const overflowing: string[] = [];
+
+    for (const path of routes) {
       await page.goto(path);
-      const overflows = await page.evaluate(
-        () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-      );
-      expect(overflows, `${path} overflows horizontally at 320px`).toBe(false);
+      // Let the lazily imported tool panel mount before measuring.
+      await page.waitForLoadState('networkidle');
+
+      const overflow = await page.evaluate(() => {
+        const root = document.documentElement;
+        return root.scrollWidth - root.clientWidth;
+      });
+
+      if (overflow > 1) overflowing.push(`${path} (+${overflow}px)`);
     }
+
+    expect(overflowing, 'routes overflow horizontally at 320px').toEqual([]);
   });
 });

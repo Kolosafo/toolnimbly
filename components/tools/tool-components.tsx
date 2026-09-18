@@ -148,7 +148,15 @@ const toolComponents: Record<string, ComponentType<ToolComponentProps>> = {
     { loading },
   ),
 
-  // Phase 6 — business document generators
+  // --- Phase 6: business document generators -------------------------------
+  'invoice-generator': dynamic(
+    () => import('@/components/tools/business/generators').then((m) => m.InvoiceGenerator),
+    { loading },
+  ),
+  'receipt-generator': dynamic(
+    () => import('@/components/tools/business/generators').then((m) => m.ReceiptGenerator),
+    { loading },
+  ),
 };
 
 export function getToolComponent(componentKey: string): ComponentType<ToolComponentProps> | null {

@@ -34,6 +34,7 @@ export function ToolPageLayout({
   return (
     <Container as="div" className="py-6 sm:py-8">
       {/* 1. Breadcrumbs */}
+      <div className="print:hidden">
       <Breadcrumbs
         entries={[
           { name: 'Home', path: '/' },
@@ -47,6 +48,7 @@ export function ToolPageLayout({
         <h1 className="text-3xl font-bold sm:text-4xl">{tool.name}</h1>
         <p className="measure mt-3 text-lg text-muted">{content.valueProposition}</p>
       </header>
+      </div>
 
       {/* 3. Privacy badge */}
       {tool.localProcessing ? (
@@ -66,8 +68,10 @@ export function ToolPageLayout({
 
       <AdSlot placement="below-result" />
 
-      {/* 6–9. Instructions, example, method, limitations */}
-      <div className="mt-12 space-y-12">
+      {/* 6–9. Instructions, example, method, limitations.
+          Hidden when printing: a printed invoice should be the document, not
+          the page that generated it. */}
+      <div className="mt-12 space-y-12 print:hidden">
         <HowToSteps steps={content.steps} toolName={tool.name.toLowerCase()} />
         <WorkedExample example={content.example} />
         {content.method ? <FormulaBlock method={content.method} /> : null}
@@ -85,6 +89,7 @@ export function ToolPageLayout({
       </div>
 
       {/* 11. Curated related tools */}
+      <div className="print:hidden">
       <RelatedTools
         tools={related}
         description={`Other tools people use alongside the ${tool.name.toLowerCase()}.`}
@@ -106,6 +111,7 @@ export function ToolPageLayout({
         </time>
         .
       </p>
+      </div>
     </Container>
   );
 }

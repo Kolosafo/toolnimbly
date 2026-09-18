@@ -360,3 +360,65 @@
     outline: 2px solid CanvasText;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Print (spec §6.29, §6.30)
+
+   Printing a tool page prints the document, not the interface. Everything
+   outside the preview is hidden, the preview is unwrapped from its scroll
+   container, and colours are forced to plain black on white so a document does
+   not depend on background graphics being enabled.
+--------------------------------------------------------------------------- */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  /* The site chrome and the editor are not part of the document. */
+  body > header,
+  body > footer,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    /* Printing must never depend on the viewer's theme. */
+    color-scheme: light;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  /* Lift the document out of the editor's two-column grid. */
+  [data-document-preview] {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  /* A row or a totals block should not be split across a page break. */
+  [data-document-preview] tr,
+  [data-document-preview] dl > div,
+  [data-document-preview] section {
+    break-inside: avoid;
+  }
+
+  [data-document-preview] thead {
+    display: table-header-group;
+  }
+
+  /* Underlining every link would litter a printed invoice. */
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+}
