@@ -23,7 +23,7 @@ export function SiteHeader() {
         <div className="flex min-h-16 items-center gap-3">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2 text-base font-semibold tracking-tight"
+            className="flex min-h-11 shrink-0 items-center gap-2 text-base font-semibold tracking-tight"
           >
             <span
               aria-hidden="true"

@@ -99,7 +99,7 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
       // Simple focus trap: the dialog holds only the input and the close
       // button, so keeping focus on the input is both correct and predictable.
       const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(
-        'input, button:not([disabled])',
+        'input, button:not([disabled]), [tabindex="0"]',
       );
       if (!focusables || focusables.length === 0) return;
       const first = focusables[0];
@@ -192,7 +192,9 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
             : 'Type to search tools'}
         </p>
 
-        <div className="max-h-[60vh] overflow-y-auto">
+        {/* tabIndex makes the scrollable results reachable by keyboard for
+            anyone who cannot use the arrow keys to scroll it. */}
+        <div tabIndex={0} className="max-h-[60vh] overflow-y-auto">
           {query.trim() === '' ? (
             <p className="px-4 py-6 text-sm text-muted">
               Start typing to find a calculator, converter or generator.
@@ -216,14 +218,15 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
                       const index = results.indexOf(entry);
                       const active = index === activeIndex;
                       return (
-                        <li
-                          key={entry.slug}
-                          id={`${listboxId}-option-${index}`}
-                          role="option"
-                          aria-selected={active}
-                        >
+                        <li key={entry.slug} role="presentation">
+                          {/* role="option" sits on the link, not on a wrapping
+                              <li>. An option must not contain an interactive
+                              element — axe flags that as nested-interactive. */}
                           <Link
                             href={`/tools/${entry.slug}`}
+                            id={`${listboxId}-option-${index}`}
+                            role="option"
+                            aria-selected={active}
                             onClick={onClose}
                             onMouseEnter={() => setActiveIndex(index)}
                             tabIndex={-1}

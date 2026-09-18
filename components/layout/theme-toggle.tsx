@@ -82,7 +82,7 @@ export function ThemeToggle() {
             aria-pressed={active}
             title={`${label} theme`}
             className={cn(
-              'inline-flex size-9 items-center justify-center rounded-full transition-colors',
+              'inline-flex size-11 items-center justify-center rounded-full transition-colors',
               active ? 'bg-brand text-brand-contrast' : 'text-muted hover:text-foreground',
             )}
           >

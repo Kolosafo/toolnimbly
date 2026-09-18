@@ -46,7 +46,10 @@ export function SiteFooter() {
             .map((category) => (
               <nav key={category.slug} aria-labelledby={`footer-${category.slug}`}>
                 <h2 id={`footer-${category.slug}`} className="text-sm font-semibold">
-                  <Link href={`/${category.slug}`} className="hover:text-brand">
+                  <Link
+                    href={`/${category.slug}`}
+                    className="inline-flex min-h-11 items-center hover:text-brand"
+                  >
                     {category.name}
                   </Link>
                 </h2>
@@ -74,7 +77,10 @@ export function SiteFooter() {
             .map((category) => (
               <nav key={category.slug} aria-labelledby={`footer-${category.slug}`}>
                 <h2 id={`footer-${category.slug}`} className="text-sm font-semibold">
-                  <Link href={`/${category.slug}`} className="hover:text-brand">
+                  <Link
+                    href={`/${category.slug}`}
+                    className="inline-flex min-h-11 items-center hover:text-brand"
+                  >
                     {category.name}
                   </Link>
                 </h2>

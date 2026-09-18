@@ -60,7 +60,10 @@
   --background: var(--tn-neutral-50);
   --foreground: var(--tn-neutral-900);
   --muted: var(--tn-neutral-600);
-  --subtle: var(--tn-neutral-500);
+  /* Measured, not guessed: neutral-500 gives only 3.74:1 against the sunken
+     surface, below the 4.5:1 floor. Light and dark need opposite directions,
+     so this cannot come from a single ramp step. */
+  --subtle: oklch(52% 0.014 250);
   --surface: var(--tn-neutral-0);
   --surface-raised: var(--tn-neutral-0);
   --surface-sunken: var(--tn-neutral-100);
@@ -112,7 +115,7 @@
     --background: var(--tn-neutral-950);
     --foreground: oklch(96% 0.004 250);
     --muted: var(--tn-neutral-400);
-    --subtle: var(--tn-neutral-500);
+    --subtle: oklch(64% 0.014 250);
     --surface: var(--tn-neutral-900);
     --surface-raised: oklch(22.5% 0.012 250);
     --surface-sunken: oklch(17% 0.011 250);
@@ -152,7 +155,7 @@
   --background: var(--tn-neutral-950);
   --foreground: oklch(96% 0.004 250);
   --muted: var(--tn-neutral-400);
-  --subtle: var(--tn-neutral-500);
+  --subtle: oklch(64% 0.014 250);
   --surface: var(--tn-neutral-900);
   --surface-raised: oklch(22.5% 0.012 250);
   --surface-sunken: oklch(17% 0.011 250);
