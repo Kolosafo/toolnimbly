@@ -8,9 +8,19 @@ export function FormulaBlock({ method }: { method: ContentMethod }) {
       </h2>
       <p className="measure mt-3 text-sm text-muted">{method.body}</p>
 
+      {/* The scroll container carries tabIndex so it can be scrolled by
+          keyboard when the formulas are wider than the viewport, which they are
+          on a phone. w-full gives it a definite width: without that WebKit
+          sizes it to the <pre>'s content, because `min-width: 0` does not
+          shrink a block with `white-space: pre` there, and the page widens. */}
       {method.formulas && method.formulas.length > 0 ? (
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border-default bg-surface-sunken">
-          <pre className="p-4 font-mono text-sm leading-relaxed whitespace-pre">
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label={`${method.title} formulas`}
+          className="mt-4 w-full max-w-full overflow-x-auto rounded-lg border border-border-default bg-surface-sunken"
+        >
+          <pre className="min-w-0 p-4 font-mono text-sm leading-relaxed whitespace-pre">
             <code>{method.formulas.join('\n')}</code>
           </pre>
         </div>

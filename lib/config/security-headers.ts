@@ -6,6 +6,8 @@
  * See ADR 0006 for the full reasoning and the compensating controls.
  */
 
+import { siteUrl } from './site';
+
 export type HeaderEntry = { key: string; value: string };
 
 /**
@@ -60,7 +62,17 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
     .map(([key, value]) => `${key} ${value}`)
     .join('; ');
 
-  return isDev ? serialized : `${serialized}; upgrade-insecure-requests`;
+  /*
+   * `upgrade-insecure-requests` only makes sense when the canonical origin is
+   * actually HTTPS. Emitting it unconditionally breaks any plain-HTTP
+   * deployment — including a self-hosted one behind a TLS-terminating proxy
+   * that is addressed over HTTP, and the local production server the
+   * cross-browser tests run against, where WebKit dutifully upgraded every
+   * asset request and the page never loaded.
+   */
+  const upgradeInsecure = !isDev && siteUrl.startsWith('https://');
+
+  return upgradeInsecure ? `${serialized}; upgrade-insecure-requests` : serialized;
 }
 
 /**

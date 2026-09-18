@@ -108,7 +108,14 @@ export function ResultRow({
         {label}
         {hint ? <span className="mt-0.5 block text-xs text-subtle">{hint}</span> : null}
       </dt>
-      <dd className={cn('tabular text-sm', emphasis ? 'font-semibold' : 'font-medium')}>{value}</dd>
+      <dd
+        className={cn(
+          'tabular text-sm [overflow-wrap:anywhere]',
+          emphasis ? 'font-semibold' : 'font-medium',
+        )}
+      >
+        {value}
+      </dd>
     </div>
   );
 }

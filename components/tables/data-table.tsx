@@ -60,7 +60,14 @@ export function DataTable<Row>({
         ) : null}
       </div>
 
-      <div className="mt-3 overflow-x-auto rounded-lg border border-border-default">
+      {/* Keyboard-scrollable: on a narrow screen this is the only way to reach
+          the columns that are off-screen. */}
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label={caption}
+        className="mt-3 w-full max-w-full overflow-x-auto rounded-lg border border-border-default"
+      >
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">{caption}</caption>
           <thead className="bg-surface-sunken">

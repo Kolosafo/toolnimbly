@@ -1,6 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
+import { fillAndConfirm } from './helpers';
+
 /**
  * Automated accessibility scans (spec §10.6).
  *
@@ -86,7 +88,7 @@ test.describe('accessibility', () => {
 
   test('a validation error state is accessible', async ({ page }) => {
     await page.goto('/tools/loan-calculator');
-    await page.getByLabel('Loan amount').fill('0');
+    await fillAndConfirm(page.getByLabel('Loan amount'), '0');
     await expect(
       page.getByRole('region', { name: 'Loan result' }).getByRole('alert'),
     ).toBeVisible();
@@ -103,10 +105,16 @@ test.describe('accessibility', () => {
       await page.goto(path);
       await page.waitForLoadState('networkidle');
 
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      );
-      expect(overflow, `${path} overflows at 200% zoom`).toBeLessThanOrEqual(1);
+      // Measured as forced sideways scrolling rather than scrollWidth, which
+      // is not comparable across browsers — see the 320px test in site.spec.ts.
+      const scrollsSideways = await page.evaluate(() => {
+        const before = window.scrollX;
+        window.scrollTo(400, 0);
+        const moved = window.scrollX > before;
+        window.scrollTo(0, 0);
+        return moved;
+      });
+      expect(scrollsSideways, `${path} scrolls sideways at 200% zoom`).toBe(false);
 
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     }

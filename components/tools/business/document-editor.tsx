@@ -599,8 +599,11 @@ export function DocumentEditor({ kind }: { kind: 'invoice' | 'receipt' }) {
             ) : null}
 
             <div
+              tabIndex={0}
+              role="region"
+              aria-label="Document preview"
               className={cn(
-                'overflow-x-auto rounded-lg border border-border-default bg-white',
+                'w-full max-w-full overflow-x-auto rounded-lg border border-border-default bg-white',
                 'print:border-0 print:shadow-none',
               )}
             >

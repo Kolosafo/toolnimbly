@@ -2,6 +2,8 @@ import { join } from 'node:path';
 
 import { expect, test, type Page } from '@playwright/test';
 
+import { gotoTool } from './helpers';
+
 /**
  * PDF tool journeys (spec §10.5 item 5, §10.4 file fixtures).
  *
@@ -26,7 +28,7 @@ function tool(page: Page, name: string) {
 
 test.describe('PDF merger', () => {
   test('merges two documents and reports the page count', async ({ page }) => {
-    await page.goto('/tools/pdf-merger');
+    await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'three-page.pdf', 'two-page.pdf');
 
     const result = page.getByRole('region', { name: 'Merge result' });
@@ -41,7 +43,7 @@ test.describe('PDF merger', () => {
   });
 
   test('reorders files with the keyboard-accessible controls', async ({ page }) => {
-    await page.goto('/tools/pdf-merger');
+    await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'three-page.pdf', 'two-page.pdf');
 
     const panel = tool(page, 'PDF Merger');
@@ -58,7 +60,7 @@ test.describe('PDF merger', () => {
   });
 
   test('refuses an encrypted PDF, naming the file', async ({ page }) => {
-    await page.goto('/tools/pdf-merger');
+    await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'three-page.pdf', 'encrypted.pdf');
 
     const alert = tool(page, 'PDF Merger').getByRole('alert');
@@ -70,7 +72,7 @@ test.describe('PDF merger', () => {
   });
 
   test('fails cleanly on a corrupt PDF', async ({ page }) => {
-    await page.goto('/tools/pdf-merger');
+    await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'truncated.pdf');
 
     await expect(tool(page, 'PDF Merger').getByRole('alert')).toContainText(
@@ -80,7 +82,7 @@ test.describe('PDF merger', () => {
   });
 
   test('requires at least two files before merging', async ({ page }) => {
-    await page.goto('/tools/pdf-merger');
+    await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'three-page.pdf');
 
     await expect(page.getByRole('button', { name: 'Merge PDFs' })).toBeDisabled();
@@ -90,7 +92,7 @@ test.describe('PDF merger', () => {
 
 test.describe('PDF splitter', () => {
   test('previews what each mode will produce', async ({ page }) => {
-    await page.goto('/tools/pdf-splitter');
+    await gotoTool(page, '/tools/pdf-splitter');
     await addPdfs(page, 'ten-page.pdf');
 
     const result = page.getByRole('region', { name: 'Split result' });
@@ -107,7 +109,7 @@ test.describe('PDF splitter', () => {
   });
 
   test('extracts a page range and downloads it', async ({ page }) => {
-    await page.goto('/tools/pdf-splitter');
+    await gotoTool(page, '/tools/pdf-splitter');
     await addPdfs(page, 'ten-page.pdf');
 
     await page.getByLabel('Pages to keep').fill('2-4');
@@ -122,7 +124,7 @@ test.describe('PDF splitter', () => {
   });
 
   test('zips multiple outputs with zero-padded names', async ({ page }) => {
-    await page.goto('/tools/pdf-splitter');
+    await gotoTool(page, '/tools/pdf-splitter');
     await addPdfs(page, 'ten-page.pdf');
 
     await page.getByRole('radio', { name: 'Every page separately' }).check();
@@ -139,7 +141,7 @@ test.describe('PDF splitter', () => {
   });
 
   test('removes pages and keeps the remainder', async ({ page }) => {
-    await page.goto('/tools/pdf-splitter');
+    await gotoTool(page, '/tools/pdf-splitter');
     await addPdfs(page, 'ten-page.pdf');
 
     await page.getByRole('radio', { name: 'Remove pages' }).check();
@@ -151,7 +153,7 @@ test.describe('PDF splitter', () => {
   });
 
   test('explains an out-of-range page rather than ignoring it', async ({ page }) => {
-    await page.goto('/tools/pdf-splitter');
+    await gotoTool(page, '/tools/pdf-splitter');
     await addPdfs(page, 'three-page.pdf');
 
     await page.getByLabel('Pages to keep').fill('1-3, 15');
@@ -159,7 +161,7 @@ test.describe('PDF splitter', () => {
   });
 
   test('explains an invalid token', async ({ page }) => {
-    await page.goto('/tools/pdf-splitter');
+    await gotoTool(page, '/tools/pdf-splitter');
     await addPdfs(page, 'three-page.pdf');
 
     await page.getByLabel('Pages to keep').fill('1, abc');
@@ -169,7 +171,7 @@ test.describe('PDF splitter', () => {
 
 test.describe('image to PDF', () => {
   test('builds a PDF with one page per image', async ({ page }) => {
-    await page.goto('/tools/image-to-pdf');
+    await gotoTool(page, '/tools/image-to-pdf');
     await addImages(page, 'gradient-64x32.png', 'tall-20x100.png');
 
     const result = page.getByRole('region', { name: 'PDF result' });
@@ -183,7 +185,7 @@ test.describe('image to PDF', () => {
   });
 
   test('warns before cover mode crops content', async ({ page }) => {
-    await page.goto('/tools/image-to-pdf');
+    await gotoTool(page, '/tools/image-to-pdf');
     await addImages(page, 'wide-100x20.png');
 
     await page.getByLabel('Image fit').selectOption('cover');
@@ -191,7 +193,7 @@ test.describe('image to PDF', () => {
   });
 
   test('reorders images before assembly', async ({ page }) => {
-    await page.goto('/tools/image-to-pdf');
+    await gotoTool(page, '/tools/image-to-pdf');
     await addImages(page, 'gradient-64x32.png', 'wide-100x20.png');
 
     const panel = tool(page, 'Image to PDF Converter');
@@ -208,7 +210,7 @@ test.describe('image to PDF', () => {
   });
 
   test('the JPG route refuses a PNG', async ({ page }) => {
-    await page.goto('/tools/jpg-to-pdf');
+    await gotoTool(page, '/tools/jpg-to-pdf');
     await addImages(page, 'gradient-64x32.png');
 
     const alert = tool(page, 'JPG to PDF Converter').getByRole('alert');
@@ -219,7 +221,7 @@ test.describe('image to PDF', () => {
 
 test.describe('PDF to JPG', () => {
   test('renders selected pages and offers a ZIP', async ({ page }) => {
-    await page.goto('/tools/pdf-to-jpg');
+    await gotoTool(page, '/tools/pdf-to-jpg');
     await addPdfs(page, 'three-page.pdf');
 
     // Scoped to the panel: the editorial section "How pages are rendered" is
@@ -238,7 +240,7 @@ test.describe('PDF to JPG', () => {
   });
 
   test('names files with zero-padded page numbers', async ({ page }) => {
-    await page.goto('/tools/pdf-to-jpg');
+    await gotoTool(page, '/tools/pdf-to-jpg');
     await addPdfs(page, 'ten-page.pdf');
 
     await tool(page, 'PDF to JPG Converter').getByLabel('Pages', { exact: true }).fill('10');
@@ -253,7 +255,7 @@ test.describe('PDF to JPG', () => {
   });
 
   test('states that text becomes pixels', async ({ page }) => {
-    await page.goto('/tools/pdf-to-jpg');
+    await gotoTool(page, '/tools/pdf-to-jpg');
     await addPdfs(page, 'three-page.pdf');
     await expect(page.getByText(/Selectable text becomes pixels/i)).toBeVisible();
   });
@@ -261,7 +263,7 @@ test.describe('PDF to JPG', () => {
 
 test.describe('PDF compressor', () => {
   test('defaults to the safe mode and explains its limits', async ({ page }) => {
-    await page.goto('/tools/pdf-compressor');
+    await gotoTool(page, '/tools/pdf-compressor');
     await addPdfs(page, 'three-page.pdf');
 
     await expect(page.getByRole('radio', { name: /Optimise structure/ })).toBeChecked();
@@ -269,7 +271,7 @@ test.describe('PDF compressor', () => {
   });
 
   test('reports the real byte change rather than claiming success', async ({ page }) => {
-    await page.goto('/tools/pdf-compressor');
+    await gotoTool(page, '/tools/pdf-compressor');
     await addPdfs(page, 'three-page.pdf');
 
     await page.getByRole('button', { name: 'Compress PDF' }).click();
@@ -284,7 +286,7 @@ test.describe('PDF compressor', () => {
   });
 
   test('warns before rasterising and lists what is lost', async ({ page }) => {
-    await page.goto('/tools/pdf-compressor');
+    await gotoTool(page, '/tools/pdf-compressor');
     await addPdfs(page, 'three-page.pdf');
 
     await page.getByRole('radio', { name: /Rasterise pages/ }).check();
@@ -293,7 +295,7 @@ test.describe('PDF compressor', () => {
   });
 
   test('rasterises and reports the trade-offs it made', async ({ page }) => {
-    await page.goto('/tools/pdf-compressor');
+    await gotoTool(page, '/tools/pdf-compressor');
     await addPdfs(page, 'three-page.pdf');
 
     await page.getByRole('radio', { name: /Rasterise pages/ }).check();
@@ -306,7 +308,7 @@ test.describe('PDF compressor', () => {
   });
 
   test('refuses an encrypted PDF', async ({ page }) => {
-    await page.goto('/tools/pdf-compressor');
+    await gotoTool(page, '/tools/pdf-compressor');
     await addPdfs(page, 'encrypted.pdf');
 
     await expect(tool(page, 'PDF Compressor').getByRole('alert')).toContainText(
@@ -329,7 +331,7 @@ test.describe('privacy', () => {
       if (post && post.length > 500) suspicious.push(`large body: ${request.url()}`);
     });
 
-    await page.goto('/tools/pdf-merger');
+    await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'three-page.pdf', 'two-page.pdf');
     await page.getByRole('button', { name: 'Merge PDFs' }).click();
     await expect(page.getByRole('button', { name: /Download merged\.pdf/ })).toBeVisible({

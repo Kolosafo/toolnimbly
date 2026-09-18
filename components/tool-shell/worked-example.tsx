@@ -15,7 +15,13 @@ export function WorkedExample({ example }: { example: ContentExample }) {
             {example.rows.map((row) => (
               <div key={row.label} className="flex flex-wrap justify-between gap-x-6 gap-y-1 py-2">
                 <dt className="text-sm text-muted">{row.label}</dt>
-                <dd className="tabular text-sm font-medium">{row.value}</dd>
+                {/* Values include unbroken tokens — a UUID, a Wi-Fi payload.
+                    `anywhere` rather than `break-word` because only `anywhere`
+                    reduces the element's min-content width, which is what stops
+                    Firefox widening the page to fit it. */}
+                <dd className="tabular text-sm font-medium [overflow-wrap:anywhere]">
+                  {row.value}
+                </dd>
               </div>
             ))}
           </dl>

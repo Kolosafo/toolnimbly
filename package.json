@@ -26,7 +26,8 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "prepare:pdfjs": "node scripts/copy-pdfjs-assets.mjs",
     "predev": "node scripts/copy-pdfjs-assets.mjs",
-    "prebuild": "node scripts/copy-pdfjs-assets.mjs"
+    "prebuild": "node scripts/copy-pdfjs-assets.mjs",
+    "check:bundles": "node scripts/check-bundles.mjs"
   },
   "dependencies": {
     "big.js": "^7.0.1",

@@ -2,6 +2,8 @@ import { join } from 'node:path';
 
 import { expect, test, type Page } from '@playwright/test';
 
+import { gotoTool } from './helpers';
+
 /**
  * Image tool journeys (spec §10.5 item 4, §10.4 file fixtures).
  *
@@ -34,7 +36,7 @@ function summary(page: Page) {
 
 test.describe('image compressor', () => {
   test('processes a batch and reports before and after sizes', async ({ page }) => {
-    await page.goto('/tools/image-compressor');
+    await gotoTool(page, '/tools/image-compressor');
 
     const panel = tool(page, 'Image Compressor');
     await addFiles(page, 'gradient-64x32.png', 'wide-100x20.png');
@@ -48,7 +50,7 @@ test.describe('image compressor', () => {
   });
 
   test('offers a ZIP once two or more files succeed', async ({ page }) => {
-    await page.goto('/tools/image-compressor');
+    await gotoTool(page, '/tools/image-compressor');
     await addFiles(page, 'gradient-64x32.png', 'wide-100x20.png');
     await page.getByRole('button', { name: 'Compress images' }).click();
     await expect(summary(page)).toContainText('2 of 2 processed', { timeout: 20_000 });
@@ -60,7 +62,7 @@ test.describe('image compressor', () => {
   });
 
   test('downloads a single processed file with the right extension', async ({ page }) => {
-    await page.goto('/tools/image-compressor');
+    await gotoTool(page, '/tools/image-compressor');
     await addFiles(page, 'gradient-64x32.png');
 
     await page.getByLabel('Output format').selectOption('image/jpeg');
@@ -74,7 +76,7 @@ test.describe('image compressor', () => {
   });
 
   test('reports honestly when the output is larger', async ({ page }) => {
-    await page.goto('/tools/image-compressor');
+    await gotoTool(page, '/tools/image-compressor');
     // A tiny flat PNG re-encoded as PNG has nowhere to shrink to.
     await addFiles(page, 'wide-100x20.png');
     await page.getByRole('button', { name: 'Compress images' }).click();
@@ -87,7 +89,7 @@ test.describe('image compressor', () => {
 
 test.describe('file validation', () => {
   test('refuses a file that is not an image, naming what it accepts', async ({ page }) => {
-    await page.goto('/tools/image-compressor');
+    await gotoTool(page, '/tools/image-compressor');
     await addFiles(page, 'not-an-image.txt');
 
     const rejection = tool(page, 'Image Compressor').getByRole('alert');
@@ -96,7 +98,7 @@ test.describe('file validation', () => {
   });
 
   test('refuses a PNG on the JPG-only compressor and says which format it is', async ({ page }) => {
-    await page.goto('/tools/jpg-compressor');
+    await gotoTool(page, '/tools/jpg-compressor');
     await addFiles(page, 'gradient-64x32.png');
 
     const rejection = tool(page, 'JPG Compressor').getByRole('alert');
@@ -105,7 +107,7 @@ test.describe('file validation', () => {
   });
 
   test('fails cleanly on a corrupt file rather than freezing', async ({ page }) => {
-    await page.goto('/tools/png-compressor');
+    await gotoTool(page, '/tools/png-compressor');
     await addFiles(page, 'corrupt.png');
 
     // Sniffing passes (valid PNG signature) so it enters the queue, then the
@@ -120,7 +122,7 @@ test.describe('file validation', () => {
   });
 
   test('removing one file leaves the rest of the queue intact', async ({ page }) => {
-    await page.goto('/tools/image-compressor');
+    await gotoTool(page, '/tools/image-compressor');
     const panel = tool(page, 'Image Compressor');
     await addFiles(page, 'gradient-64x32.png', 'wide-100x20.png', 'tall-20x100.png');
     await expect(panel.getByText('3 files')).toBeVisible();
@@ -137,7 +139,7 @@ test.describe('file validation', () => {
 
 test.describe('format conversion', () => {
   test('JPG to PNG produces a PNG and explains the size increase', async ({ page }) => {
-    await page.goto('/tools/jpg-to-png');
+    await gotoTool(page, '/tools/jpg-to-png');
     await addFiles(page, 'plain.jpg');
 
     await expect(
@@ -153,7 +155,7 @@ test.describe('format conversion', () => {
   });
 
   test('PNG to JPG exposes the matte colour and warns transparency is lost', async ({ page }) => {
-    await page.goto('/tools/png-to-jpg');
+    await gotoTool(page, '/tools/png-to-jpg');
     await addFiles(page, 'transparent-32x32.png');
 
     await expect(
@@ -166,7 +168,7 @@ test.describe('format conversion', () => {
   });
 
   test('PNG compressor states that the lossless pass may save nothing', async ({ page }) => {
-    await page.goto('/tools/png-compressor');
+    await gotoTool(page, '/tools/png-compressor');
     await addFiles(page, 'gradient-64x32.png');
     await expect(tool(page, 'PNG Compressor').getByText(/sometimes zero/i)).toBeVisible();
   });
@@ -174,7 +176,7 @@ test.describe('format conversion', () => {
 
 test.describe('image resizer', () => {
   test('derives the second dimension with the aspect locked', async ({ page }) => {
-    await page.goto('/tools/image-resizer');
+    await gotoTool(page, '/tools/image-resizer');
     await addFiles(page, 'gradient-64x32.png');
 
     // The source size appears both in the file summary and in the predicted
@@ -191,7 +193,7 @@ test.describe('image resizer', () => {
   });
 
   test('resizes and downloads', async ({ page }) => {
-    await page.goto('/tools/image-resizer');
+    await gotoTool(page, '/tools/image-resizer');
     await addFiles(page, 'gradient-64x32.png');
 
     await page.getByLabel('Width').fill('32');
@@ -206,7 +208,7 @@ test.describe('image resizer', () => {
   });
 
   test('does not enlarge unless asked', async ({ page }) => {
-    await page.goto('/tools/image-resizer');
+    await gotoTool(page, '/tools/image-resizer');
     await addFiles(page, 'gradient-64x32.png');
 
     await page.getByLabel('Width').fill('500');
@@ -218,7 +220,7 @@ test.describe('image resizer', () => {
   });
 
   test('warns that stretch distorts', async ({ page }) => {
-    await page.goto('/tools/image-resizer');
+    await gotoTool(page, '/tools/image-resizer');
     await addFiles(page, 'gradient-64x32.png');
 
     await page.getByLabel('Lock aspect ratio').uncheck();
@@ -231,7 +233,7 @@ test.describe('image resizer', () => {
 
 test.describe('image cropper', () => {
   test('exports at source resolution, not preview resolution', async ({ page }) => {
-    await page.goto('/tools/image-cropper');
+    await gotoTool(page, '/tools/image-cropper');
     await addFiles(page, 'gradient-64x32.png');
 
     await page.getByLabel('Crop width').fill('40');
@@ -246,7 +248,7 @@ test.describe('image cropper', () => {
   });
 
   test('keeps the crop inside the image', async ({ page }) => {
-    await page.goto('/tools/image-cropper');
+    await gotoTool(page, '/tools/image-cropper');
     await addFiles(page, 'gradient-64x32.png');
 
     // Far beyond the 64 × 32 source.
@@ -258,7 +260,7 @@ test.describe('image cropper', () => {
   });
 
   test('is operable with the keyboard', async ({ page }) => {
-    await page.goto('/tools/image-cropper');
+    await gotoTool(page, '/tools/image-cropper');
     await addFiles(page, 'gradient-64x32.png');
 
     await page.getByLabel('Crop width').fill('20');
@@ -277,7 +279,7 @@ test.describe('image cropper', () => {
   });
 
   test('applies an aspect preset', async ({ page }) => {
-    await page.goto('/tools/image-cropper');
+    await gotoTool(page, '/tools/image-cropper');
     await addFiles(page, 'gradient-64x32.png');
 
     await page.getByLabel('Aspect ratio').selectOption('1:1');
@@ -301,7 +303,7 @@ test.describe('privacy', () => {
       }
     });
 
-    await page.goto('/tools/image-compressor');
+    await gotoTool(page, '/tools/image-compressor');
     await addFiles(page, 'gradient-64x32.png', 'transparent-32x32.png');
     await page.getByRole('button', { name: 'Compress images' }).click();
     await expect(summary(page)).toContainText('2 of 2 processed', { timeout: 20_000 });

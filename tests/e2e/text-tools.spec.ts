@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { fillAndConfirm, gotoTool } from './helpers';
+
 /**
  * Text and developer tool journeys (spec §10.5, items 2 and 3).
  */
@@ -11,7 +13,7 @@ test.describe('password generator', () => {
       requests.push(`${request.url()} ${request.postData() ?? ''}`),
     );
 
-    await page.goto('/tools/password-generator');
+    await gotoTool(page, '/tools/password-generator');
 
     const results = page.getByRole('region', { name: 'Generated password' });
     await page.getByRole('button', { name: 'Reveal' }).click();
@@ -26,7 +28,7 @@ test.describe('password generator', () => {
   });
 
   test('regenerates a different password each time', async ({ page }) => {
-    await page.goto('/tools/password-generator');
+    await gotoTool(page, '/tools/password-generator');
     await page.getByRole('button', { name: 'Reveal' }).click();
 
     const results = page.getByRole('region', { name: 'Generated password' });
@@ -37,7 +39,7 @@ test.describe('password generator', () => {
   });
 
   test('honours the length control and reports entropy', async ({ page }) => {
-    await page.goto('/tools/password-generator');
+    await gotoTool(page, '/tools/password-generator');
     await page.getByRole('button', { name: 'Reveal' }).click();
 
     const slider = page.getByLabel('Length');
@@ -52,7 +54,7 @@ test.describe('password generator', () => {
   });
 
   test('refuses a configuration with no character sets', async ({ page }) => {
-    await page.goto('/tools/password-generator');
+    await gotoTool(page, '/tools/password-generator');
 
     for (const label of ['Lowercase (a–z)', 'Uppercase (A–Z)', 'Numbers (0–9)', 'Symbols (!@#$…)']) {
       await page.getByLabel(label).uncheck();
@@ -64,7 +66,7 @@ test.describe('password generator', () => {
   });
 
   test('hides the password until revealed', async ({ page }) => {
-    await page.goto('/tools/password-generator');
+    await gotoTool(page, '/tools/password-generator');
     const results = page.getByRole('region', { name: 'Generated password' });
     await expect(results.locator('p.font-mono')).toHaveText(/^•+$/);
   });
@@ -72,7 +74,7 @@ test.describe('password generator', () => {
 
 test.describe('UUID generator', () => {
   test('generates valid version 4 UUIDs', async ({ page }) => {
-    await page.goto('/tools/uuid-generator');
+    await gotoTool(page, '/tools/uuid-generator');
 
     // Generation happens after mount, so wait for the count to appear rather
     // than racing it — reading too early gave a flaky empty result.
@@ -92,7 +94,7 @@ test.describe('UUID generator', () => {
   });
 
   test('applies formatting options', async ({ page }) => {
-    await page.goto('/tools/uuid-generator');
+    await gotoTool(page, '/tools/uuid-generator');
     const code = page.getByRole('region', { name: 'Generated UUIDs' }).locator('code');
     await expect(code).toContainText('-');
 
@@ -107,7 +109,7 @@ test.describe('UUID generator', () => {
   });
 
   test('downloads a text file', async ({ page }) => {
-    await page.goto('/tools/uuid-generator');
+    await gotoTool(page, '/tools/uuid-generator');
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download .txt' }).click();
     const download = await downloadPromise;
@@ -117,7 +119,7 @@ test.describe('UUID generator', () => {
 
 test.describe('QR code generator', () => {
   test('builds a correctly escaped Wi-Fi payload', async ({ page }) => {
-    await page.goto('/tools/qr-code-generator');
+    await gotoTool(page, '/tools/qr-code-generator');
 
     await page.getByRole('radio', { name: 'Wi-Fi network' }).check();
     await page.getByLabel('Network name (SSID)').fill('Cafe-Guest');
@@ -136,7 +138,7 @@ test.describe('QR code generator', () => {
   });
 
   test('warns that a Wi-Fi password is stored in plain text', async ({ page }) => {
-    await page.goto('/tools/qr-code-generator');
+    await gotoTool(page, '/tools/qr-code-generator');
     await page.getByRole('radio', { name: 'Wi-Fi network' }).check();
     await page.getByLabel('Network name (SSID)').fill('Net');
     await page.getByLabel('Password', { exact: true }).fill('secret');
@@ -147,8 +149,8 @@ test.describe('QR code generator', () => {
   });
 
   test('adds https and says so, rather than guessing silently', async ({ page }) => {
-    await page.goto('/tools/qr-code-generator');
-    await page.getByLabel('Web address').fill('toolnimbly.com');
+    await gotoTool(page, '/tools/qr-code-generator');
+    await fillAndConfirm(page.getByLabel('Web address'), 'toolnimbly.com');
 
     const results = page.getByRole('region', { name: 'QR code preview' });
     await expect(results).toContainText(/https:\/\/ was added/i);
@@ -156,8 +158,8 @@ test.describe('QR code generator', () => {
   });
 
   test('warns about colours that will not scan', async ({ page }) => {
-    await page.goto('/tools/qr-code-generator');
-    await page.getByLabel('Web address').fill('https://example.com');
+    await gotoTool(page, '/tools/qr-code-generator');
+    await fillAndConfirm(page.getByLabel('Web address'), 'https://example.com');
     await page.getByLabel('Foreground hex value').fill('#cccccc');
 
     await expect(page.getByRole('region', { name: 'QR code preview' })).toContainText(
@@ -166,8 +168,8 @@ test.describe('QR code generator', () => {
   });
 
   test('downloads PNG and SVG', async ({ page }) => {
-    await page.goto('/tools/qr-code-generator');
-    await page.getByLabel('Web address').fill('https://example.com');
+    await gotoTool(page, '/tools/qr-code-generator');
+    await fillAndConfirm(page.getByLabel('Web address'), 'https://example.com');
     await expect(page.getByRole('region', { name: 'QR code preview' }).getByRole('img')).toBeVisible();
 
     const pngPromise = page.waitForEvent('download');
@@ -186,8 +188,8 @@ test.describe('QR code generator', () => {
       if (host !== '127.0.0.1' && host !== 'localhost') external.push(request.url());
     });
 
-    await page.goto('/tools/qr-code-generator');
-    await page.getByLabel('Web address').fill('https://example.com');
+    await gotoTool(page, '/tools/qr-code-generator');
+    await fillAndConfirm(page.getByLabel('Web address'), 'https://example.com');
     await expect(page.getByRole('region', { name: 'QR code preview' }).getByRole('img')).toBeVisible();
 
     expect(external).toEqual([]);
@@ -196,7 +198,7 @@ test.describe('QR code generator', () => {
 
 test.describe('counters and case converter', () => {
   test('word counter reports consistent statistics', async ({ page }) => {
-    await page.goto('/tools/word-counter');
+    await gotoTool(page, '/tools/word-counter');
 
     await page.getByLabel('Your text').fill('The quick brown fox. It jumps over the lazy dog.');
 
@@ -207,7 +209,7 @@ test.describe('counters and case converter', () => {
   });
 
   test('character counter distinguishes visible from technical length', async ({ page }) => {
-    await page.goto('/tools/character-counter');
+    await gotoTool(page, '/tools/character-counter');
 
     // A family emoji: 1 visible character, 11 UTF-16 units, 25 UTF-8 bytes.
     await page.getByLabel('Your text').fill('\u{1F468}‍\u{1F469}‍\u{1F467}‍\u{1F466}');
@@ -219,7 +221,7 @@ test.describe('counters and case converter', () => {
   });
 
   test('character counter tracks a limit and flags going over', async ({ page }) => {
-    await page.goto('/tools/character-counter');
+    await gotoTool(page, '/tools/character-counter');
 
     await page.getByLabel('Character limit (optional)').fill('10');
     await page.getByLabel('Your text').fill('12345');
@@ -234,9 +236,13 @@ test.describe('counters and case converter', () => {
   });
 
   test('case converter previews every mode and keeps the original', async ({ page }) => {
-    await page.goto('/tools/case-converter');
+    await gotoTool(page, '/tools/case-converter');
 
-    await page.getByLabel('Original text').fill('user profile image URL');
+    const original = page.getByLabel('Original text');
+    await original.fill('user profile image URL');
+    // Wait for the value to land before switching mode: WebKit occasionally
+    // processed the radio change before React had applied the textarea update.
+    await expect(original).toHaveValue('user profile image URL');
 
     await page.getByRole('radio', { name: 'snake_case' }).check();
     await expect(page.getByRole('region', { name: 'Converted text' })).toContainText(
@@ -253,9 +259,11 @@ test.describe('counters and case converter', () => {
   });
 
   test('case converter applies Turkish casing rules', async ({ page }) => {
-    await page.goto('/tools/case-converter');
+    await gotoTool(page, '/tools/case-converter');
 
-    await page.getByLabel('Original text').fill('istanbul');
+    const field = page.getByLabel('Original text');
+    await field.fill('istanbul');
+    await expect(field).toHaveValue('istanbul');
     await page.getByRole('radio', { name: 'UPPERCASE' }).check();
     await expect(page.getByRole('region', { name: 'Converted text' })).toContainText('ISTANBUL');
 

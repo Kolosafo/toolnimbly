@@ -1,26 +1,28 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { fillAndConfirm, gotoTool } from './helpers';
+
 /**
  * Invoice and receipt journeys (spec §10.5 item 6, §12 business gates).
  */
 
 /** Fills one line item row by its numbered labels. */
 async function fillLine(page: Page, index: number, description: string, qty: string, price: string) {
-  await page.getByLabel(`Description ${index}`, { exact: true }).fill(description);
-  await page.getByLabel(`Quantity ${index}`, { exact: true }).fill(qty);
-  await page.getByLabel(`Unit price ${index}`, { exact: true }).fill(price);
+  await fillAndConfirm(page.getByLabel(`Description ${index}`, { exact: true }), description);
+  await fillAndConfirm(page.getByLabel(`Quantity ${index}`, { exact: true }), qty);
+  await fillAndConfirm(page.getByLabel(`Unit price ${index}`, { exact: true }), price);
 }
 
 test.describe('invoice generator', () => {
   test('calculates the published worked example', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
 
     await fillLine(page, 1, 'Design work', '24', '65.00');
     await page.getByRole('button', { name: 'Add line item' }).click();
     await fillLine(page, 2, 'Revisions', '6', '65.00');
 
-    await page.getByLabel('Discount', { exact: true }).fill('10');
-    await page.getByLabel('Tax', { exact: true }).fill('20');
+    await fillAndConfirm(page.getByLabel('Discount', { exact: true }), '10');
+    await fillAndConfirm(page.getByLabel('Tax', { exact: true }), '20');
 
     const preview = page.locator('[data-document-preview]');
     await expect(preview).toContainText('$1,950.00'); // subtotal
@@ -31,10 +33,10 @@ test.describe('invoice generator', () => {
   });
 
   test('shows the taxable amount so the tax order is visible', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
     await fillLine(page, 1, 'Work', '1', '1000');
-    await page.getByLabel('Discount', { exact: true }).fill('10');
-    await page.getByLabel('Tax', { exact: true }).fill('20');
+    await fillAndConfirm(page.getByLabel('Discount', { exact: true }), '10');
+    await fillAndConfirm(page.getByLabel('Tax', { exact: true }), '20');
 
     const preview = page.locator('[data-document-preview]');
     await expect(preview).toContainText('Taxable amount');
@@ -45,7 +47,7 @@ test.describe('invoice generator', () => {
   });
 
   test('adds, reorders and removes line items', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
 
     await fillLine(page, 1, 'First', '1', '10');
     await page.getByRole('button', { name: 'Add line item' }).click();
@@ -62,13 +64,13 @@ test.describe('invoice generator', () => {
   });
 
   test('always leaves at least one line row', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
     await page.getByRole('button', { name: 'Remove line 1' }).click();
     await expect(page.getByLabel('Description 1', { exact: true })).toBeVisible();
   });
 
   test('warns when the due date precedes the issue date', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
 
     await page.getByLabel('Issue date').fill('2026-09-18');
     await page.getByLabel('Due date').fill('2026-09-01');
@@ -77,7 +79,7 @@ test.describe('invoice generator', () => {
   });
 
   test('shows a balance due after a partial payment', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
 
     await fillLine(page, 1, 'Work', '1', '500');
     await page.getByLabel('Amount already paid').fill('200');
@@ -88,7 +90,7 @@ test.describe('invoice generator', () => {
   });
 
   test('changes currency formatting throughout', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
     await fillLine(page, 1, 'Item', '1', '1234.56');
 
     const preview = page.locator('[data-document-preview]');
@@ -100,7 +102,7 @@ test.describe('invoice generator', () => {
   });
 
   test('downloads a PDF', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
 
     await fillLine(page, 1, 'Consulting', '10', '150');
     await page.getByLabel('Invoice number').fill('INV-2026-004');
@@ -113,7 +115,7 @@ test.describe('invoice generator', () => {
   });
 
   test('renders entered text as text, never as markup', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
 
     // If this were injected as HTML it would become an element rather than text.
     await fillLine(page, 1, '<img src=x onerror=alert(1)>', '1', '10');
@@ -126,7 +128,7 @@ test.describe('invoice generator', () => {
 
 test.describe('receipt generator', () => {
   test('calculates the published worked example including change', async ({ page }) => {
-    await page.goto('/tools/receipt-generator');
+    await gotoTool(page, '/tools/receipt-generator');
 
     await fillLine(page, 1, 'Flat white', '2', '3.80');
     await page.getByRole('button', { name: 'Add line item' }).click();
@@ -134,9 +136,9 @@ test.describe('receipt generator', () => {
     await page.getByRole('button', { name: 'Add line item' }).click();
     await fillLine(page, 3, 'Pastry', '2', '3.20');
 
-    await page.getByLabel('Tax', { exact: true }).fill('8');
-    await page.getByLabel('Tip or service charge').fill('15');
-    await page.getByLabel('Amount tendered').fill('30');
+    await fillAndConfirm(page.getByLabel('Tax', { exact: true }), '8');
+    await fillAndConfirm(page.getByLabel('Tip or service charge'), '15');
+    await fillAndConfirm(page.getByLabel('Amount tendered'), '30');
 
     const preview = page.locator('[data-document-preview]');
     await expect(preview).toContainText('$22.50'); // subtotal
@@ -147,7 +149,7 @@ test.describe('receipt generator', () => {
   });
 
   test('says no change is due when the payment is short', async ({ page }) => {
-    await page.goto('/tools/receipt-generator');
+    await gotoTool(page, '/tools/receipt-generator');
 
     await fillLine(page, 1, 'Item', '1', '50');
     await page.getByLabel('Amount tendered').fill('20');
@@ -156,7 +158,7 @@ test.describe('receipt generator', () => {
   });
 
   test('labels itself a receipt and carries the scope statement', async ({ page }) => {
-    await page.goto('/tools/receipt-generator');
+    await gotoTool(page, '/tools/receipt-generator');
 
     const preview = page.locator('[data-document-preview]');
     await expect(preview).toContainText('RECEIPT');
@@ -165,7 +167,7 @@ test.describe('receipt generator', () => {
   });
 
   test('switches between compact and full layouts', async ({ page }) => {
-    await page.goto('/tools/receipt-generator');
+    await gotoTool(page, '/tools/receipt-generator');
     await fillLine(page, 1, 'Item', '1', '10');
 
     await page.getByRole('radio', { name: 'Full page' }).check();
@@ -176,7 +178,7 @@ test.describe('receipt generator', () => {
   });
 
   test('downloads a receipt PDF', async ({ page }) => {
-    await page.goto('/tools/receipt-generator');
+    await gotoTool(page, '/tools/receipt-generator');
 
     await fillLine(page, 1, 'Coffee', '2', '3.50');
     await page.getByLabel('Receipt number').fill('R-1042');
@@ -189,7 +191,7 @@ test.describe('receipt generator', () => {
 
 test.describe('drafts', () => {
   test('saves and deletes a draft on request only', async ({ page }) => {
-    await page.goto('/tools/invoice-generator');
+    await gotoTool(page, '/tools/invoice-generator');
 
     // Nothing is stored until the user opts in.
     await fillLine(page, 1, 'Before opt-in', '1', '10');
@@ -229,9 +231,9 @@ test.describe('privacy', () => {
       }
     });
 
-    await page.goto('/tools/invoice-generator');
-    await page.getByLabel('Client name').fill('Acme Sentinel Ltd');
-    await page.getByLabel('Client email').fill('sentinel@example.invalid');
+    await gotoTool(page, '/tools/invoice-generator');
+    await fillAndConfirm(page.getByLabel('Client name'), 'Acme Sentinel Ltd');
+    await fillAndConfirm(page.getByLabel('Client email'), 'sentinel@example.invalid');
     await fillLine(page, 1, 'Confidential work', '1', '987654.32');
 
     await expect(page.locator('[data-document-preview]')).toContainText('Acme Sentinel Ltd');

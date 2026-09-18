@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { fillAndConfirm, gotoTool } from './helpers';
+
 /**
  * Calculator journeys (spec §10.5, item 1) plus the privacy regression test
  * (spec §10.8).
@@ -13,14 +15,21 @@ import { expect, test, type Page } from '@playwright/test';
  * "Term unit".
  */
 async function setField(page: Page, label: string | RegExp, value: string) {
-  const field = page.getByLabel(label, { exact: true });
-  await field.fill(value);
+  await fillAndConfirm(page.getByLabel(label, { exact: true }), value);
 }
 
 test.describe('percentage calculator', () => {
-  test('calculates, shows its working, copies and resets', async ({ page, context }) => {
-    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    await page.goto('/tools/percentage-calculator');
+  test('calculates, shows its working, copies and resets', async ({
+    page,
+    context,
+    browserName,
+  }) => {
+    // Only Chromium implements these permission names; elsewhere the clipboard
+    // write still works, so the assertion on its contents is skipped below.
+    if (browserName === 'chromium') {
+      await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    }
+    await gotoTool(page, '/tools/percentage-calculator');
 
     // The default state is the worked example from the page: 15% of 68.40.
     const results = page.getByRole('region', { name: 'Percentage result' });
@@ -33,14 +42,17 @@ test.describe('percentage calculator', () => {
 
     await page.getByRole('button', { name: 'Copy result' }).click();
     await expect(page.getByRole('button', { name: 'Copied' })).toBeVisible();
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('10');
+
+    if (browserName === 'chromium') {
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('10');
+    }
 
     await page.getByRole('button', { name: /reset to defaults/i }).click();
     await expect(results).toContainText('10.26');
   });
 
   test('switches mode and refuses an undefined calculation', async ({ page }) => {
-    await page.goto('/tools/percentage-calculator');
+    await gotoTool(page, '/tools/percentage-calculator');
 
     await page.getByRole('radio', { name: /X is what percent of Y/i }).check();
     await setField(page, 'This number', '25');
@@ -56,7 +68,7 @@ test.describe('percentage calculator', () => {
   });
 
   test('honours the display precision control', async ({ page }) => {
-    await page.goto('/tools/percentage-calculator');
+    await gotoTool(page, '/tools/percentage-calculator');
     await page.getByRole('radio', { name: /Percentage change/i }).check();
     await setField(page, 'Starting value', '3');
     await setField(page, 'Ending value', '7');
@@ -71,7 +83,7 @@ test.describe('percentage calculator', () => {
 
 test.describe('loan calculator', () => {
   test('produces the published reference figures and an amortisation schedule', async ({ page }) => {
-    await page.goto('/tools/loan-calculator');
+    await gotoTool(page, '/tools/loan-calculator');
 
     const results = page.getByRole('region', { name: 'Loan result' });
     // Defaults match the worked example: 25,000 at 7.5% over 5 years.
@@ -84,7 +96,7 @@ test.describe('loan calculator', () => {
   });
 
   test('an extra payment shortens the term and reports the saving', async ({ page }) => {
-    await page.goto('/tools/loan-calculator');
+    await gotoTool(page, '/tools/loan-calculator');
     await setField(page, 'Extra monthly payment (optional)', '100');
 
     const results = page.getByRole('region', { name: 'Loan result' });
@@ -94,7 +106,7 @@ test.describe('loan calculator', () => {
   });
 
   test('a zero-interest loan divides evenly', async ({ page }) => {
-    await page.goto('/tools/loan-calculator');
+    await gotoTool(page, '/tools/loan-calculator');
     await setField(page, 'Loan amount', '1200');
     await setField(page, 'Annual interest rate', '0');
     await setField(page, 'Term', '12');
@@ -106,7 +118,7 @@ test.describe('loan calculator', () => {
   });
 
   test('offers a CSV download of the schedule', async ({ page }) => {
-    await page.goto('/tools/loan-calculator');
+    await gotoTool(page, '/tools/loan-calculator');
 
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download CSV' }).last().click();
@@ -116,7 +128,7 @@ test.describe('loan calculator', () => {
   });
 
   test('explains an invalid amount rather than showing a broken result', async ({ page }) => {
-    await page.goto('/tools/loan-calculator');
+    await gotoTool(page, '/tools/loan-calculator');
     await setField(page, 'Loan amount', '0');
     await expect(
       page.getByRole('region', { name: 'Loan result' }).getByRole('alert'),
@@ -126,7 +138,7 @@ test.describe('loan calculator', () => {
 
 test.describe('date and age calculators', () => {
   test('age calculation handles the leap-day case as documented', async ({ page }) => {
-    await page.goto('/tools/age-calculator');
+    await gotoTool(page, '/tools/age-calculator');
 
     await setField(page, 'Date of birth', '2004-02-29');
     await setField(page, 'Age on this date', '2026-03-01');
@@ -138,7 +150,7 @@ test.describe('date and age calculators', () => {
   });
 
   test('date difference answers the inclusive question explicitly', async ({ page }) => {
-    await page.goto('/tools/date-difference-calculator');
+    await gotoTool(page, '/tools/date-difference-calculator');
 
     await setField(page, 'Start date', '2026-03-03');
     await setField(page, 'End date', '2026-04-17');
@@ -154,7 +166,7 @@ test.describe('date and age calculators', () => {
   });
 
   test('a day count spanning a daylight-saving change is exact', async ({ page }) => {
-    await page.goto('/tools/date-difference-calculator');
+    await gotoTool(page, '/tools/date-difference-calculator');
     // 8 March 2026 is a spring-forward date in US timezones.
     await setField(page, 'Start date', '2026-03-07');
     await setField(page, 'End date', '2026-03-09');
@@ -166,7 +178,7 @@ test.describe('date and age calculators', () => {
 
 test.describe('health calculators', () => {
   test('BMI matches the reference case and shows a healthy range', async ({ page }) => {
-    await page.goto('/tools/bmi-calculator');
+    await gotoTool(page, '/tools/bmi-calculator');
 
     await setField(page, 'Weight', '70');
     await setField(page, 'Height', '175');
@@ -179,7 +191,7 @@ test.describe('health calculators', () => {
   });
 
   test('BMI withholds an adult category under 20 and explains why', async ({ page }) => {
-    await page.goto('/tools/bmi-calculator');
+    await gotoTool(page, '/tools/bmi-calculator');
 
     await setField(page, 'Weight', '60');
     await setField(page, 'Height', '170');
@@ -196,7 +208,7 @@ test.describe('health calculators', () => {
   });
 
   test('health pages show a disclaimer beside the result, not only in Terms', async ({ page }) => {
-    await page.goto('/tools/bmi-calculator');
+    await gotoTool(page, '/tools/bmi-calculator');
     const disclaimer = page.getByRole('complementary', {
       name: /important information about these results/i,
     });
@@ -205,7 +217,7 @@ test.describe('health calculators', () => {
   });
 
   test('calorie calculator warns when a target falls below the safe floor', async ({ page }) => {
-    await page.goto('/tools/calorie-calculator');
+    await gotoTool(page, '/tools/calorie-calculator');
 
     await page.getByRole('radio', { name: /Female equation/i }).check();
     await setField(page, 'Age', '30');
@@ -218,7 +230,7 @@ test.describe('health calculators', () => {
   });
 
   test('calorie calculator refuses under-18 with an explanation', async ({ page }) => {
-    await page.goto('/tools/calorie-calculator');
+    await gotoTool(page, '/tools/calorie-calculator');
     await setField(page, 'Age', '15');
     await setField(page, 'Weight', '60');
     await setField(page, 'Height', '165');
@@ -230,7 +242,7 @@ test.describe('health calculators', () => {
 
 test.describe('keyboard operation', () => {
   test('a calculator is fully operable without a mouse', async ({ page }) => {
-    await page.goto('/tools/salary-calculator');
+    await gotoTool(page, '/tools/salary-calculator');
 
     const amount = page.getByLabel('Pay amount');
     await amount.focus();
@@ -268,15 +280,15 @@ test.describe('privacy', () => {
       }
     });
 
-    await page.goto('/tools/loan-calculator');
+    await gotoTool(page, '/tools/loan-calculator');
     await setField(page, 'Loan amount', '919293949');
     await expect(page.getByRole('region', { name: 'Loan result' })).toContainText('$');
 
-    await page.goto('/tools/age-calculator');
+    await gotoTool(page, '/tools/age-calculator');
     await setField(page, 'Date of birth', '1987-06-13');
     await expect(page.getByRole('region', { name: 'Age result' })).toContainText('years');
 
-    await page.goto('/tools/salary-calculator');
+    await gotoTool(page, '/tools/salary-calculator');
     await setField(page, 'Pay amount', '777888999');
     await expect(page.getByRole('region', { name: 'Pay equivalents' })).toContainText('$');
 
