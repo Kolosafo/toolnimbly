@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { CopyButton } from '@/components/feedback/copy-button';
 import { InlineError } from '@/components/feedback/inline-error';
@@ -18,11 +18,31 @@ import { formatLongDate, todayLocal, type CalendarDate } from '@/lib/date/calend
 import { formatInteger } from '@/lib/formatting/number';
 
 export function AgeCalculator() {
-  // `todayLocal` reads local calendar fields only, so this is stable for the
-  // session and never shifts the selected date by a timezone.
-  const [today] = useState<CalendarDate>(() => todayLocal());
+  /*
+   * Today is resolved after mount, never during render.
+   *
+   * This page is prerendered, so a date computed during render is the date the
+   * site was *built*. It is then baked into the static HTML and served
+   * unchanged, so from the next day onwards every visitor sees a stale default
+   * and React reports a hydration mismatch when the client computes a different
+   * value. Starting empty and filling in after mount is the only way a static
+   * page can show the visitor's own current date.
+   *
+   * `todayLocal` reads local calendar fields only, so the value never shifts by
+   * a timezone once it is set.
+   */
+  const [today, setToday] = useState<CalendarDate | null>(null);
   const [birthDate, setBirthDate] = useState<CalendarDate | null>(null);
-  const [onDate, setOnDate] = useState<CalendarDate | null>(today);
+  const [onDate, setOnDate] = useState<CalendarDate | null>(null);
+
+  useEffect(() => {
+    const now = todayLocal();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setToday(now);
+    // Only seed the field the user has not touched. A functional update is
+    // safe here and needs no exemption.
+    setOnDate((current) => current ?? now);
+  }, []);
 
   const result = useMemo(() => {
     if (!birthDate || !onDate) return null;
@@ -38,6 +58,8 @@ export function AgeCalculator() {
     setBirthDate(null);
     setOnDate(today);
   }
+
+  const todayLabel = today ? formatLongDate(today) : 'today';
 
   return (
     <CalculatorShell
@@ -92,7 +114,7 @@ export function AgeCalculator() {
         value={birthDate}
         onChange={setBirthDate}
         required
-        max={onDate ?? today}
+        {...(onDate ?? today ? { max: (onDate ?? today) as CalendarDate } : {})}
         helper="Treated as a plain calendar date. Nothing you enter here is sent anywhere."
       />
 
@@ -100,7 +122,7 @@ export function AgeCalculator() {
         label="Age on this date"
         value={onDate}
         onChange={setOnDate}
-        helper={`Defaults to today, ${formatLongDate(today)}. Change it to work out an age on any other date.`}
+        helper={`Defaults to ${todayLabel}. Change it to work out an age on any other date.`}
       />
     </CalculatorShell>
   );

@@ -18,6 +18,10 @@ const config = [
       'next-env.d.ts',
       // Third-party runtime assets copied in by scripts/copy-pdfjs-assets.mjs.
       'public/pdfjs/**',
+      // Scratch scripts written into the root by an exploratory audit. They are
+      // never project source, and a crashed run leaves them behind — without
+      // this, that debris fails `pnpm verify` and looks like a real defect.
+      '.*.mjs',
     ],
   },
   ...nextCoreWebVitals,

@@ -12,6 +12,7 @@ import {
   type LineItem,
 } from '@/lib/documents/model';
 import type { CurrencyCode } from '@/lib/formatting/number';
+import { formatIsoDate, todayLocal } from '@/lib/date/calendar';
 import { moveItem } from '@/lib/files/queue';
 
 export type DocumentDraft = {
@@ -55,12 +56,16 @@ export type DocumentDraft = {
 /** The draft schema version, so old stored data can be rejected safely. */
 const DRAFT_VERSION = 1;
 
+/**
+ * A blank document.
+ *
+ * `issueDate` is deliberately empty rather than today's date. These pages are
+ * prerendered, so a date computed here would be the date the site was built,
+ * baked into the static HTML and served unchanged from then on — giving every
+ * new invoice a stale issue date and causing a React hydration mismatch. The
+ * hook fills it in after mount, from the visitor's own clock.
+ */
 export function createEmptyDraft(kind: 'invoice' | 'receipt'): DocumentDraft {
-  const today = new Date();
-  const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(
-    today.getDate(),
-  ).padStart(2, '0')}`;
-
   return {
     fromName: '',
     fromAddress: '',
@@ -73,7 +78,7 @@ export function createEmptyDraft(kind: 'invoice' | 'receipt'): DocumentDraft {
     toPhone: '',
     toTaxId: '',
     number: '',
-    issueDate: iso,
+    issueDate: '',
     dueDate: '',
     paymentMethod: kind === 'receipt' ? 'Card' : '',
     currency: 'USD',
@@ -151,6 +156,19 @@ export function useDocumentState(kind: 'invoice' | 'receipt') {
       // Quota exceeded or storage blocked: the document still works.
     }
   }, [draft, saveDrafts, storageKey]);
+
+  /*
+   * Seed today's date on the client. Declared after the restore effect so a
+   * draft loaded from storage keeps its own issue date; this only fills a blank.
+   */
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDraft((current) =>
+      current.issueDate === ''
+        ? { ...current, issueDate: formatIsoDate(todayLocal()) }
+        : current,
+    );
+  }, []);
 
   const update = useCallback(<K extends keyof DocumentDraft>(key: K, value: DocumentDraft[K]) => {
     setDraft((current) => ({ ...current, [key]: value }));

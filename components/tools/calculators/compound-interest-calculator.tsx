@@ -159,7 +159,14 @@ export function CompoundInterestCalculator() {
                   <ResultRow label="Total interest earned" value={money(result.totalInterest)} emphasis />
                   <ResultRow
                     label="Interest as a share of the balance"
-                    value={`${((result.totalInterest / result.endingBalance) * 100).toFixed(1)}%`}
+                    // With nothing invested and nothing contributed the balance
+                    // is zero, and the share is 0/0. There is no share of
+                    // nothing, so say so rather than printing NaN.
+                    value={
+                      result.endingBalance.valueOf() > 0
+                        ? `${((result.totalInterest / result.endingBalance) * 100).toFixed(1)}%`
+                        : '—'
+                    }
                   />
                 </ResultList>
               </div>
