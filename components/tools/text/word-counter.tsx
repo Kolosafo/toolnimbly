@@ -70,7 +70,9 @@ export function WordCounter() {
 
             {stats.keywords.length > 0 ? (
               <div>
-                <h3 className="text-sm font-medium">Most frequent words</h3>
+                {/* h2: the tool panel has no heading above this, so an h3
+                    would skip a level once results appear. */}
+                <h2 className="text-sm font-medium">Most frequent words</h2>
                 <p className="mt-1 text-xs text-muted">
                   Approximate. Common filler words are excluded and there is no stemming.
                 </p>

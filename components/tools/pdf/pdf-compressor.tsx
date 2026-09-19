@@ -258,7 +258,9 @@ export function PdfCompressor() {
                 )}
 
                 <div>
-                  <h3 className="text-sm font-medium">What this mode did</h3>
+                  {/* h2: no heading sits above this in the panel, so an h3
+                      would skip a level once a result appears. */}
+                  <h2 className="text-sm font-medium">What this mode did</h2>
                   <ul className="mt-2 space-y-1.5">
                     {result.tradeOffs.map((tradeOff) => (
                       <li key={tradeOff} className="flex gap-2 text-xs text-muted">

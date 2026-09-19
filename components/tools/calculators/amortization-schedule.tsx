@@ -25,9 +25,12 @@ export function AmortizationSchedule({
   return (
     <div className="mt-8 space-y-8">
       <section aria-labelledby="yearly-summary-heading">
-        <h3 id="yearly-summary-heading" className="text-lg font-semibold">
+        {/* h2, not h3: this is a top-level section of the page, a peer of
+            "How to use" and "Worked example". An h3 here sits directly under
+            the page h1 and skips a level. */}
+        <h2 id="yearly-summary-heading" className="text-lg font-semibold">
           Yearly summary
-        </h3>
+        </h2>
         <div className="mt-3">
           <DataTable
             caption="Principal, interest and remaining balance for each year of the loan"
@@ -54,9 +57,9 @@ export function AmortizationSchedule({
       </section>
 
       <section aria-labelledby="schedule-heading">
-        <h3 id="schedule-heading" className="text-lg font-semibold">
+        <h2 id="schedule-heading" className="text-lg font-semibold">
           Full amortisation schedule
-        </h3>
+        </h2>
         <p className="measure mt-2 text-sm text-muted">
           Every payment, split into the part that covers interest and the part that reduces what you
           owe. Watch the two columns cross over as the balance falls.

@@ -225,7 +225,9 @@ export function CompoundInterestCalculator() {
           <GrowthChart bars={bars} currency={currency} title="Balance composition by year" />
 
           <div className="mt-6">
-            <h3 className="text-lg font-semibold">Year-by-year breakdown</h3>
+            {/* h2 for the same reason as the amortisation schedule: a
+                top-level section sitting directly under the page h1. */}
+            <h2 className="text-lg font-semibold">Year-by-year breakdown</h2>
             <div className="mt-3">
               <DataTable
                 caption="Opening balance, contributions, interest and closing balance for each year"
