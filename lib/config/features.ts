@@ -32,6 +32,18 @@ export const features = {
 
   /** Reserved for the optional static-export deployment profile (spec §13.2). */
   staticExportMode: flag(process.env.NEXT_PUBLIC_STATIC_EXPORT),
+
+  /**
+   * The Marble-backed blog at /blog.
+   *
+   * Off by default, and deliberately a flag rather than an inferred value: the
+   * blog is the only part of this site that depends on a third party being
+   * reachable at build time. With it off, no Marble request is made, the
+   * routes are not generated, /blog is not linked or listed in the sitemap,
+   * and a missing API key cannot fail a build of the 30 tools and 7 guides
+   * that have nothing to do with the CMS.
+   */
+  blogEnabled: flag(process.env.NEXT_PUBLIC_BLOG_ENABLED),
 } as const;
 
 /**

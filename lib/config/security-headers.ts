@@ -45,9 +45,26 @@ export function buildContentSecurityPolicy(isDev: boolean, embeddable = false): 
   const scriptSrc = ga4Enabled
     ? `${scriptSrcBase} https://www.googletagmanager.com`
     : scriptSrcBase;
-  const imageSrc = ga4Enabled
-    ? `'self' data: blob: https://www.google-analytics.com`
-    : `'self' data: blob:`;
+  /*
+   * Marble's media hosts, when the blog is on.
+   *
+   * `next.config.ts` alone is not enough: that governs which hosts
+   * `next/image` will optimise, while the CSP governs whether the browser will
+   * load the bytes at all. Miss this and cover images fail silently with only
+   * a console violation — the exact failure mode ADR 0006 was written about.
+   *
+   * Images cannot exfiltrate anything, and `connect-src` still refuses every
+   * outbound request, so the local-processing promise is untouched.
+   */
+  const blogEnabled = ['true', '1'].includes(process.env.NEXT_PUBLIC_BLOG_ENABLED ?? '');
+  const marbleImages = blogEnabled
+    ? ' https://images.marblecms.com https://media.marblecms.com'
+    : '';
+
+  const imageSrc =
+    (ga4Enabled
+      ? `'self' data: blob: https://www.google-analytics.com`
+      : `'self' data: blob:`) + marbleImages;
   const connectSrcBase = isDev ? `'self' ws: wss:` : `'self' blob: data:`;
   const connectSrc = ga4Enabled
     ? `${connectSrcBase} https://www.google-analytics.com https://region1.google-analytics.com`

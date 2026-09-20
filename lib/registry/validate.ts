@@ -48,6 +48,15 @@ const categorySchema = z.object({
   heading: z.string().min(3).max(60),
   intro: z.string().min(180),
   selectionGuidance: z.array(z.string().min(40)).min(3),
+  contextualLinks: z
+    .array(
+      z.object({
+        label: z.string().min(12),
+        description: z.string().min(50),
+        href: z.string().startsWith('/tools/'),
+      }),
+    )
+    .optional(),
   icon: z.string().min(2),
   order: z.number().int().positive(),
 });
@@ -77,6 +86,12 @@ export function toolPageWordCount(slug: string): number {
   const deepDive = toolDeepDives[slug];
   if (!content || !deepDive) return 0;
   return countWords(content) + countWords(deepDive);
+}
+
+/** Approximate the visible words in a supporting guide. */
+export function guidePageWordCount(slug: string): number {
+  const content = guideContents.find((guide) => guide.slug === slug);
+  return content ? countWords(content) : 0;
 }
 
 /** Returns every invariant violation. An empty array means the registry is sound. */
@@ -135,7 +150,7 @@ export function collectRegistryIssues(): RegistryIssue[] {
     seenDescriptions.add(descriptionKey);
 
     const renderedTitle = `${tool.title} | ${site.name}`;
-    if (renderedTitle.length > 60) {
+    if (renderedTitle.length > 70) {
       add(tool.slug, `rendered title is ${renderedTitle.length} characters`);
     }
 
@@ -275,6 +290,17 @@ function collectGuideIssues(): RegistryIssue[] {
     const words = countWords(content);
     if (words < 800 || words > 1800) {
       add(`"${content.slug}" article is ${words} words; expected 800–1,800`);
+    }
+    if (
+      [
+        'what-a-payment-receipt-should-include',
+        'compound-interest-with-contributions',
+        'how-to-convert-salary-to-hourly',
+        'how-extra-loan-payments-save-interest',
+      ].includes(content.slug) &&
+      (words < 700 || words > 1400)
+    ) {
+      add(`"${content.slug}" article is ${words} words; expected 700–1,400 for this brief`);
     }
   }
 

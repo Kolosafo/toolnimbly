@@ -22,6 +22,26 @@ export const categories: readonly CategoryDefinition[] = [
       'The age and date difference calculators share the same calendar engine. Pick age for birthdays and milestones, date difference for project timelines and business-day counts.',
       'The BMI and calorie calculators are general information tools. They are not a substitute for advice from a qualified health professional.',
     ],
+    contextualLinks: [
+      {
+        label: 'Convert annual salary to hourly pay',
+        description:
+          'Compare hourly, daily, weekly, biweekly, semimonthly and monthly gross pay using your actual hours and paid weeks.',
+        href: '/tools/salary-calculator',
+      },
+      {
+        label: 'Compare a loan with extra payments and an amortization schedule',
+        description:
+          'See the scheduled payment, total interest and payoff time, then measure what a recurring extra principal payment changes.',
+        href: '/tools/loan-calculator',
+      },
+      {
+        label: 'Project compound interest with regular contributions',
+        description:
+          'Model savings growth with weekly, monthly or annual deposits and choose whether they arrive at the beginning or end of a period.',
+        href: '/tools/compound-interest-calculator',
+      },
+    ],
     icon: 'Calculator',
     order: 1,
   },
@@ -100,6 +120,20 @@ export const categories: readonly CategoryDefinition[] = [
       'A logo is downscaled in your browser and embedded directly into the document. It is never uploaded.',
       'Drafts can be kept in this browser using local storage. That is opt-in, it never leaves your device, and there is a delete control for it.',
       'Numbering rules, tax treatment and record-keeping requirements vary by country. These tools produce a clear document; they cannot guarantee compliance in your jurisdiction.',
+    ],
+    contextualLinks: [
+      {
+        label: 'Create a free PDF invoice with no signup',
+        description:
+          'Prepare a request for payment with line items, automatic totals, tax, discounts, terms and a due date entirely in your browser.',
+        href: '/tools/invoice-generator',
+      },
+      {
+        label: 'Create a business receipt for a completed payment',
+        description:
+          'Record a genuine completed transaction with items, tax, tips, payment details, amount tendered and change, then print or save a PDF.',
+        href: '/tools/receipt-generator',
+      },
     ],
     icon: 'ReceiptText',
     order: 5,

@@ -82,7 +82,9 @@ test.describe('percentage calculator', () => {
 });
 
 test.describe('loan calculator', () => {
-  test('produces the published reference figures and an amortisation schedule', async ({ page }) => {
+  test('produces the published reference figures and an amortisation schedule', async ({
+    page,
+  }) => {
     await gotoTool(page, '/tools/loan-calculator');
 
     const results = page.getByRole('region', { name: 'Loan result' });
@@ -133,6 +135,31 @@ test.describe('loan calculator', () => {
     await expect(
       page.getByRole('region', { name: 'Loan result' }).getByRole('alert'),
     ).toContainText(/greater than zero/i);
+  });
+});
+
+test.describe('compound interest calculator', () => {
+  test('contribution timing changes the projection', async ({ page }) => {
+    await gotoTool(page, '/tools/compound-interest-calculator');
+
+    const results = page.getByRole('region', { name: 'Projection result' });
+    await expect(results).toContainText('$63,054.78');
+
+    await page.getByLabel('Beginning of period').check();
+    await expect(results).not.toContainText('$63,054.78');
+
+    await page.getByLabel('End of period').check();
+    await expect(results).toContainText('$63,054.78');
+  });
+
+  test('offers a CSV download of the yearly projection', async ({ page }) => {
+    await gotoTool(page, '/tools/compound-interest-calculator');
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download CSV' }).click();
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toBe('compound-interest-projection.csv');
   });
 });
 

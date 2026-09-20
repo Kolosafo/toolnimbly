@@ -30,11 +30,7 @@ export function generateStaticParams(): Params[] {
   return categories.map((category) => ({ category: category.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { category: slug } = await params;
   const category = findCategory(slug);
   if (!category) return {};
@@ -65,9 +61,9 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
       />
 
       <header className="mt-4">
-        <ToolIcon name={category.icon} className="size-7 text-brand" />
+        <ToolIcon name={category.icon} className="text-brand size-7" />
         <h1 className="mt-3 text-3xl font-bold sm:text-4xl">{category.heading}</h1>
-        <p className="measure mt-4 text-lg text-muted">{category.intro}</p>
+        <p className="measure text-muted mt-4 text-lg">{category.intro}</p>
       </header>
 
       <section aria-labelledby="tools-heading" className="mt-10">
@@ -81,6 +77,29 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
         </ul>
       </section>
 
+      {category.contextualLinks && category.contextualLinks.length > 0 ? (
+        <section aria-labelledby="common-jobs-heading" className="mt-14">
+          <h2 id="common-jobs-heading" className="text-xl font-semibold">
+            Common jobs these tools solve
+          </h2>
+          <div className="measure mt-4 space-y-5">
+            {category.contextualLinks.map((item) => (
+              <article key={item.href}>
+                <h3 className="font-medium">
+                  <Link
+                    href={item.href}
+                    className="text-brand underline underline-offset-2 hover:no-underline"
+                  >
+                    {item.label}
+                  </Link>
+                </h3>
+                <p className="text-muted mt-1 text-sm">{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section aria-labelledby="guidance-heading" className="mt-14">
         <h2 id="guidance-heading" className="text-xl font-semibold">
           Which one should you use?
@@ -88,10 +107,7 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
         <ul className="mt-4 space-y-3">
           {category.selectionGuidance.map((guidance) => (
             <li key={guidance} className="flex gap-3">
-              <span
-                aria-hidden="true"
-                className="mt-2.5 size-1.5 shrink-0 rounded-full bg-brand"
-              />
+              <span aria-hidden="true" className="bg-brand mt-2.5 size-1.5 shrink-0 rounded-full" />
               <p className="measure text-muted">{guidance}</p>
             </li>
           ))}
@@ -108,13 +124,13 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
           <ul className="mt-4 grid gap-4 sm:grid-cols-2">
             {clusterGuides.map((guide) => (
               <li key={guide.slug} className="group relative">
-                <div className="h-full rounded-lg border border-border-default bg-surface p-5 transition-colors group-hover:border-brand-border">
+                <div className="border-border-default bg-surface group-hover:border-brand-border h-full rounded-lg border p-5 transition-colors">
                   <h3 className="text-base font-medium">
                     <Link href={`/guides/${guide.slug}`} className="after:absolute after:inset-0">
                       {guide.name}
                     </Link>
                   </h3>
-                  <p className="mt-2 text-sm text-muted">{guide.description}</p>
+                  <p className="text-muted mt-2 text-sm">{guide.description}</p>
                 </div>
               </li>
             ))}
@@ -130,15 +146,15 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
           <ul className="mt-4 grid gap-4 sm:grid-cols-2">
             {adjacent.map((other) => (
               <li key={other.slug} className="group relative">
-                <div className="flex h-full gap-3 rounded-lg border border-border-default bg-surface p-5 transition-colors group-hover:border-brand-border">
-                  <ToolIcon name={other.icon} className="mt-0.5 size-5 shrink-0 text-brand" />
+                <div className="border-border-default bg-surface group-hover:border-brand-border flex h-full gap-3 rounded-lg border p-5 transition-colors">
+                  <ToolIcon name={other.icon} className="text-brand mt-0.5 size-5 shrink-0" />
                   <div>
                     <h3 className="text-base font-medium">
                       <Link href={`/${other.slug}`} className="after:absolute after:inset-0">
                         {other.name}
                       </Link>
                     </h3>
-                    <p className="mt-1 text-sm text-muted">{other.description}</p>
+                    <p className="text-muted mt-1 text-sm">{other.description}</p>
                   </div>
                 </div>
               </li>

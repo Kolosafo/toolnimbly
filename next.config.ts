@@ -12,6 +12,17 @@ const withBundleAnalyzer =
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  images: {
+    /*
+     * Marble serves post cover images and in-content media from its own hosts.
+     * Without these patterns `next/image` throws at runtime rather than
+     * degrading, so the blog is unusable the moment a post has a cover.
+     */
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.marblecms.com' },
+      { protocol: 'https', hostname: 'media.marblecms.com' },
+    ],
+  },
   poweredByHeader: false,
   // A consistent trailing-slash policy (spec §8.1): no trailing slash anywhere.
   trailingSlash: false,

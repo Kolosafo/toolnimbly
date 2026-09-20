@@ -38,6 +38,13 @@ import { gotoTool } from './helpers';
 
 const TOOL_SLUG = 'loan-calculator';
 
+/*
+ * Derived from the registry, never written out. Display names are editorial
+ * and get rewritten for SEO; a literal here turns a copy edit into a failing
+ * test that looks like a broken feature.
+ */
+const TOOL_NAME = findTool(TOOL_SLUG)!.name;
+
 /** Serves whatever HTML the current test asked for, on its own origin. */
 let hostServer: Server;
 let hostOrigin: string;
@@ -89,7 +96,7 @@ test.describe('embed snippet on a third-party site', () => {
     serveHostPage(baseURL!);
     await page.goto(`${hostOrigin}/`);
 
-    const frame = page.frameLocator('iframe[title="Loan Calculator"]');
+    const frame = page.frameLocator(`iframe[title="${TOOL_NAME}"]`);
 
     // The frame loaded at all — this is what `frame-ancestors` and
     // `X-Frame-Options` would have blocked.
@@ -124,12 +131,12 @@ test.describe('embed snippet on a third-party site', () => {
     // In the host document, not the iframe.
     const link = page.locator(`a[href="${baseURL}/tools/${TOOL_SLUG}"]`);
     await expect(link).toBeVisible();
-    await expect(link).toHaveText(/Loan Calculator/i);
+    await expect(link).toHaveText(TOOL_NAME);
 
     // A crawler follows it to the canonical tool page.
     await link.click();
     await expect(page).toHaveURL(new RegExp(`/tools/${TOOL_SLUG}$`));
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Loan Calculator');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(TOOL_NAME);
   });
 
   test('every tool offers an embed snippet that names its own canonical URL', ({ baseURL }) => {
@@ -154,10 +161,7 @@ test.describe('the embed route itself', () => {
     await page.goto(`/embed/${TOOL_SLUG}`);
 
     // Stripped of a copy of a page that already ranks, so it must not compete.
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      'content',
-      /noindex/,
-    );
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
       new RegExp(`/tools/${TOOL_SLUG}$`),

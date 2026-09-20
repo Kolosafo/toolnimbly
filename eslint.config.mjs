@@ -43,9 +43,16 @@ const config = [
     },
   },
   {
-    // The JSON-LD serialiser and the pre-paint theme script are the only
-    // audited exceptions, and neither ever receives user input.
-    files: ['components/seo/json-ld.tsx', 'app/layout.tsx'],
+    // The JSON-LD serialiser, the pre-paint theme script, the embed theme
+    // script and the CMS prose renderer are the only audited exceptions. None
+    // of them ever receives visitor input: the first three are built from our
+    // own constants, and the fourth renders HTML authored in our own CMS.
+    files: [
+      'components/seo/json-ld.tsx',
+      'app/layout.tsx',
+      'app/embed/[slug]/layout.tsx',
+      'components/blog/prose.tsx',
+    ],
     rules: { 'react/no-danger': 'off' },
   },
   {

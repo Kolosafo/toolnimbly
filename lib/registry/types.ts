@@ -32,6 +32,12 @@ export type CategoryDefinition = {
   readonly intro: string;
   /** Guidance on choosing between the tools in this category. */
   readonly selectionGuidance: readonly string[];
+  /** Contextual links for the category's highest-intent user jobs. */
+  readonly contextualLinks?: readonly {
+    readonly label: string;
+    readonly description: string;
+    readonly href: string;
+  }[];
   /** Lucide icon name. */
   readonly icon: string;
   /** Order in navigation. */

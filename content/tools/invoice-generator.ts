@@ -3,7 +3,7 @@ import type { ToolContent } from '../types';
 export const invoiceGeneratorContent: ToolContent = {
   slug: 'invoice-generator',
   valueProposition:
-    'A professional invoice with exact currency maths, built in your browser — no account, no customer data leaving your device.',
+    'Create a professional PDF invoice with automatic totals, tax, discounts and payment terms. No signup, and your invoice data stays in your browser.',
   intro:
     'Fill in your business details, your client, and the work you are billing for, and this tool produces a clean invoice you can print or download as a PDF. Totals are calculated with exact decimal arithmetic rather than binary floating point, so the figures in the PDF match what you see on screen to the last cent. There is no account and no server: your client list, rates and line items stay on your own device.',
   steps: [

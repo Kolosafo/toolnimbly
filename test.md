@@ -13,11 +13,11 @@ The SEO build brief is integrated at the application level. All 30 tool pages ha
 
 | Check                                               | Result                                                                    |
 | --------------------------------------------------- | ------------------------------------------------------------------------- |
-| Unit and component tests                            | 419/419 passed across 18 test files                                       |
-| Chromium end-to-end tests                           | 167/167 passed                                                            |
+| Unit and component tests                            | 427/427 passed across 19 test files                                       |
+| Chromium end-to-end tests                           | 170/170 covered across the full run and clean targeted reruns             |
 | Previous Firefox, WebKit, and mobile Chromium audit | 418/420 passed initially; both timeouts passed on a clean serial retry    |
-| Production routes                                   | All 30 tools, 30 embeds, five hubs, and seven guides prerendered          |
-| Production build                                    | Webpack production build passed and generated 84 routes                   |
+| Production routes                                   | All 30 tools, 30 embeds, five hubs, and 11 guides generated               |
+| Production build                                    | Next.js 16 Turbopack build passed and generated 90 static pages           |
 | TypeScript                                          | Passed                                                                    |
 | Full repository lint                                | Passed                                                                    |
 | Shared JavaScript transfer budget                   | Passed at 167 KB gzip, below the 200 KB ceiling                           |
@@ -26,7 +26,7 @@ The SEO build brief is integrated at the application level. All 30 tool pages ha
 | Security                                            | CSP and security-header checks passed                                     |
 | Responsive layout                                   | All routes passed the 320 px horizontal-overflow/control-visibility check |
 
-The default Turbopack build could not be executed in the restricted test environment because its CSS worker was prevented from binding an internal local port. The webpack production build completed successfully, so this was treated as an environment restriction rather than an application defect.
+The first sandboxed Turbopack attempt was blocked from binding an internal local port. The same production build passed outside that restriction. A later monolithic Playwright rerun encountered an orphaned managed server; the affected specs were rerun against an isolated, explicitly managed production server and passed.
 
 ## Previously found defects — resolved
 
@@ -166,15 +166,25 @@ The suite remains unusually thorough around privacy, file validation, arithmetic
 ### What now passes in the repository
 
 - The registry contains exactly 30 tools with unique slugs, titles, descriptions, and primary keywords. No duplicate target keyword was found.
-- Every rendered title, including the `ToolNimbly` suffix, is at most 60 characters. Every page has one keyword-led H1, a unique meta description, and a self-referencing canonical.
+- Every page has one keyword-led H1, a unique meta description, and a self-referencing canonical. The five priority routes use the exact title and description map in `TOOLNIMBLY-SEO-CODEX-TASK.md`.
 - Every tool has 800–1,500 words of reviewed page content. The measured range is 810–1,091 words, including instructions, a worked example, explanatory context, limitations, four to six FAQs, and related links.
-- All 30 pages emit `WebApplication`, `FAQPage`, and `BreadcrumbList` JSON-LD from the same content shown to visitors.
-- The sitemap contains 48 unique indexable routes: the homepage, five hubs, 30 tools, the guides index, seven guides, and four supporting pages. Embed routes are deliberately excluded.
+- All 30 pages emit one `WebApplication`, one visible-content `FAQPage`, and exactly one `BreadcrumbList` JSON-LD object whose labels match the visible breadcrumb.
+- With the optional blog disabled, the sitemap contains 52 unique code-managed indexable routes: the homepage, five hubs, 30 tools, the guides index, 11 guides, and four supporting pages. Embed and social-image routes are deliberately excluded.
 - `robots.txt` references the sitemap, allows framework assets and query variants to be rendered, and disallows only `/api/` in production.
-- Five topical hubs and seven long-form guides form the hub ⇄ tool ⇄ related tool ⇄ guide link structure. Internal-link integrity is tested.
+- Five topical hubs and 11 long-form guides form the hub ⇄ tool ⇄ related tool ⇄ guide link structure. Internal-link integrity is tested.
 - Every tool exposes an embed dialog and a dedicated `/embed/{slug}` page. The generated snippet contains a plain crawlable credit link outside the iframe. Cross-origin rendering, noindex metadata, canonicalization, theme handling, and scoped framing headers passed end-to-end tests.
-- Optional GA4 is consent-gated and disabled by default. Its event contract permits only page paths, tool slugs, event names, predefined error codes, and coarse output kinds—never entered values or file contents.
+- The privacy policy now discloses Cloudflare Web Analytics without weakening the local-processing promise. Optional app-level analytics remain consent-gated; tested user inputs and file contents never enter analytics or network requests.
 - The shared JavaScript bundle remains below budget at 167 KB transferred gzip, and heavy PDF/image libraries are absent from the shared bundle.
+
+### Priority-page SEO task completed
+
+- Invoice, receipt, compound-interest, salary, and loan pages now have the required distinct titles, descriptions, H1s, hero copy, canonicals, and matching Open Graph/Twitter metadata.
+- Each priority page uses a distinct 1200×630 framework-generated image at `/tools/{slug}/social-image`, with a page-specific title, differentiator, dimensions, and alt text.
+- Compound-interest and loan methodology blocks cite the requested Investor.gov and CFPB references with ordinary HTTPS links and clear non-endorsement context. Salary assumptions identify 40 hours and 52 paid weeks as editable defaults.
+- The salary form states beside the inputs that every result is gross pay before tax and deductions.
+- Four original supporting guides were added for receipts, compound-interest contributions, salary conversion, and extra loan payments. Each is linked from its tool and included in the guide index and sitemap.
+- Calculators and Business Tools hubs now include contextual descriptions and natural links for the five priority user jobs.
+- Invoice and receipt PDF downloads, loan and compound-interest CSV downloads, salary keyboard conversion, loan extra-payment savings, and compound contribution timing all pass browser tests.
 
 ### External verification still required
 

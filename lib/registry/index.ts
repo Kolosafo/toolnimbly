@@ -1,4 +1,6 @@
 import { categories, getCategory } from './categories';
+import { features } from '@/lib/config/features';
+
 import { guides } from './guides';
 import { tools } from './tools';
 import type { CategoryDefinition, ToolCategory, ToolDefinition } from './types';
@@ -100,12 +102,19 @@ export function orderedCategories(): CategoryDefinition[] {
  * integrity test (spec §8.4).
  */
 export function allIndexableRoutes(): string[] {
+  const blogEnabled = features.blogEnabled;
   return [
     '/',
     ...orderedCategories().map((category) => `/${category.slug}`),
     ...toolSlugs.map(toolPath),
     '/guides',
     ...guides.map((guide) => guidePath(guide.slug)),
+    /*
+     * `/blog` only. Individual posts are CMS-managed and cannot be enumerated
+     * synchronously here; the sitemap fetches them directly. This list feeds
+     * the link-integrity test, which checks routes the code owns.
+     */
+    ...(blogEnabled ? ['/blog'] : []),
     '/about',
     '/privacy',
     '/terms',

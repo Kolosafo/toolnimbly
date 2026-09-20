@@ -72,7 +72,12 @@ export function SalaryCalculator() {
   const parsedWeeks = parseNumericInput(weeks);
 
   const result = useMemo(() => {
-    if (parsedAmount === null || parsedHours === null || parsedDays === null || parsedWeeks === null) {
+    if (
+      parsedAmount === null ||
+      parsedHours === null ||
+      parsedDays === null ||
+      parsedWeeks === null
+    ) {
       return null;
     }
     return calculateSalary({
@@ -135,6 +140,10 @@ export function SalaryCalculator() {
         </ResultPanel>
       }
     >
+      <p className="border-border-default bg-surface-sunken text-muted rounded-md border px-3 py-2 text-sm">
+        All figures are gross pay before tax and deductions.
+      </p>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <NumberField
           label="Pay amount"
@@ -158,7 +167,7 @@ export function SalaryCalculator() {
         options={CURRENCY_OPTIONS}
       />
 
-      <fieldset className="border-t border-border-default pt-4">
+      <fieldset className="border-border-default border-t pt-4">
         <legend className="text-sm font-medium">Your working pattern</legend>
         <div className="mt-3 grid gap-4 sm:grid-cols-3">
           <NumberField
@@ -183,7 +192,7 @@ export function SalaryCalculator() {
             error={weeks.trim() !== '' && parsedWeeks === null ? 'Enter a number.' : null}
           />
         </div>
-        <p className="mt-2 text-xs text-muted">
+        <p className="text-muted mt-2 text-xs">
           Salaried with paid holiday? Leave paid weeks at 52. Taking unpaid leave? Subtract those
           weeks.
         </p>

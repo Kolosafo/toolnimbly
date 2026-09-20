@@ -14,14 +14,56 @@ const CATEGORY_SLUGS = [
 
 /** The supporting articles (SEO brief §5). */
 const GUIDE_SLUGS = [
+  'compound-interest-with-contributions',
+  'how-extra-loan-payments-save-interest',
+  'how-to-convert-salary-to-hourly',
   'how-loan-interest-works',
   'choosing-a-strong-password',
   'choosing-an-image-format',
   'why-pdfs-are-large',
+  'what-a-payment-receipt-should-include',
   'what-an-invoice-must-contain',
   'counting-words-and-characters',
   'reading-health-calculators',
 ];
+
+const PRIORITY_PAGE_EXPECTATIONS = [
+  {
+    slug: 'invoice-generator',
+    title: 'Free Invoice Generator — PDF, No Signup | ToolNimbly',
+    description:
+      'Create a professional PDF invoice with line items, tax, discounts and payment terms. Free, no signup, and processed in your browser.',
+    h1: 'Free Invoice Generator',
+  },
+  {
+    slug: 'receipt-generator',
+    title: 'Free Receipt Generator — Payment Receipt PDF | ToolNimbly',
+    description:
+      'Create a printable payment receipt with line items, tax, tips and change, then print or download a PDF. Free, private and no signup.',
+    h1: 'Free Receipt Generator',
+  },
+  {
+    slug: 'compound-interest-calculator',
+    title: 'Compound Interest Calculator with Contributions | ToolNimbly',
+    description:
+      'Calculate compound interest with regular contributions and daily, monthly or annual compounding. See yearly growth and download the results.',
+    h1: 'Compound Interest Calculator with Contributions',
+  },
+  {
+    slug: 'salary-calculator',
+    title: 'Salary to Hourly & Hourly to Salary Calculator | ToolNimbly',
+    description:
+      'Convert annual salary to hourly, monthly, weekly, biweekly or daily gross pay—or convert an hourly wage back to annual salary.',
+    h1: 'Salary to Hourly Calculator',
+  },
+  {
+    slug: 'loan-calculator',
+    title: 'Loan Calculator with Extra Payments & Amortization | ToolNimbly',
+    description:
+      'Calculate monthly loan payments, total interest and a full amortization schedule. Add extra payments to compare payoff time and savings.',
+    h1: 'Loan Calculator with Extra Payments',
+  },
+] as const;
 
 /** All 30 canonical tool routes. */
 const TOOL_SLUGS = [
@@ -106,11 +148,72 @@ test.describe('routing and metadata', () => {
     }
   });
 
+  test('priority pages render exact metadata, one breadcrumb graph and distinct social images', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    const socialImages = new Set<string>();
+
+    for (const expected of PRIORITY_PAGE_EXPECTATIONS) {
+      const path = `/tools/${expected.slug}`;
+      const response = await page.goto(path);
+      expect(response?.status(), expected.slug).toBe(200);
+      expect(await page.title()).toBe(expected.title);
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+        'content',
+        expected.description,
+      );
+
+      const h1 = page.locator('h1');
+      await expect(h1).toHaveCount(1);
+      await expect(h1).toHaveText(expected.h1);
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        new RegExp(`/tools/${expected.slug}$`),
+      );
+
+      const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
+      const objects = jsonLd.flatMap((value) => {
+        const parsed = JSON.parse(value) as unknown;
+        return Array.isArray(parsed) ? parsed : [parsed];
+      }) as { '@type'?: string }[];
+      expect(objects.filter((item) => item['@type'] === 'BreadcrumbList')).toHaveLength(1);
+      expect(objects.filter((item) => item['@type'] === 'WebApplication')).toHaveLength(1);
+
+      const image = await page.locator('meta[property="og:image"]').getAttribute('content');
+      expect(image, expected.slug).toContain(`/tools/${expected.slug}/social-image`);
+      expect(image).toBeTruthy();
+      socialImages.add(image!);
+      const imageResponse = await context.request.get(image!);
+      expect(imageResponse.status(), `${expected.slug} social image`).toBe(200);
+      expect(imageResponse.headers()['content-type']).toContain('image/png');
+      await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute(
+        'content',
+        '1200',
+      );
+      await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute(
+        'content',
+        '630',
+      );
+      await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+        'content',
+        /ToolNimbly/,
+      );
+      await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', image!);
+    }
+
+    expect(socialImages.size).toBe(PRIORITY_PAGE_EXPECTATIONS.length);
+    await context.close();
+  });
+
   test('tool pages carry the required anatomy, server-rendered', async ({ page }) => {
     await page.goto('/tools/loan-calculator');
 
     await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 1, name: 'Loan Calculator' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Loan Calculator with Extra Payments' }),
+    ).toBeVisible();
     await expect(page.getByText(/Runs in your browser/i)).toBeVisible();
     await expect(page.getByRole('heading', { name: /How to use/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Worked example' })).toBeVisible();

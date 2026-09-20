@@ -3,10 +3,13 @@ import Link from 'next/link';
 
 import { Container } from '@/components/ui/container';
 import { site } from '@/lib/config/site';
+import { features } from '@/lib/config/features';
 import { orderedCategories, toolsInCategory } from '@/lib/registry';
 
 const secondaryLinks = [
   { href: '/guides', label: 'Guides' },
+  // Only when the CMS is configured; otherwise this is a link to a 404.
+  ...(features.blogEnabled ? [{ href: '/blog', label: 'Blog' }] : []),
   { href: '/about', label: 'About' },
   { href: '/privacy', label: 'Privacy' },
   { href: '/terms', label: 'Terms' },

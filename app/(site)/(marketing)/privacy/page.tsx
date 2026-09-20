@@ -45,35 +45,35 @@ export default function PrivacyPage() {
       </Section>
 
       <Section heading="Analytics">
+        <p>
+          ToolNimbly uses Cloudflare Web Analytics to understand aggregate page views and site
+          performance. It works through a small browser beacon. User inputs, file contents,
+          passwords, invoice fields and calculator inputs are not sent as analytics events.
+        </p>
+        <p>
+          Cloudflare describes Web Analytics as privacy-first and says it does not collect or use
+          visitors&apos; personal data. You can read{' '}
+          <a
+            href="https://developers.cloudflare.com/web-analytics/about/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Cloudflare&apos;s explanation of Web Analytics
+          </a>
+          . Standard requests for pages, assets and the performance beacon still travel through
+          network and hosting infrastructure and may be processed there as ordinary technical
+          traffic. They do not contain the values you enter into a tool or the contents of files you
+          process locally.
+        </p>
         {features.analyticsEnabled ? (
-          <>
-            <p>
-              Anonymous, aggregate usage analytics are enabled on this deployment using{' '}
-              {features.analyticsProvider}. They record which pages are viewed and which broad
-              actions occur — that a tool was opened, that a calculation succeeded, that a download
-              happened.
-            </p>
-            <p>
-              They never record the values you enter. The event format permits only a tool
-              identifier and a predefined code from a fixed list. Raw inputs, pasted text,
-              passwords, generated UUIDs, filenames, file contents, invoice or customer data, QR
-              code contents, dates of birth, body measurements and exact financial amounts are all
-              excluded by design, not by policy.
-            </p>
-          </>
-        ) : (
-          <>
-            <p>
-              There are currently no analytics running on this site. No usage events are collected,
-              no page views are recorded and no third-party analytics script is loaded.
-            </p>
-            <p>
-              If privacy-respecting analytics are enabled in future, this section will be updated
-              before they are switched on, and the rules above will apply: event names and a tool
-              identifier only, never the values you enter.
-            </p>
-          </>
-        )}
+          <p>
+            This deployment may also record broad tool actions through the configured{' '}
+            {features.analyticsProvider} integration, subject to the controls described below. Its
+            event format permits a tool identifier and a predefined action or error code—not raw
+            inputs, pasted text, filenames, document contents, customer data or exact financial
+            amounts.
+          </p>
+        ) : null}
       </Section>
 
       <Section heading="Cookies and local storage">
@@ -84,7 +84,12 @@ export default function PrivacyPage() {
             cookies.
           </p>
         ) : (
-          <p>This site sets no tracking cookies and no advertising cookies.</p>
+          <p>
+            The ToolNimbly application does not load Google Analytics or advertising-cookie code
+            under its current configuration. Cloudflare-controlled network behavior is governed by
+            Cloudflare&apos;s service and site configuration rather than this application&apos;s
+            optional analytics flag.
+          </p>
         )}
         <p>Your browser’s local storage is used for these on-device preferences:</p>
         <ul>
@@ -112,8 +117,8 @@ export default function PrivacyPage() {
           </p>
         ) : (
           <p>
-            Because nothing here profiles you or sets a tracking identifier, there is no consent
-            banner to click through.
+            No in-app advertising or profiling integration is currently configured, so this
+            application does not display its optional analytics consent banner.
           </p>
         )}
       </Section>

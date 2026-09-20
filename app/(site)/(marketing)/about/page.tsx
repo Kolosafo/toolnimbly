@@ -114,12 +114,12 @@ export default function AboutPage() {
           the <Link href="/contact">contact page</Link> for what to include.
         </p>
         <p>
-          There are no advertisements on the site at present.{' '}
+          There are no advertisements on the site at present. Cloudflare Web Analytics measures
+          aggregate page views and performance without receiving tool inputs or file contents.{' '}
           {features.analyticsEnabled
-            ? 'Anonymous usage analytics are available only after a visitor opts in.'
-            : 'No analytics are running on this deployment.'}{' '}
-          The <Link href="/privacy">privacy policy</Link> explains the exact event fields and the
-          consent control.
+            ? 'Any additional configured usage analytics remain subject to the controls described in the policy. '
+            : null}
+          The <Link href="/privacy">privacy policy</Link> explains what is and is not processed.
         </p>
       </Section>
 

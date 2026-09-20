@@ -14,7 +14,11 @@ import {
   tools,
   toolsInCategory,
 } from '@/lib/registry';
-import { collectRegistryIssues, toolPageWordCount } from '@/lib/registry/validate';
+import {
+  collectRegistryIssues,
+  guidePageWordCount,
+  toolPageWordCount,
+} from '@/lib/registry/validate';
 
 describe('tool registry invariants', () => {
   it('satisfies every declared invariant', () => {
@@ -41,6 +45,19 @@ describe('tool registry invariants', () => {
       const words = toolPageWordCount(tool.slug);
       expect(words, `${tool.slug} is too thin`).toBeGreaterThanOrEqual(800);
       expect(words, `${tool.slug} is too long`).toBeLessThanOrEqual(1_500);
+    }
+  });
+
+  it('keeps the four priority guides within the requested useful range', () => {
+    for (const slug of [
+      'what-a-payment-receipt-should-include',
+      'compound-interest-with-contributions',
+      'how-to-convert-salary-to-hourly',
+      'how-extra-loan-payments-save-interest',
+    ]) {
+      const words = guidePageWordCount(slug);
+      expect(words, `${slug} is too thin`).toBeGreaterThanOrEqual(700);
+      expect(words, `${slug} is too long`).toBeLessThanOrEqual(1_400);
     }
   });
 
