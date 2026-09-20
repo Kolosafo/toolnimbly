@@ -48,3 +48,9 @@ CLAUDE.md
 
 # Copied from pdfjs-dist by scripts/copy-pdfjs-assets.mjs
 /public/pdfjs/
+
+# Research survey responses — raw rows never enter Git (docs/research/data-handling.md §3)
+/data/research/private/
+data/research/**/*.private.csv
+data/research/**/*.private.json
+/data/research/validation-reports/

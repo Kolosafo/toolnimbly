@@ -21,6 +21,15 @@ type BuildMetadataInput = {
   imageAlt?: string;
   /** Set for utility routes that should never be indexed. */
   noIndex?: boolean;
+  /**
+   * Keeps `follow` alive on a noindexed page.
+   *
+   * The default pairs `noindex` with `nofollow`, which is right for a preview
+   * of an unfinished page. It is wrong for a live page that is deliberately
+   * kept out of the index but still links onward to pages that are in it — a
+   * survey landing page being the case this exists for.
+   */
+  followWhenNoIndexed?: boolean;
   /** `article`-style pages may set a type; defaults to `website`. */
   type?: 'website' | 'article';
 };
@@ -34,6 +43,7 @@ export function buildMetadata({
   image = DEFAULT_OG_IMAGE,
   imageAlt,
   noIndex = false,
+  followWhenNoIndexed = false,
   type = 'website',
 }: BuildMetadataInput): Metadata {
   const canonical = absoluteUrl(path);
@@ -65,7 +75,7 @@ export function buildMetadata({
             'max-video-preview': -1,
           },
         }
-      : { index: false, follow: false, nocache: true },
+      : { index: false, follow: followWhenNoIndexed, nocache: true },
     openGraph: {
       type,
       url: canonical,

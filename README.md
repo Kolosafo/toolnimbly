@@ -60,17 +60,19 @@ into `public/pdfjs/`. They are gitignored and regenerated on demand.
 
 ### Commands
 
-| Command                     | What it does                                       |
-| --------------------------- | -------------------------------------------------- |
-| `pnpm dev`                  | Development server                                 |
-| `pnpm build` / `pnpm start` | Production build and server                        |
-| `pnpm lint`                 | ESLint                                             |
-| `pnpm typecheck`            | TypeScript, strict                                 |
-| `pnpm test`                 | Unit and component tests (Vitest)                  |
-| `pnpm test:e2e`             | End-to-end tests (Playwright)                      |
-| `pnpm verify`               | lint + typecheck + test + build                    |
-| `pnpm check:bundles`        | Fails if a heavy library reaches the shared bundle |
-| `pnpm analyze`              | Bundle analyser                                    |
+| Command                     | What it does                                                |
+| --------------------------- | ----------------------------------------------------------- |
+| `pnpm dev`                  | Development server                                          |
+| `pnpm build` / `pnpm start` | Production build and server                                 |
+| `pnpm lint`                 | ESLint                                                      |
+| `pnpm typecheck`            | TypeScript, strict                                          |
+| `pnpm test`                 | Unit and component tests (Vitest)                           |
+| `pnpm test:e2e`             | End-to-end tests (Playwright)                               |
+| `pnpm verify`               | lint + typecheck + test + build                             |
+| `pnpm check:bundles`        | Fails if a heavy library reaches the shared bundle          |
+| `pnpm research:validate`    | Validates a private survey export against the data contract |
+| `pnpm research:build`       | Validates, then writes the public aggregate outputs         |
+| `pnpm analyze`              | Bundle analyser                                             |
 
 Cross-browser runs: `E2E_ALL_BROWSERS=true pnpm test:e2e`.
 
@@ -148,6 +150,28 @@ the guides that reference it. A guide declares its tools in
 Figures quoted in a guide are recomputed from the same library the tool uses,
 in `tests/unit/guide-content.test.ts`. Prose and implementation cannot drift
 apart silently.
+
+### Research (`/research/...`)
+
+One original-data report, `/research/invoice-payment-terms-benchmark-2026`, and
+the survey behind it. **Neither is published.** No survey has been fielded, no
+collection method has been approved, and the route returns a real 404 in
+production until a validated export, a recorded editorial review date and an
+explicit owner approval all exist.
+
+The analysis lives in `lib/research/pipeline.ts`: the field contract, a CSV
+reader, a validator that rejects any unexpected column, and an aggregator whose
+suppression runs across both rows and columns, because the report publishes the
+marginals too and a single withheld figure in a line can be recovered by
+subtraction. Raw responses never enter Git, a page payload, `public/`, or a
+build log. `pnpm research:build` cannot put a file on the web at all; publishing
+the aggregate CSV is a separate command behind the same gate the route uses. The
+report's headline findings are computed from the aggregate summary rather than
+written, so a sentence cannot claim something the data does not.
+
+Start at `docs/research/invoice-payment-terms-survey-spec.md` for the
+instrument, `docs/research/data-handling.md` for storage, retention and the
+publication gate, and ADR 0010 for why it is shaped this way.
 
 ### Adding a tool
 
@@ -295,4 +319,6 @@ click, and the claim on the page that nobody verified.
 - `SECURITY.md` — threat model, CSP, and the no-sensitive-fixtures rule
 - `docs/adr/` — decisions on local processing, the registry, date handling,
   money arithmetic, PDF compression modes, the CSP, cross-browser layout,
-  document rounding and the embeddable routes
+  document rounding, the embeddable routes and the research pipeline
+- `docs/research/` — the survey specification, the data-handling and retention
+  procedure, and the outreach package template for the unpublished benchmark

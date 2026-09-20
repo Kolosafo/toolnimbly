@@ -4,7 +4,7 @@
   "private": true,
   "description": "ToolNimbly — fast, privacy-respecting browser utilities. All processing stays on the device.",
   "engines": {
-    "node": ">=22.11.0",
+    "node": ">=22.13.0",
     "pnpm": ">=10"
   },
   "packageManager": "pnpm@11.21.0",
@@ -27,7 +27,10 @@
     "prepare:pdfjs": "node scripts/copy-pdfjs-assets.mjs",
     "predev": "node scripts/copy-pdfjs-assets.mjs",
     "prebuild": "node scripts/copy-pdfjs-assets.mjs",
-    "check:bundles": "node scripts/check-bundles.mjs"
+    "check:bundles": "node scripts/check-bundles.mjs",
+    "research:validate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/research/build-benchmark.mjs",
+    "research:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/research/build-benchmark.mjs --write",
+    "research:publish": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/research/publish-benchmark.mjs"
   },
   "dependencies": {
     "@usemarble/sdk": "^1.3.0",
