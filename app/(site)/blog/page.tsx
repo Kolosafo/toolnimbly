@@ -1,16 +1,26 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { PostCard } from '@/components/blog/post-card';
-import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
-import { JsonLd } from '@/components/seo/json-ld';
-import { Container } from '@/components/ui/container';
+import { BlogIndex } from '@/components/blog/blog-index';
 import { features } from '@/lib/config/features';
-import { absoluteUrl } from '@/lib/config/site';
-import { listAllPosts, splitFeatured } from '@/lib/marble/posts';
+import { listAllPosts } from '@/lib/marble/posts';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { breadcrumbSchema } from '@/lib/seo/structured-data';
+
+/*
+ * Time-based revalidation, in addition to the publish webhook.
+ *
+ * Without this the page is a build-time snapshot that can only ever change on
+ * a redeploy or a successful webhook call. That makes a single missed webhook
+ * permanent: the blog silently serves an empty index until someone notices and
+ * redeploys, which is exactly what happened on the first production build.
+ *
+ * The webhook is still what makes a publish appear in seconds; this is the
+ * floor under it. Ten minutes is short enough that a missed webhook is a delay
+ * rather than an outage, and long enough that the CMS is not polled hard.
+ *
+ * Must be a literal — Next.js requires the value to be statically analysable.
+ */
+export const revalidate = 600;
 
 export const metadata: Metadata = buildMetadata({
   title: 'Blog',
@@ -25,77 +35,5 @@ export default async function BlogIndexPage() {
   if (!features.blogEnabled) notFound();
 
   const posts = await listAllPosts();
-  const { featured, rest } = splitFeatured(posts);
-
-  return (
-    <Container as="div" className="py-6 sm:py-8">
-      <Breadcrumbs
-        entries={[
-          { name: 'Home', path: '/' },
-          { name: 'Blog', path: '/blog' },
-        ]}
-      />
-
-      <header className="mt-4">
-        <h1 className="text-3xl font-bold sm:text-4xl">Blog</h1>
-        <p className="measure text-muted mt-3 text-lg">
-          Notes on the tools, the arithmetic behind them, and the privacy choices we make.
-        </p>
-      </header>
-
-      {posts.length === 0 ? (
-        <p className="measure border-border-default bg-surface-sunken text-muted mt-10 rounded-xl border p-6">
-          There are no posts yet. In the meantime, the{' '}
-          <Link href="/guides" className="text-brand underline underline-offset-2">
-            guides
-          </Link>{' '}
-          cover the subjects behind the tools in depth.
-        </p>
-      ) : (
-        <>
-          {featured ? (
-            <div className="mt-10">
-              <PostCard post={featured} featured />
-            </div>
-          ) : null}
-
-          {rest.length > 0 ? (
-            <section aria-labelledby="recent-heading" className="mt-10">
-              <h2 id="recent-heading" className="text-xl font-semibold">
-                {featured ? 'More posts' : 'Recent posts'}
-              </h2>
-              <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {rest.map((post) => (
-                  <li key={post.id}>
-                    <PostCard post={post} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-        </>
-      )}
-
-      <JsonLd
-        data={[
-          breadcrumbSchema([
-            { name: 'Home', path: '/' },
-            { name: 'Blog', path: '/blog' },
-          ]),
-          {
-            '@context': 'https://schema.org',
-            '@type': 'Blog',
-            name: 'ToolNimbly Blog',
-            url: absoluteUrl('/blog'),
-            blogPost: posts.slice(0, 20).map((post) => ({
-              '@type': 'BlogPosting',
-              headline: post.title,
-              url: absoluteUrl(`/blog/${post.slug}`),
-              datePublished: new Date(post.publishedAt).toISOString(),
-            })),
-          },
-        ]}
-      />
-    </Container>
-  );
+  return <BlogIndex posts={posts} />;
 }

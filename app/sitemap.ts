@@ -3,6 +3,7 @@ import type { MetadataRoute } from 'next';
 import { absoluteUrl } from '@/lib/config/site';
 import { features } from '@/lib/config/features';
 import { listAllPosts } from '@/lib/marble/posts';
+import { blogPostDates, blogPostSitemapEntries } from '@/lib/marble/seo';
 import { guides, orderedCategories, tools } from '@/lib/registry';
 import { assertRegistryValid } from '@/lib/registry/validate';
 
@@ -13,6 +14,13 @@ import { assertRegistryValid } from '@/lib/registry/validate';
  * Registry validation runs here as well: the sitemap is built during
  * `next build`, so a broken registry fails the build rather than shipping.
  */
+/*
+ * The sitemap lists CMS posts, so it has the same staleness problem as the
+ * blog index and the same fix. An hour is ample: search engines re-fetch a
+ * sitemap on their own schedule, not on ours.
+ */
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   assertRegistryValid();
 
@@ -100,30 +108,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           url: absoluteUrl('/blog'),
           // The index changes when its newest post does, not on every build.
           lastModified: posts.reduce<Date>((latest, post) => {
-            const stamp = new Date(post.updatedAt ?? post.publishedAt);
+            const stamp = blogPostDates(post).modified;
             return stamp > latest ? stamp : latest;
           }, editorialUpdatedAt),
           changeFrequency: 'weekly',
           priority: 0.7,
         },
-        ...posts.map((post) => ({
-          url: absoluteUrl(`/blog/${post.slug}`),
-          // `updatedAt` where Marble supplies it, so an edit re-signals
-          // freshness rather than reporting the original publication date.
-          lastModified: new Date(post.updatedAt ?? post.publishedAt),
-          changeFrequency: 'monthly' as const,
-          priority: 0.6,
-        })),
+        // The helper defensively filters drafts and uses Marble's persisted
+        // updatedAt value. No build timestamp is substituted.
+        ...blogPostSitemapEntries(posts),
       ]
     : [];
 
-  return [
-    ...staticRoutes,
-    ...categoryRoutes,
-    ...toolRoutes,
-    ...guideRoutes,
-    ...blogRoutes,
-  ];
+  return [...staticRoutes, ...categoryRoutes, ...toolRoutes, ...guideRoutes, ...blogRoutes];
 }
 
 function latestDate(values: readonly string[]): Date {
