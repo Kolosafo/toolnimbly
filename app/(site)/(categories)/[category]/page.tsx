@@ -7,7 +7,13 @@ import { ToolCard } from '@/components/navigation/tool-card';
 import { JsonLd } from '@/components/seo/json-ld';
 import { Container } from '@/components/ui/container';
 import { ToolIcon } from '@/components/ui/tool-icon';
-import { adjacentCategories, categories, findCategory, toolsInCategory } from '@/lib/registry';
+import {
+  adjacentCategories,
+  categories,
+  findCategory,
+  guidesInCategory,
+  toolsInCategory,
+} from '@/lib/registry';
 import { buildMetadata } from '@/lib/seo/metadata';
 import { categoryCollectionSchema } from '@/lib/seo/structured-data';
 
@@ -47,6 +53,7 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
 
   const categoryTools = toolsInCategory(category.slug);
   const adjacent = adjacentCategories(category.slug);
+  const clusterGuides = guidesInCategory(category.slug);
 
   return (
     <Container className="py-6 sm:py-8">
@@ -90,6 +97,30 @@ export default async function CategoryPage({ params }: { params: Promise<Params>
           ))}
         </ul>
       </section>
+
+      {/* The hub links down into its supporting articles, which link back into
+          the tools — closing the hub ⇄ tools ⇄ articles loop the cluster needs. */}
+      {clusterGuides.length > 0 ? (
+        <section aria-labelledby="cluster-guides-heading" className="mt-14">
+          <h2 id="cluster-guides-heading" className="text-xl font-semibold">
+            Guides
+          </h2>
+          <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+            {clusterGuides.map((guide) => (
+              <li key={guide.slug} className="group relative">
+                <div className="h-full rounded-lg border border-border-default bg-surface p-5 transition-colors group-hover:border-brand-border">
+                  <h3 className="text-base font-medium">
+                    <Link href={`/guides/${guide.slug}`} className="after:absolute after:inset-0">
+                      {guide.name}
+                    </Link>
+                  </h3>
+                  <p className="mt-2 text-sm text-muted">{guide.description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {adjacent.length > 0 ? (
         <nav aria-labelledby="adjacent-heading" className="mt-14">

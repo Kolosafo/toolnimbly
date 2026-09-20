@@ -1,8 +1,12 @@
 import { z } from 'zod';
 
 import { toolContent } from '@/content';
+import { guideContents } from '@/content/guides';
+import { toolDeepDives } from '@/content/tool-deep-dives';
+import { site } from '@/lib/config/site';
 
 import { categories } from './categories';
+import { EXPECTED_GUIDE_COUNT, guides } from './guides';
 import { EXPECTED_TOOL_COUNT, tools } from './tools';
 import { TOOL_CATEGORIES } from './types';
 
@@ -49,6 +53,31 @@ const categorySchema = z.object({
 });
 
 export type RegistryIssue = { scope: string; message: string };
+
+function countWords(value: unknown, key = ''): number {
+  if (key === 'slug' || key === 'url') return 0;
+  if (typeof value === 'string') {
+    return value.match(/[\p{L}\p{N}]+(?:[’'-][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+  }
+  if (Array.isArray(value)) {
+    return value.reduce((total, item) => total + countWords(item), 0);
+  }
+  if (value && typeof value === 'object') {
+    return Object.entries(value).reduce(
+      (total, [entryKey, item]) => total + countWords(item, entryKey),
+      0,
+    );
+  }
+  return 0;
+}
+
+/** Approximate the words a crawler and reader receive around one tool. */
+export function toolPageWordCount(slug: string): number {
+  const content = toolContent[slug];
+  const deepDive = toolDeepDives[slug];
+  if (!content || !deepDive) return 0;
+  return countWords(content) + countWords(deepDive);
+}
 
 /** Returns every invariant violation. An empty array means the registry is sound. */
 export function collectRegistryIssues(): RegistryIssue[] {
@@ -104,6 +133,16 @@ export function collectRegistryIssues(): RegistryIssue[] {
     const descriptionKey = tool.description.toLowerCase();
     if (seenDescriptions.has(descriptionKey)) add(tool.slug, 'duplicate description');
     seenDescriptions.add(descriptionKey);
+
+    const renderedTitle = `${tool.title} | ${site.name}`;
+    if (renderedTitle.length > 60) {
+      add(tool.slug, `rendered title is ${renderedTitle.length} characters`);
+    }
+
+    const keyword = tool.primaryKeyword.toLowerCase();
+    if (!tool.name.toLowerCase().includes(keyword) && !tool.title.toLowerCase().includes(keyword)) {
+      add(tool.slug, `neither H1 nor title contains primary keyword "${tool.primaryKeyword}"`);
+    }
   }
 
   const categoryOrders = new Set<number>();
@@ -150,8 +189,8 @@ export function collectRegistryIssues(): RegistryIssue[] {
     if (content.steps.length < 3 || content.steps.length > 5) {
       add(tool.slug, `expected 3–5 steps, found ${content.steps.length}`);
     }
-    if (content.faqs.length < 3 || content.faqs.length > 6) {
-      add(tool.slug, `expected 3–6 FAQs, found ${content.faqs.length}`);
+    if (content.faqs.length < 4 || content.faqs.length > 6) {
+      add(tool.slug, `expected 4–6 FAQs, found ${content.faqs.length}`);
     }
     if (content.limitations.length < 2) {
       add(tool.slug, 'expected at least two stated limitations');
@@ -167,11 +206,23 @@ export function collectRegistryIssues(): RegistryIssue[] {
         add(tool.slug, `FAQ answer too thin: "${faq.question}"`);
       }
     }
+
+    if (!toolDeepDives[tool.slug]) {
+      add(tool.slug, 'missing the explanatory deep-dive section');
+    } else {
+      const pageWords = toolPageWordCount(tool.slug);
+      if (pageWords < 800 || pageWords > 1500) {
+        add(tool.slug, `page content is ${pageWords} words; expected 800–1,500`);
+      }
+    }
   }
 
   // --- No orphan content ---------------------------------------------------
   for (const slug of Object.keys(toolContent)) {
     if (!seenSlugs.has(slug)) add(slug, 'content module has no registry entry');
+  }
+  for (const slug of Object.keys(toolDeepDives)) {
+    if (!seenSlugs.has(slug)) add(slug, 'deep-dive content has no registry entry');
   }
 
   // --- Featured tools ------------------------------------------------------
@@ -184,9 +235,55 @@ export function collectRegistryIssues(): RegistryIssue[] {
 }
 
 /** Throws with every issue listed. Used by the test suite and dev-time checks. */
+/**
+ * Guide invariants, checked alongside the tool registry so a broken article
+ * fails `next build` rather than shipping. The rules mirror the tool rules:
+ * one content module per entry, no dangling links, metadata within the same
+ * length limits the tool pages use.
+ */
+function collectGuideIssues(): RegistryIssue[] {
+  const issues: RegistryIssue[] = [];
+  const add = (message: string) => issues.push({ scope: 'guides', message });
+
+  if (guides.length !== EXPECTED_GUIDE_COUNT) {
+    add(`expected ${EXPECTED_GUIDE_COUNT} guides, found ${guides.length}`);
+  }
+
+  const toolSlugs = new Set(tools.map((tool) => tool.slug));
+  const contentSlugs = new Set(guideContents.map((guide) => guide.slug));
+  const seen = new Set<string>();
+
+  for (const guide of guides) {
+    if (seen.has(guide.slug)) add(`duplicate slug "${guide.slug}"`);
+    seen.add(guide.slug);
+
+    if (!contentSlugs.has(guide.slug)) add(`"${guide.slug}" has no content module`);
+    if (guide.title.length > 60) add(`"${guide.slug}" title is ${guide.title.length} characters`);
+    if (guide.description.length < 110 || guide.description.length > 165) {
+      add(`"${guide.slug}" description is ${guide.description.length} characters`);
+    }
+    if (guide.relatedToolSlugs.length < 3) {
+      add(`"${guide.slug}" links to fewer than three tools`);
+    }
+    for (const slug of guide.relatedToolSlugs) {
+      if (!toolSlugs.has(slug)) add(`"${guide.slug}" links to unknown tool "${slug}"`);
+    }
+  }
+
+  for (const content of guideContents) {
+    if (!seen.has(content.slug)) add(`content module "${content.slug}" has no registry entry`);
+    const words = countWords(content);
+    if (words < 800 || words > 1800) {
+      add(`"${content.slug}" article is ${words} words; expected 800–1,800`);
+    }
+  }
+
+  return issues;
+}
+
 export function assertRegistryValid(): void {
-  const issues = collectRegistryIssues();
+  const issues = [...collectRegistryIssues(), ...collectGuideIssues()];
   if (issues.length === 0) return;
   const detail = issues.map((issue) => `  • [${issue.scope}] ${issue.message}`).join('\n');
-  throw new Error(`Tool registry failed validation:\n${detail}`);
+  throw new Error(`Registry failed validation:\n${detail}`);
 }

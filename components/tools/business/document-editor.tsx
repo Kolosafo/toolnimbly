@@ -10,7 +10,6 @@ import { SegmentedControl } from '@/components/forms/segmented-control';
 import { SelectField } from '@/components/forms/select-field';
 import { SwitchField } from '@/components/forms/switch-field';
 import { documentLimits } from '@/lib/config/limits';
-import { buildDocumentPdf } from '@/lib/documents/pdf';
 import { formatMoney } from '@/lib/documents/money';
 import { downloadBlob, sanitizeFilename } from '@/lib/download/file';
 import { CURRENCIES, type CurrencyCode } from '@/lib/formatting/number';
@@ -126,6 +125,17 @@ export function DocumentEditor({ kind }: { kind: 'invoice' | 'receipt' }) {
     setError(null);
 
     try {
+      /*
+       * pdf-lib is imported here rather than at the top of the file.
+       *
+       * It is ~170 KB and is only needed once someone actually downloads. A
+       * static import puts it in the page's initial JavaScript, so every
+       * visitor pays to download a PDF writer before they have typed a single
+       * line item — and on a throttled mobile connection that dominated the
+       * page's largest-contentful-paint. Deferring it to the click is what
+       * spec §7.8 means by loading large renderers after user interaction.
+       */
+      const { buildDocumentPdf } = await import('@/lib/documents/pdf');
       const bytes = await buildDocumentPdf(buildInput());
       const base = sanitizeFilename(
         `${kind}-${draft.number || draft.issueDate || 'document'}`,

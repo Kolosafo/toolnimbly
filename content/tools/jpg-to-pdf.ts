@@ -80,5 +80,10 @@ export const jpgToPdfContent: ToolContent = {
       answer:
         'Compress the photos first with the JPG compressor, then build the PDF — that gives much better results than compressing the finished document. Capping dimensions to around 2,000 pixels usually shrinks it dramatically.',
     },
+    {
+      question: 'Can I change the page order before converting?',
+      answer:
+        'Yes. Each image in the list has controls to move it up or down, and the PDF is built in the order shown. Reordering after adding files is often quicker than adding them one at a time in the right sequence, particularly when your phone named them out of order.',
+    },
   ],
 };

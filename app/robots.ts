@@ -19,9 +19,11 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        // Query-string variants are canonicalised to the clean tool URL, so
-        // there is nothing to gain from crawling them (spec §8.1).
-        disallow: ['/api/', '/_next/', '/*?*'],
+        // Framework assets must remain crawlable so search engines can render
+        // the same styled, interactive page a visitor receives. Query variants
+        // are consolidated by the clean self-referencing canonical instead of
+        // being hidden from crawlers before they can read that signal.
+        disallow: ['/api/'],
       },
     ],
     sitemap: absoluteUrl('/sitemap.xml'),

@@ -16,9 +16,7 @@ export const features = {
   analyticsEnabled: flag(process.env.NEXT_PUBLIC_ANALYTICS_ENABLED),
   /** Provider identifier, only meaningful when analytics are enabled. */
   analyticsProvider: (process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER ?? 'none') as
-    | 'none'
-    | 'vercel'
-    | 'plausible',
+    'none' | 'ga4' | 'vercel' | 'plausible',
   analyticsSiteId: process.env.NEXT_PUBLIC_ANALYTICS_SITE_ID ?? '',
 
   /** Master switch for ad slots. Off for launch (spec §9 "Ads"). */

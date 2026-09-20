@@ -5,6 +5,9 @@
  * so no tool has to remember to do either.
  */
 
+import type { AllowedOutputKind } from '@/lib/analytics/events';
+import { announceDownload } from '@/lib/analytics/track';
+
 /** Maps a generated artefact to its correct MIME type and extension. */
 export const DOWNLOAD_TYPES = {
   csv: { mime: 'text/csv;charset=utf-8', extension: 'csv' },
@@ -83,9 +86,20 @@ export function downloadBlob(blob: Blob, filename: string): void {
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
+    announceDownload(outputKindFromFilename(filename));
   } finally {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+}
+
+function outputKindFromFilename(filename: string): AllowedOutputKind {
+  const extension = filename.split('.').at(-1)?.toLowerCase();
+  if (extension === 'pdf') return 'pdf';
+  if (extension === 'zip') return 'zip';
+  if (extension === 'csv') return 'csv';
+  if (extension === 'svg') return 'svg';
+  if (extension === 'txt' || extension === 'json') return 'text';
+  return 'image';
 }
 
 export function downloadText(content: string, baseName: string, kind: DownloadKind): void {

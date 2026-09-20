@@ -96,3 +96,31 @@ test.describe('content security policy', () => {
     expect(external, 'a third-party resource was requested').toEqual([]);
   });
 });
+
+test.describe('asset delivery', () => {
+  /*
+   * A page whose CSS and JS never arrive still renders text, still returns 200
+   * and still passes most assertions — it simply is not the product. This
+   * caught a real regression: an HTTPS canonical origin on a plain-HTTP test
+   * server made WebKit upgrade every asset request into a TLS failure, and the
+   * only symptom was a confusing crop of touch-target violations.
+   */
+  for (const path of ['/', '/tools/loan-calculator']) {
+    test(`serves every asset ${path} asks for`, async ({ page }) => {
+      const failures: string[] = [];
+      page.on('requestfailed', (request) => {
+        failures.push(`${request.url()} — ${request.failure()?.errorText ?? 'unknown'}`);
+      });
+
+      await page.goto(path, { waitUntil: 'networkidle' });
+
+      expect(failures, `failed asset requests on ${path}`).toEqual([]);
+
+      // And the stylesheet actually applied, not merely downloaded.
+      const skipLinkPosition = await page.evaluate(
+        () => getComputedStyle(document.querySelector('.sr-only-focusable')!).position,
+      );
+      expect(skipLinkPosition, 'the stylesheet did not apply').toBe('absolute');
+    });
+  }
+});

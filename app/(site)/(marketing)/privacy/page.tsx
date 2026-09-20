@@ -19,7 +19,7 @@ export default function PrivacyPage() {
     <LegalPage
       title="Privacy Policy"
       path="/privacy"
-      updated="2026-09-16"
+      updated="2026-09-20"
       showConfigurationNotice
       intro="The short version: the files and text you put into these tools are processed by your own browser and are never sent to us, because there is nowhere to send them."
     >
@@ -77,11 +77,16 @@ export default function PrivacyPage() {
       </Section>
 
       <Section heading="Cookies and local storage">
-        <p>
-          This site sets no tracking cookies and no advertising cookies. It uses your browser’s
-          local storage for two things only, both of which stay on your device and are never
-          transmitted:
-        </p>
+        {features.analyticsEnabled && features.analyticsProvider === 'ga4' ? (
+          <p>
+            Google Analytics may set analytics identifiers only after you choose “Allow analytics”.
+            No Google script is requested before that choice. The site never sets advertising
+            cookies.
+          </p>
+        ) : (
+          <p>This site sets no tracking cookies and no advertising cookies.</p>
+        )}
+        <p>Your browser’s local storage is used for these on-device preferences:</p>
         <ul>
           <li>
             <strong>Your theme preference</strong> — whether you chose light, dark or system. This
@@ -93,6 +98,12 @@ export default function PrivacyPage() {
             control for them on the tool, and clearing your browser’s site data removes them. They
             are not transmitted, backed up or recoverable by anyone else.
           </li>
+          {features.analyticsEnabled && features.analyticsProvider === 'ga4' ? (
+            <li>
+              <strong>Your analytics choice</strong> — “allowed” or “denied”, so the site respects
+              your decision on later visits without asking every time.
+            </li>
+          ) : null}
         </ul>
         {consentBannerRequired ? (
           <p>
@@ -144,9 +155,9 @@ export default function PrivacyPage() {
 
       <Section heading="Children">
         <p>
-          This site is a general-purpose utility and is not directed at children. It does not ask for
-          a name, an email address or an account, and it collects no personal information for any
-          user of any age.
+          This site is a general-purpose utility and is not directed at children. It does not ask
+          for a name, an email address or an account, and it collects no personal information for
+          any user of any age.
         </p>
       </Section>
 

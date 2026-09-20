@@ -6,13 +6,15 @@ import {
   categories,
   EXPECTED_TOOL_COUNT,
   featuredTools,
+  guidePath,
+  guides,
   orderedCategories,
   relatedTools,
   toolPath,
   tools,
   toolsInCategory,
 } from '@/lib/registry';
-import { collectRegistryIssues } from '@/lib/registry/validate';
+import { collectRegistryIssues, toolPageWordCount } from '@/lib/registry/validate';
 
 describe('tool registry invariants', () => {
   it('satisfies every declared invariant', () => {
@@ -32,6 +34,14 @@ describe('tool registry invariants', () => {
     const contentSlugs = new Set(Object.keys(toolContent));
     expect([...registrySlugs].filter((slug) => !contentSlugs.has(slug))).toEqual([]);
     expect([...contentSlugs].filter((slug) => !registrySlugs.has(slug))).toEqual([]);
+  });
+
+  it('ships 800–1,500 words of useful, crawlable content on every tool page', () => {
+    for (const tool of tools) {
+      const words = toolPageWordCount(tool.slug);
+      expect(words, `${tool.slug} is too thin`).toBeGreaterThanOrEqual(800);
+      expect(words, `${tool.slug} is too long`).toBeLessThanOrEqual(1_500);
+    }
   });
 
   it('resolves 3 to 6 related tools for every route, never itself', () => {
@@ -69,8 +79,23 @@ describe('tool registry invariants', () => {
     for (const category of categories) {
       expect(routes).toContain(`/${category.slug}`);
     }
-    // 1 home + 5 categories + 30 tools + 4 legal/editorial pages
-    expect(routes).toHaveLength(40);
+    for (const guide of guides) {
+      expect(routes).toContain(guidePath(guide.slug));
+    }
+
+    /*
+     * Derived rather than hard-coded. The point of this assertion is that
+     * nothing is listed twice and nothing extra has crept in, not that the site
+     * has a particular number of pages — a literal here has to be edited every
+     * time a page is added, which teaches people to edit it without looking.
+     */
+    const fixedPages = ['/', '/guides', '/about', '/privacy', '/terms', '/contact'];
+    expect(routes).toHaveLength(
+      fixedPages.length + categories.length + tools.length + guides.length,
+    );
+    for (const page of fixedPages) {
+      expect(routes).toContain(page);
+    }
   });
 
   it('curates a sensible featured set drawn from more than one category', () => {

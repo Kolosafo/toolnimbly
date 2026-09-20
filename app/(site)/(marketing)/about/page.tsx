@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { features } from '@/lib/config/features';
 import { site } from '@/lib/config/site';
 import { tools } from '@/lib/registry';
 import { buildMetadata } from '@/lib/seo/metadata';
@@ -19,7 +20,7 @@ export default function AboutPage() {
     <LegalPage
       title={`About ${site.name}`}
       path="/about"
-      updated="2026-09-16"
+      updated="2026-09-20"
       showConfigurationNotice
       intro={`${site.name} is a collection of ${tools.length} browser utilities built on one principle: the work should happen on your device, not on someone else's server.`}
     >
@@ -40,8 +41,8 @@ export default function AboutPage() {
 
       <Section heading="How the calculations are tested">
         <p>
-          Every formula lives in a plain TypeScript function with no dependency on the interface, and
-          each one has unit tests covering its reference cases, its boundary conditions and the
+          Every formula lives in a plain TypeScript function with no dependency on the interface,
+          and each one has unit tests covering its reference cases, its boundary conditions and the
           inputs that ought to be refused. Some concrete examples of what is pinned down by tests:
         </p>
         <ul>
@@ -81,8 +82,8 @@ export default function AboutPage() {
           capture slightly different phrasings of the same search.
         </p>
         <p>
-          Where a calculation follows a published standard method — the Mifflin-St Jeor equation, the
-          standard BMI thresholds, fixed-rate amortisation — the method is named on the page and
+          Where a calculation follows a published standard method — the Mifflin-St Jeor equation,
+          the standard BMI thresholds, fixed-rate amortisation — the method is named on the page and
           linked to its source. Where a tool has real limitations, those are written down in a
           section of their own rather than omitted. The PDF compressor page, for instance, says
           plainly that structure optimisation often saves very little, because that is true and
@@ -109,14 +110,16 @@ export default function AboutPage() {
           {site.legalEntity
             ? `${site.name} is operated by ${site.legalEntity}.`
             : `${site.name} is operated independently. The registered operating entity is published here once it is configured for this deployment.`}{' '}
-          You can reach us at{' '}
-          <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> — see the{' '}
-          <Link href="/contact">contact page</Link> for what to include.
+          You can reach us at <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a> — see
+          the <Link href="/contact">contact page</Link> for what to include.
         </p>
         <p>
-          There are no advertisements on the site at present and no analytics running. If either
-          changes, the <Link href="/privacy">privacy policy</Link> will say exactly what is
-          collected before it is turned on.
+          There are no advertisements on the site at present.{' '}
+          {features.analyticsEnabled
+            ? 'Anonymous usage analytics are available only after a visitor opts in.'
+            : 'No analytics are running on this deployment.'}{' '}
+          The <Link href="/privacy">privacy policy</Link> explains the exact event fields and the
+          consent control.
         </p>
       </Section>
 

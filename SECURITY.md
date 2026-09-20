@@ -55,6 +55,20 @@ What the policy enforces:
 - `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`,
   `form-action 'self'`, `worker-src blob:` for the image and PDF workers.
 
+### The one framing exception
+
+The `/embed/*` routes send `frame-ancestors *` and omit `X-Frame-Options`, so
+other sites can embed a tool. Every other route keeps `frame-ancestors 'none'`
+and `X-Frame-Options: DENY`.
+
+Permitting any ancestor there is acceptable because an embed page has nothing to
+steal and nothing privileged to trigger: no session, no cookie, no account, no
+server-side state, and every tool runs entirely in the browser. `connect-src
+'self'` still applies, so a framed tool cannot transmit anything to anyone —
+including to the page framing it. The reasoning, and why `X-Frame-Options` must
+be omitted rather than loosened, is in
+`docs/adr/0009-embeddable-tool-routes.md`.
+
 `'unsafe-inline'` for scripts is a real, accepted limitation. It is mitigated by
 there being no injection path: `react/no-danger` is enforced repo-wide, all user
 text renders as text nodes, and there is no server-rendered user content, no

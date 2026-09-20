@@ -79,5 +79,10 @@ export const jpgToPngContent: ToolContent = {
       answer:
         'Yes, up to 20 per batch, with a ZIP download for the whole set. Each file is converted independently and reports its own before-and-after size.',
     },
+    {
+      question: 'Should I use WebP or AVIF instead?',
+      answer:
+        'For the web, usually yes. WebP and AVIF both support transparency and lossless modes, and both produce far smaller files than PNG at the same quality. PNG remains the safer choice when a specific tool, printer or platform requires it, or when you need a format every piece of software made in the last thirty years can open.',
+    },
   ],
 };
