@@ -86,5 +86,10 @@ export const dateDifferenceCalculatorContent: ToolContent = {
       answer:
         'Yes. The calculation compares calendar dates, not timestamps, so the spring and autumn clock changes have no effect on the day count.',
     },
+    {
+      question: 'Does the count include leap days?',
+      answer:
+        'Yes. The total is a real calendar count, so a span crossing 29 February includes that day. This is why two intervals that look like the same number of years can differ by a day, and why the years-months-days breakdown is the more reliable figure when you are comparing anniversaries rather than elapsed time.',
+    },
   ],
 };

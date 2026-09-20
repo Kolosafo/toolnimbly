@@ -21,7 +21,17 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: '/embed/:path*',
+        headers: securityHeaders({ embeddable: true }),
+      },
+      {
+        /*
+         * Everything except `/embed`. The exclusion is explicit rather than
+         * relying on rule order: Next.js applies *every* matching rule, so a
+         * plain `/:path*` catch-all would also match the embed routes and
+         * re-add the framing headers the rule above deliberately drops.
+         */
+        source: '/:path((?!embed$|embed/).*)',
         headers: securityHeaders(),
       },
     ];

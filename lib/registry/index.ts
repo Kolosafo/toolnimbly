@@ -1,10 +1,13 @@
 import { categories, getCategory } from './categories';
+import { guides } from './guides';
 import { tools } from './tools';
 import type { CategoryDefinition, ToolCategory, ToolDefinition } from './types';
 
 export * from './types';
 export { categories, getCategory, findCategory, categoryPath, adjacentCategories } from './categories';
 export { tools, EXPECTED_TOOL_COUNT } from './tools';
+export { guides, EXPECTED_GUIDE_COUNT } from './guides';
+export type { GuideDefinition } from './guides';
 
 const toolBySlug = new Map<string, ToolDefinition>(tools.map((tool) => [tool.slug, tool]));
 
@@ -61,6 +64,28 @@ export function recentlyUpdatedTools(limit = 6): ToolDefinition[] {
     .slice(0, limit);
 }
 
+/** Canonical path for a supporting article. */
+export function guidePath(slug: string): string {
+  return `/guides/${slug}`;
+}
+
+export function findGuide(slug: string) {
+  return guides.find((guide) => guide.slug === slug);
+}
+
+/** The guides supporting one cluster. */
+export function guidesInCategory(category: ToolCategory) {
+  return guides.filter((guide) => guide.category === category);
+}
+
+/**
+ * The guides that link to a given tool, which is how a tool page finds its own
+ * supporting articles without a second list to keep in step.
+ */
+export function guidesForTool(slug: string) {
+  return guides.filter((guide) => guide.relatedToolSlugs.includes(slug));
+}
+
 export function categoryOf(tool: ToolDefinition): CategoryDefinition {
   return getCategory(tool.category);
 }
@@ -79,6 +104,8 @@ export function allIndexableRoutes(): string[] {
     '/',
     ...orderedCategories().map((category) => `/${category.slug}`),
     ...toolSlugs.map(toolPath),
+    '/guides',
+    ...guides.map((guide) => guidePath(guide.slug)),
     '/about',
     '/privacy',
     '/terms',

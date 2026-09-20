@@ -33,13 +33,13 @@ part of a request.
 
 ## The 30 routes
 
-| Category | Tools |
-|---|---|
-| **Calculators** | [percentage](/tools/percentage-calculator) · [loan](/tools/loan-calculator) · [mortgage](/tools/mortgage-calculator) · [compound interest](/tools/compound-interest-calculator) · [salary](/tools/salary-calculator) · [age](/tools/age-calculator) · [date difference](/tools/date-difference-calculator) · [BMI](/tools/bmi-calculator) · [calorie](/tools/calorie-calculator) |
-| **Text & developer** | [QR code](/tools/qr-code-generator) · [password](/tools/password-generator) · [UUID](/tools/uuid-generator) · [word counter](/tools/word-counter) · [character counter](/tools/character-counter) · [case converter](/tools/case-converter) |
-| **Images** | [compressor](/tools/image-compressor) · [JPG compressor](/tools/jpg-compressor) · [PNG compressor](/tools/png-compressor) · [resizer](/tools/image-resizer) · [cropper](/tools/image-cropper) · [JPG to PNG](/tools/jpg-to-png) · [PNG to JPG](/tools/png-to-jpg) |
-| **PDF** | [image to PDF](/tools/image-to-pdf) · [PDF to JPG](/tools/pdf-to-jpg) · [JPG to PDF](/tools/jpg-to-pdf) · [compressor](/tools/pdf-compressor) · [merger](/tools/pdf-merger) · [splitter](/tools/pdf-splitter) |
-| **Business** | [invoice](/tools/invoice-generator) · [receipt](/tools/receipt-generator) |
+| Category             | Tools                                                                                                                                                                                                                                                                                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Calculators**      | [percentage](/tools/percentage-calculator) · [loan](/tools/loan-calculator) · [mortgage](/tools/mortgage-calculator) · [compound interest](/tools/compound-interest-calculator) · [salary](/tools/salary-calculator) · [age](/tools/age-calculator) · [date difference](/tools/date-difference-calculator) · [BMI](/tools/bmi-calculator) · [calorie](/tools/calorie-calculator) |
+| **Text & developer** | [QR code](/tools/qr-code-generator) · [password](/tools/password-generator) · [UUID](/tools/uuid-generator) · [word counter](/tools/word-counter) · [character counter](/tools/character-counter) · [case converter](/tools/case-converter)                                                                                                                                      |
+| **Images**           | [compressor](/tools/image-compressor) · [JPG compressor](/tools/jpg-compressor) · [PNG compressor](/tools/png-compressor) · [resizer](/tools/image-resizer) · [cropper](/tools/image-cropper) · [JPG to PNG](/tools/jpg-to-png) · [PNG to JPG](/tools/png-to-jpg)                                                                                                                |
+| **PDF**              | [image to PDF](/tools/image-to-pdf) · [PDF to JPG](/tools/pdf-to-jpg) · [JPG to PDF](/tools/jpg-to-pdf) · [compressor](/tools/pdf-compressor) · [merger](/tools/pdf-merger) · [splitter](/tools/pdf-splitter)                                                                                                                                                                    |
+| **Business**         | [invoice](/tools/invoice-generator) · [receipt](/tools/receipt-generator)                                                                                                                                                                                                                                                                                                        |
 
 Plus five category pages, a homepage, and About, Privacy, Terms and Contact.
 
@@ -60,17 +60,17 @@ into `public/pdfjs/`. They are gitignored and regenerated on demand.
 
 ### Commands
 
-| Command | What it does |
-|---|---|
-| `pnpm dev` | Development server |
-| `pnpm build` / `pnpm start` | Production build and server |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | TypeScript, strict |
-| `pnpm test` | Unit and component tests (Vitest) |
-| `pnpm test:e2e` | End-to-end tests (Playwright) |
-| `pnpm verify` | lint + typecheck + test + build |
-| `pnpm check:bundles` | Fails if a heavy library reaches the shared bundle |
-| `pnpm analyze` | Bundle analyser |
+| Command                     | What it does                                       |
+| --------------------------- | -------------------------------------------------- |
+| `pnpm dev`                  | Development server                                 |
+| `pnpm build` / `pnpm start` | Production build and server                        |
+| `pnpm lint`                 | ESLint                                             |
+| `pnpm typecheck`            | TypeScript, strict                                 |
+| `pnpm test`                 | Unit and component tests (Vitest)                  |
+| `pnpm test:e2e`             | End-to-end tests (Playwright)                      |
+| `pnpm verify`               | lint + typecheck + test + build                    |
+| `pnpm check:bundles`        | Fails if a heavy library reaches the shared bundle |
+| `pnpm analyze`              | Bundle analyser                                    |
 
 Cross-browser runs: `E2E_ALL_BROWSERS=true pnpm test:e2e`.
 
@@ -81,14 +81,16 @@ Cross-browser runs: `E2E_ALL_BROWSERS=true pnpm test:e2e`.
 Everything configurable lives in `lib/config/`. See `.env.example` for the full
 list; the ones that matter:
 
-| Variable | Purpose |
-|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Canonical origin. Drives canonicals, sitemap, robots and Open Graph. A production build without it logs a loud warning. |
-| `NEXT_PUBLIC_LEGAL_ENTITY` | Registered entity named in Terms and Privacy. Blank shows a "not configured" notice on the legal pages. |
-| `NEXT_PUBLIC_JURISDICTION` | Governing law named in Terms. |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Contact and security address. |
-| `NEXT_PUBLIC_ANALYTICS_ENABLED` | Off. See the event contract in `lib/analytics/events.ts`. |
-| `NEXT_PUBLIC_ADS_ENABLED` | Off. `AdSlot` renders nothing while disabled. |
+| Variable                         | Purpose                                                                                                                 |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`           | Canonical origin. Drives canonicals, sitemap, robots and Open Graph. A production build without it logs a loud warning. |
+| `NEXT_PUBLIC_LEGAL_ENTITY`       | Registered entity named in Terms and Privacy. Blank shows a "not configured" notice on the legal pages.                 |
+| `NEXT_PUBLIC_JURISDICTION`       | Governing law named in Terms.                                                                                           |
+| `NEXT_PUBLIC_CONTACT_EMAIL`      | Contact and security address.                                                                                           |
+| `NEXT_PUBLIC_ANALYTICS_ENABLED`  | Enables the configured provider. Off by default.                                                                        |
+| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | Use `ga4` for the consent-gated GA4 integration, or `none`.                                                             |
+| `NEXT_PUBLIC_ANALYTICS_SITE_ID`  | GA4 measurement ID such as `G-ABC123DEF4`.                                                                              |
+| `NEXT_PUBLIC_ADS_ENABLED`        | Off. `AdSlot` renders nothing while disabled.                                                                           |
 
 **Still needed from the owner before launch** (spec Appendix C): the registered
 legal entity, the governing jurisdiction, and a decision on analytics. The
@@ -100,8 +102,10 @@ legal pages display an unmistakable notice until the first two are set.
 
 ```
 app/          routes; one dynamic tool route prerenders all 30 pages
+  (site)/     everything with the site chrome — tools, hubs, guides, legal
+  embed/      chrome-free, framable copies of each tool
 components/   shell, forms, files, and one directory per tool family
-content/      one reviewed editorial module per tool
+content/      one reviewed editorial module per tool, plus the guides
 lib/          pure domain logic — calculators, text, image, pdf, documents
 scripts/      pdf.js asset copying, bundle checks
 tests/        unit, e2e, and synthetic fixtures
@@ -119,6 +123,32 @@ side-effect-free functions with no React dependency, unit tested directly.
 **Server Components by default.** Only the interactive panel is a Client
 Component, dynamically imported so heavy libraries stay route-scoped.
 
+### Embedding (`/embed/[slug]`)
+
+Every tool page has an **Embed this tool** button producing a paste-ready
+snippet: an iframe pointing at `/embed/<slug>`, followed by a plain `<a href>`
+back to the canonical tool page.
+
+That anchor is the point of the feature, and it is deliberately in the _host_
+page rather than inside the iframe — a link inside our own frame is an internal
+link and earns nothing. The snippet contains no JavaScript for the same reason.
+
+The embed routes are the only ones that permit framing: they send
+`frame-ancestors *` and omit `X-Frame-Options`, while every other route keeps
+`DENY`. They are `noindex`, canonicalised to the tool page, and excluded from
+the sitemap. See `docs/adr/0009-embeddable-tool-routes.md`.
+
+### Guides (`/guides/[slug]`)
+
+Seven supporting articles, one to two per cluster, linked both ways: a hub
+lists its guides, a guide links the tools it supports, and each tool page shows
+the guides that reference it. A guide declares its tools in
+`lib/registry/guides.ts`, so there is one list rather than two to keep in step.
+
+Figures quoted in a guide are recomputed from the same library the tool uses,
+in `tests/unit/guide-content.test.ts`. Prose and implementation cannot drift
+apart silently.
+
 ### Adding a tool
 
 Three mechanical changes; registry validation fails if any is missing.
@@ -134,16 +164,16 @@ placeholder cannot reach users.
 
 ## Dependencies
 
-| Package | Why |
-|---|---|
-| `next`, `react` | Framework |
-| `pdf-lib` | PDF assembly and page copying |
-| `pdfjs-dist` | PDF rendering |
-| `qrcode` | QR encoding, locally |
-| `fflate` | ZIP for batch downloads |
-| `big.js` | Exact decimal money (ADR 0004) |
-| `lucide-react` | Icons, imported individually |
-| `tailwindcss` | Styling |
+| Package         | Why                            |
+| --------------- | ------------------------------ |
+| `next`, `react` | Framework                      |
+| `pdf-lib`       | PDF assembly and page copying  |
+| `pdfjs-dist`    | PDF rendering                  |
+| `qrcode`        | QR encoding, locally           |
+| `fflate`        | ZIP for batch downloads        |
+| `big.js`        | Exact decimal money (ADR 0004) |
+| `lucide-react`  | Icons, imported individually   |
+| `tailwindcss`   | Styling                        |
 
 Web Crypto is used directly for passwords and UUIDs rather than a library: for
 security-sensitive randomness, a short audited implementation beats a
@@ -179,13 +209,13 @@ Stated here and on the tool pages themselves, rather than discovered by users.
 
 ## Testing
 
-| Suite | Covers |
-|---|---|
-| Unit | Every formula with its reference cases and boundaries; date arithmetic under a DST-observing timezone; Unicode segmentation; cryptographic randomness and distribution; page-range parsing; money arithmetic; registry invariants |
-| End-to-end | A journey per tool family, keyboard operation, 320 px layout on every route, no-JavaScript rendering, security headers and CSP violations |
-| Accessibility | axe over 16 routes plus dialog, result and error states; 200 % zoom; touch targets |
-| Privacy | Sentinel values through every tool, checking every request |
-| Output parity | Generated PDFs re-opened and their figures compared against the interface |
+| Suite         | Covers                                                                                                                                                                                                                            |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit          | Every formula with its reference cases and boundaries; date arithmetic under a DST-observing timezone; Unicode segmentation; cryptographic randomness and distribution; page-range parsing; money arithmetic; registry invariants |
+| End-to-end    | A journey per tool family, keyboard operation, 320 px layout on every route, no-JavaScript rendering, security headers and CSP violations                                                                                         |
+| Accessibility | axe over 16 routes plus dialog, result and error states; 200 % zoom; touch targets                                                                                                                                                |
+| Privacy       | Sentinel values through every tool, checking every request                                                                                                                                                                        |
+| Output parity | Generated PDFs re-opened and their figures compared against the interface                                                                                                                                                         |
 
 Fixtures in `tests/fixtures/` are generated by the two `generate*.mjs` scripts
 and are entirely synthetic — see `SECURITY.md`.
@@ -264,4 +294,5 @@ click, and the claim on the page that nobody verified.
 - `CONTRIBUTING.md` — coding, testing and content standards
 - `SECURITY.md` — threat model, CSP, and the no-sensitive-fixtures rule
 - `docs/adr/` — decisions on local processing, the registry, date handling,
-  money arithmetic, PDF compression modes and the CSP
+  money arithmetic, PDF compression modes, the CSP, cross-browser layout,
+  document rounding and the embeddable routes

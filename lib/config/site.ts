@@ -7,7 +7,9 @@
  */
 
 /** The canonical production origin. Overridable per environment. */
-const PRODUCTION_URL = 'https://toolnimbly.com';
+// The deployed apex permanently redirects here. Canonicals, sitemap entries
+// and social URLs must name the redirect target rather than the source.
+const PRODUCTION_URL = 'https://www.toolnimbly.com';
 
 /** Local development fallback when no environment variable is present. */
 const DEVELOPMENT_URL = 'http://localhost:3000';

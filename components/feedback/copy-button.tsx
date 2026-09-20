@@ -3,6 +3,7 @@
 import { Check, Copy, TriangleAlert } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { announceCopy } from '@/lib/analytics/track';
 import { cn } from '@/lib/utils/cn';
 
 type CopyState = 'idle' | 'copied' | 'error';
@@ -43,6 +44,7 @@ export function CopyButton({
     try {
       await navigator.clipboard.writeText(value);
       setState('copied');
+      announceCopy();
     } catch {
       setState('error');
     }
@@ -58,7 +60,7 @@ export function CopyButton({
         onClick={copy}
         disabled={disabled || value.length === 0}
         className={cn(
-          'inline-flex min-h-11 items-center gap-2 rounded-md border border-border-strong bg-surface px-3 font-medium transition-colors',
+          'border-border-strong bg-surface inline-flex min-h-11 items-center gap-2 rounded-md border px-3 font-medium transition-colors',
           'hover:bg-surface-sunken disabled:cursor-not-allowed disabled:opacity-55',
           size === 'sm' ? 'text-xs' : 'text-sm',
           state === 'copied' && 'border-success-border bg-success-surface',

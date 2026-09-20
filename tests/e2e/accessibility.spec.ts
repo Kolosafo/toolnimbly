@@ -38,6 +38,8 @@ const ROUTES: [string, string][] = [
   ['category page', '/calculators'],
   ['about', '/about'],
   ['privacy', '/privacy'],
+  ['guides index', '/guides'],
+  ['guide article', '/guides/how-loan-interest-works'],
   ['404', '/tools/does-not-exist'],
   ['calculator', '/tools/loan-calculator'],
   ['health calculator', '/tools/bmi-calculator'],

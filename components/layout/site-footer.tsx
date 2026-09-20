@@ -5,7 +5,8 @@ import { Container } from '@/components/ui/container';
 import { site } from '@/lib/config/site';
 import { orderedCategories, toolsInCategory } from '@/lib/registry';
 
-const legalLinks = [
+const secondaryLinks = [
+  { href: '/guides', label: 'Guides' },
   { href: '/about', label: 'About' },
   { href: '/privacy', label: 'Privacy' },
   { href: '/terms', label: 'Terms' },
@@ -104,9 +105,9 @@ export function SiteFooter() {
           <p className="text-sm text-muted">
             © {yearRange} {site.legalEntity || site.name}. All rights reserved.
           </p>
-          <nav aria-label="Legal and company">
+          <nav aria-label="Guides, legal and company">
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
-              {legalLinks.map((link) => (
+              {secondaryLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-muted hover:text-foreground">
                     {link.label}

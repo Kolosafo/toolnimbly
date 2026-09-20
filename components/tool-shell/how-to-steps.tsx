@@ -1,17 +1,17 @@
 import type { ContentStep } from '@/content/types';
 
-export function HowToSteps({ steps, toolName }: { steps: readonly ContentStep[]; toolName: string }) {
+export function HowToSteps({ steps }: { steps: readonly ContentStep[] }) {
   return (
     <section aria-labelledby="how-to-heading">
       <h2 id="how-to-heading" className="text-xl font-semibold">
-        How to use the {toolName}
+        How to use this tool
       </h2>
       <ol className="mt-4 space-y-4">
         {steps.map((step, index) => (
           <li key={step.title} className="flex gap-4">
             <span
               aria-hidden="true"
-              className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-surface text-sm font-semibold text-brand"
+              className="bg-brand-surface text-brand mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
             >
               {index + 1}
             </span>
@@ -20,7 +20,7 @@ export function HowToSteps({ steps, toolName }: { steps: readonly ContentStep[];
                 <span className="sr-only">Step {index + 1}: </span>
                 {step.title}
               </h3>
-              <p className="mt-1 text-sm text-muted">{step.body}</p>
+              <p className="text-muted mt-1 text-sm">{step.body}</p>
             </div>
           </li>
         ))}

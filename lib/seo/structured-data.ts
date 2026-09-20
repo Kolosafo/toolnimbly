@@ -1,6 +1,7 @@
 import { absoluteUrl, site } from '@/lib/config/site';
-import type { ToolContent } from '@/content/types';
-import type { CategoryDefinition, ToolDefinition } from '@/lib/registry/types';
+import type { ContentFaq, ToolContent } from '@/content/types';
+import type { GuideDefinition } from '@/lib/registry/guides';
+import type { CategoryDefinition, ToolCategory, ToolDefinition } from '@/lib/registry/types';
 
 /**
  * JSON-LD builders (spec §8.2).
@@ -56,6 +57,38 @@ export function breadcrumbSchema(entries: readonly BreadcrumbEntry[]): JsonLdObj
  * A tool page is a browser application that runs without payment and without an
  * account. `offers` with a zero price is the accurate way to state that.
  */
+/**
+ * schema.org's own `applicationCategory` values, mapped from our categories.
+ *
+ * Every tool previously declared `UtilitiesApplication`, which is true of a
+ * word counter and misleading of a mortgage calculator. The vocabulary has
+ * specific values for finance and health, and using them is how a rich result
+ * ends up in the right context rather than in a generic bucket.
+ *
+ * The health tools are the reason this is a per-tool lookup and not a
+ * per-category one: BMI and calorie calculators sit in `calculators` beside the
+ * loan tools but are `HealthApplication`.
+ */
+const HEALTH_TOOLS = new Set(['bmi-calculator', 'calorie-calculator']);
+
+const CATEGORY_APPLICATION_TYPE: Record<ToolCategory, string> = {
+  calculators: 'FinanceApplication',
+  'text-developer-tools': 'DeveloperApplication',
+  'image-tools': 'MultimediaApplication',
+  'pdf-tools': 'BusinessApplication',
+  'business-tools': 'BusinessApplication',
+};
+
+function applicationCategory(tool: ToolDefinition): string {
+  if (HEALTH_TOOLS.has(tool.slug)) return 'HealthApplication';
+  // Not every calculator is financial: age and percentage are general-purpose.
+  if (tool.slug === 'age-calculator' || tool.slug === 'percentage-calculator') {
+    return 'UtilitiesApplication';
+  }
+  if (tool.slug === 'date-difference-calculator') return 'UtilitiesApplication';
+  return CATEGORY_APPLICATION_TYPE[tool.category];
+}
+
 export function toolApplicationSchema(tool: ToolDefinition, content: ToolContent): JsonLdObject {
   return {
     '@context': 'https://schema.org',
@@ -64,7 +97,7 @@ export function toolApplicationSchema(tool: ToolDefinition, content: ToolContent
     name: tool.name,
     url: absoluteUrl(`/tools/${tool.slug}`),
     description: tool.description,
-    applicationCategory: 'UtilitiesApplication',
+    applicationCategory: applicationCategory(tool),
     operatingSystem: 'Any modern web browser',
     browserRequirements: 'Requires JavaScript. No installation or account needed.',
     isAccessibleForFree: true,
@@ -79,7 +112,7 @@ export function toolApplicationSchema(tool: ToolDefinition, content: ToolContent
  * FAQ schema is emitted only from the FAQs that are visibly rendered on the
  * same page, and the text matches exactly (spec §8.2).
  */
-export function faqSchema(content: ToolContent): JsonLdObject {
+export function faqSchema(content: { readonly faqs: readonly ContentFaq[] }): JsonLdObject {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -114,5 +147,33 @@ export function categoryCollectionSchema(
         url: absoluteUrl(`/tools/${tool.slug}`),
       })),
     },
+  };
+}
+
+/**
+ * A supporting article (SEO brief §5).
+ *
+ * `Article` rather than `WebApplication`: these pages explain a subject and
+ * have no interactive panel, and describing them as software would be a false
+ * signal. The publisher is the same organisation node the tool pages reference,
+ * so the graph stays connected.
+ */
+export function guideArticleSchema(guide: GuideDefinition): JsonLdObject {
+  const url = absoluteUrl(`/guides/${guide.slug}`);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    '@id': `${url}#article`,
+    headline: guide.name,
+    description: guide.description,
+    url,
+    mainEntityOfPage: url,
+    inLanguage: 'en',
+    // No fabricated publication date: `updatedAt` is the date the text was last
+    // reviewed, which is the only date we can state truthfully.
+    dateModified: guide.updatedAt,
+    datePublished: guide.updatedAt,
+    author: { '@id': `${site.url}/#organization` },
+    publisher: { '@id': `${site.url}/#organization` },
   };
 }

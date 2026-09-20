@@ -1,11 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 
-import { SiteFooter } from '@/components/layout/site-footer';
-import { SiteHeader } from '@/components/layout/site-header';
-import { SkipLink } from '@/components/layout/skip-link';
-import { JsonLd } from '@/components/seo/json-ld';
 import { isIndexable, site } from '@/lib/config/site';
-import { organizationSchema, websiteSchema } from '@/lib/seo/structured-data';
 
 import './globals.css';
 
@@ -40,21 +35,21 @@ export const viewport: Viewport = {
  */
 const themeScript = `(function(){try{var t=localStorage.getItem('toolnimbly:theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
 
+/**
+ * The document shell, and nothing else.
+ *
+ * Navigation, the main landmark and the site-wide structured data live in
+ * `SiteChrome`, applied by the `(site)` group layout. That keeps them off the
+ * embed routes, which are framed on other domains and must carry no site
+ * navigation of their own.
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="flex min-h-dvh flex-col">
-        <SkipLink />
-        <SiteHeader />
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
-        <JsonLd data={[websiteSchema(), organizationSchema()]} />
-      </body>
+      <body className="flex min-h-dvh flex-col">{children}</body>
     </html>
   );
 }

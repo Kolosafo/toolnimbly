@@ -4,6 +4,25 @@ import { expect, test } from '@playwright/test';
  * Site-wide smoke coverage (spec §10.5, item 8).
  */
 
+const CATEGORY_SLUGS = [
+  'calculators',
+  'text-developer-tools',
+  'image-tools',
+  'pdf-tools',
+  'business-tools',
+];
+
+/** The supporting articles (SEO brief §5). */
+const GUIDE_SLUGS = [
+  'how-loan-interest-works',
+  'choosing-a-strong-password',
+  'choosing-an-image-format',
+  'why-pdfs-are-large',
+  'what-an-invoice-must-contain',
+  'counting-words-and-characters',
+  'reading-health-calculators',
+];
+
 /** All 30 canonical tool routes. */
 const TOOL_SLUGS = [
   'percentage-calculator',
@@ -76,7 +95,9 @@ test.describe('routing and metadata', () => {
     }
   });
 
-  test('every tool page has a self-referencing canonical with no query string', async ({ page }) => {
+  test('every tool page has a self-referencing canonical with no query string', async ({
+    page,
+  }) => {
     for (const slug of TOOL_SLUGS.slice(0, 4)) {
       await page.goto(`/tools/${slug}?utm_source=test`);
       const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
@@ -116,12 +137,44 @@ test.describe('routing and metadata', () => {
     const xml = await sitemap.text();
 
     const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-    expect(urls.length).toBe(40);
-    expect(new Set(urls).size).toBe(40);
 
-    for (const slug of TOOL_SLUGS) {
-      expect(urls.some((url) => url?.endsWith(`/tools/${slug}`)), slug).toBe(true);
+    /*
+     * Derived, not a literal. The assertion that matters is that every route is
+     * present and none is listed twice; a hard-coded total only records how
+     * many pages existed the day it was written, and has to be edited by hand
+     * every time one is added.
+     */
+    const expected = [
+      '/',
+      '/guides',
+      '/about',
+      '/privacy',
+      '/terms',
+      '/contact',
+      ...CATEGORY_SLUGS.map((slug) => `/${slug}`),
+      ...TOOL_SLUGS.map((slug) => `/tools/${slug}`),
+      ...GUIDE_SLUGS.map((slug) => `/guides/${slug}`),
+    ];
+
+    expect(new Set(urls).size, 'the sitemap lists a URL twice').toBe(urls.length);
+    expect(urls.length).toBe(expected.length);
+
+    for (const path of expected) {
+      const suffix = path === '/' ? '' : path;
+      expect(
+        urls.some((url) => new URL(url!).pathname === (suffix === '' ? '/' : suffix)),
+        `sitemap is missing ${path}`,
+      ).toBe(true);
     }
+
+    const robotsResponse = await request.get('/robots.txt');
+    expect(robotsResponse.status()).toBe(200);
+    const robots = await robotsResponse.text();
+    expect(robots).toContain('Sitemap:');
+    expect(robots).toContain('/sitemap.xml');
+    expect(robots).toContain('Disallow: /api/');
+    expect(robots).not.toContain('Disallow: /_next/');
+    expect(robots).not.toContain('Disallow: /*?*');
   });
 });
 
@@ -129,7 +182,10 @@ test.describe('site shell', () => {
   test('search finds a tool and navigates to it with the keyboard', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: /search tools/i }).first().click();
+    await page
+      .getByRole('button', { name: /search tools/i })
+      .first()
+      .click();
     const dialog = page.getByRole('dialog', { name: 'Search tools' });
     await expect(dialog).toBeVisible();
 
@@ -170,9 +226,7 @@ test.describe('site shell', () => {
     }
   });
 
-  test('no route forces horizontal scrolling or hides a control at 320px', async ({
-    page,
-  }) => {
+  test('no route forces horizontal scrolling or hides a control at 320px', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 720 });
 
     /*
@@ -197,6 +251,8 @@ test.describe('site shell', () => {
       '/image-tools',
       '/pdf-tools',
       '/business-tools',
+      '/guides',
+      ...GUIDE_SLUGS.map((slug) => `/guides/${slug}`),
       ...TOOL_SLUGS.map((slug) => `/tools/${slug}`),
     ];
 

@@ -14,7 +14,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Percentage Calculator',
     shortName: 'Percentage',
     category: 'calculators',
-    title: 'Percentage Calculator',
+    title: 'Free Percentage Calculator — Show the Steps',
     description:
       'Work out a percentage of a number, what percentage one number is of another, or the percentage change between two values. Shows every step.',
     primaryKeyword: 'percentage calculator',
@@ -35,7 +35,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Loan Calculator',
     shortName: 'Loan',
     category: 'calculators',
-    title: 'Loan Payment Calculator',
+    title: 'Loan Calculator — Payment and Interest',
     description:
       'Calculate a fixed-rate loan payment, total interest and full amortisation schedule. Add an extra monthly payment to see how much sooner it clears.',
     primaryKeyword: 'loan calculator',
@@ -56,7 +56,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Mortgage Calculator',
     shortName: 'Mortgage',
     category: 'calculators',
-    title: 'Mortgage Payment Calculator',
+    title: 'Mortgage Calculator — Payment Breakdown',
     description:
       'Estimate a monthly mortgage payment including property tax, insurance and HOA fees, with loan-to-value, total interest and a full amortisation table.',
     primaryKeyword: 'mortgage calculator',
@@ -77,7 +77,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Compound Interest Calculator',
     shortName: 'Compound Interest',
     category: 'calculators',
-    title: 'Compound Interest Calculator',
+    title: 'Compound Interest Calculator — Growth',
     description:
       'Project savings growth with any compounding frequency and regular contributions. Shows the yearly balance, total contributions and interest earned.',
     primaryKeyword: 'compound interest calculator',
@@ -98,7 +98,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Salary Calculator',
     shortName: 'Salary',
     category: 'calculators',
-    title: 'Salary to Hourly Converter',
+    title: 'Salary Calculator — Hourly to Annual',
     description:
       'Convert pay between hourly, daily, weekly, biweekly, semimonthly, monthly and annual rates using your own hours and paid weeks. Gross pay only.',
     primaryKeyword: 'salary calculator',
@@ -119,7 +119,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Age Calculator',
     shortName: 'Age',
     category: 'calculators',
-    title: 'Age Calculator',
+    title: 'Exact Age Calculator — Years, Months and Days',
     description:
       'Find an exact age in years, months and days from any birth date, plus total weeks and days lived, the day of the week born and the next birthday.',
     primaryKeyword: 'age calculator',
@@ -132,10 +132,10 @@ export const tools: readonly ToolDefinition[] = [
   },
   {
     slug: 'date-difference-calculator',
-    name: 'Date Difference Calculator',
+    name: 'Days Between Dates Calculator',
     shortName: 'Date Difference',
     category: 'calculators',
-    title: 'Days Between Dates Calculator',
+    title: 'Days Between Dates — Business Days Too',
     description:
       'Count the days, weeks, months and years between two dates, with options to include the end date or to count business days only.',
     primaryKeyword: 'days between dates',
@@ -151,7 +151,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'BMI Calculator',
     shortName: 'BMI',
     category: 'calculators',
-    title: 'BMI Calculator',
+    title: 'BMI Calculator — Metric and US Units',
     description:
       'Calculate body mass index in metric or US units, see the standard adult category and the healthy weight range for your height. Information only.',
     primaryKeyword: 'bmi calculator',
@@ -167,7 +167,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Calorie Calculator',
     shortName: 'Calorie',
     category: 'calculators',
-    title: 'Daily Calorie Calculator (TDEE)',
+    title: 'Calorie Calculator — Daily TDEE Estimate',
     description:
       'Estimate resting metabolic rate and daily calorie needs with the Mifflin-St Jeor equation, plus illustrative targets for gradual loss or gain.',
     primaryKeyword: 'calorie calculator',
@@ -185,16 +185,11 @@ export const tools: readonly ToolDefinition[] = [
     name: 'QR Code Generator',
     shortName: 'QR Code',
     category: 'text-developer-tools',
-    title: 'QR Code Generator',
+    title: 'Free QR Code Generator — PNG and SVG',
     description:
       'Create QR codes for links, text, email, phone, SMS and Wi-Fi networks. Download as PNG or SVG. Encoding happens in your browser, not on a server.',
     primaryKeyword: 'qr code generator',
-    relatedSlugs: [
-      'password-generator',
-      'uuid-generator',
-      'case-converter',
-      'character-counter',
-    ],
+    relatedSlugs: ['password-generator', 'uuid-generator', 'case-converter', 'character-counter'],
     icon: 'QrCode',
     localProcessing: true,
     featured: true,
@@ -206,7 +201,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Password Generator',
     shortName: 'Password',
     category: 'text-developer-tools',
-    title: 'Strong Password Generator',
+    title: 'Secure Password Generator — 8–128 Characters',
     description:
       'Generate strong random passwords from 8 to 128 characters using your browser cryptographic random source. Nothing is stored, logged or transmitted.',
     primaryKeyword: 'password generator',
@@ -222,7 +217,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'UUID Generator',
     shortName: 'UUID',
     category: 'text-developer-tools',
-    title: 'UUID v4 Generator',
+    title: 'Free UUID v4 Generator — Batch 100',
     description:
       'Generate up to 100 random version 4 UUIDs at once, with optional uppercase, braces or no hyphens. Copy them all or download them as a text file.',
     primaryKeyword: 'uuid generator',
@@ -238,7 +233,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Word Counter',
     shortName: 'Word Counter',
     category: 'text-developer-tools',
-    title: 'Word Counter',
+    title: 'Word Counter — Reading Time and Keywords',
     description:
       'Count words, sentences and paragraphs as you type, with reading time, speaking time and the most frequent keywords in your text.',
     primaryKeyword: 'word counter',
@@ -254,7 +249,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Character Counter',
     shortName: 'Character Counter',
     category: 'text-developer-tools',
-    title: 'Character Counter with Limit',
+    title: 'Character Counter — Unicode and UTF-8',
     description:
       'Count characters the way people see them and the way software measures them, with UTF-8 byte size, line counts and a character limit tracker.',
     primaryKeyword: 'character counter',
@@ -270,7 +265,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Case Converter',
     shortName: 'Case Converter',
     category: 'text-developer-tools',
-    title: 'Text Case Converter',
+    title: 'Case Converter — 10 Text Formats',
     description:
       'Convert text to lowercase, UPPERCASE, Sentence case, Title Case, camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE or alternating case.',
     primaryKeyword: 'case converter',
@@ -288,7 +283,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Image Compressor',
     shortName: 'Image Compressor',
     category: 'image-tools',
-    title: 'Image Compressor',
+    title: 'Image Compressor — JPG, PNG and WebP',
     description:
       'Compress JPG, PNG and WebP images in your browser. Adjust quality, cap dimensions and download one file or a ZIP. Nothing is uploaded to a server.',
     primaryKeyword: 'image compressor',
@@ -310,11 +305,17 @@ export const tools: readonly ToolDefinition[] = [
     name: 'JPG Compressor',
     shortName: 'JPG Compressor',
     category: 'image-tools',
-    title: 'JPG Compressor',
+    title: 'JPG Compressor — Batch and No Upload',
     description:
       'Reduce JPG and JPEG file sizes with a quality slider and optional dimension cap. Batch several photos at once and download them as a ZIP.',
     primaryKeyword: 'jpg compressor',
-    relatedSlugs: ['image-compressor', 'png-compressor', 'image-resizer', 'jpg-to-png', 'jpg-to-pdf'],
+    relatedSlugs: [
+      'image-compressor',
+      'png-compressor',
+      'image-resizer',
+      'jpg-to-png',
+      'jpg-to-pdf',
+    ],
     icon: 'FileImage',
     localProcessing: true,
     featured: false,
@@ -326,7 +327,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'PNG Compressor',
     shortName: 'PNG Compressor',
     category: 'image-tools',
-    title: 'PNG Compressor',
+    title: 'PNG Compressor — Lossless or Smaller',
     description:
       'Shrink PNG files with a lossless pass that keeps every pixel, or a lossy mode that reduces colours for a much smaller file. Transparency is preserved.',
     primaryKeyword: 'png compressor',
@@ -342,7 +343,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Image Resizer',
     shortName: 'Image Resizer',
     category: 'image-tools',
-    title: 'Image Resizer',
+    title: 'Image Resizer — Pixels, Percent and Presets',
     description:
       'Resize JPG, PNG and WebP images by pixels or percentage, with aspect-ratio lock, contain or cover fitting and a choice of output format.',
     primaryKeyword: 'image resizer',
@@ -364,7 +365,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Image Cropper',
     shortName: 'Image Cropper',
     category: 'image-tools',
-    title: 'Image Cropper',
+    title: 'Image Cropper — Rotate, Flip and Ratios',
     description:
       'Crop a photo freehand or to a fixed ratio, with zoom, rotate and flip. Keyboard and numeric controls included; the crop exports at full resolution.',
     primaryKeyword: 'image cropper',
@@ -380,7 +381,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'JPG to PNG Converter',
     shortName: 'JPG to PNG',
     category: 'image-tools',
-    title: 'JPG to PNG Converter',
+    title: 'JPG to PNG Converter — Free and Private',
     description:
       'Convert JPG and JPEG photos to PNG in your browser, one at a time or in a batch, with correct orientation and a clear before-and-after size comparison.',
     primaryKeyword: 'jpg to png',
@@ -396,7 +397,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'PNG to JPG Converter',
     shortName: 'PNG to JPG',
     category: 'image-tools',
-    title: 'PNG to JPG Converter',
+    title: 'PNG to JPG Converter — Pick a Background',
     description:
       'Convert PNG images to JPG with a quality slider and a choice of background colour for transparent areas. Batch conversion and ZIP download included.',
     primaryKeyword: 'png to jpg',
@@ -414,7 +415,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Image to PDF Converter',
     shortName: 'Image to PDF',
     category: 'pdf-tools',
-    title: 'Image to PDF Converter',
+    title: 'Image to PDF Converter — Reorder Pages',
     description:
       'Turn JPG, PNG and WebP images into a single PDF. Reorder pages, pick A4 or Letter, set margins and keep every aspect ratio intact.',
     primaryKeyword: 'image to pdf',
@@ -430,7 +431,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'PDF to JPG Converter',
     shortName: 'PDF to JPG',
     category: 'pdf-tools',
-    title: 'PDF to JPG Converter',
+    title: 'PDF to JPG Converter — Choose Pages',
     description:
       'Render any page of a PDF to a JPG image at your chosen resolution. Pick pages or ranges, preview thumbnails and download single files or a ZIP.',
     primaryKeyword: 'pdf to jpg',
@@ -446,7 +447,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'JPG to PDF Converter',
     shortName: 'JPG to PDF',
     category: 'pdf-tools',
-    title: 'JPG to PDF Converter',
+    title: 'JPG to PDF Converter — Reorder Photos',
     description:
       'Combine JPG photos into one PDF in the order you choose, with A4 or Letter pages, adjustable margins and automatic orientation correction.',
     primaryKeyword: 'jpg to pdf',
@@ -462,7 +463,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'PDF Compressor',
     shortName: 'PDF Compressor',
     category: 'pdf-tools',
-    title: 'PDF Compressor',
+    title: 'PDF Compressor — Two Compression Modes',
     description:
       'Make a PDF smaller in your browser. Optimise its structure without touching the pages, or rasterise them for a bigger saving, with the trade-offs spelled out.',
     primaryKeyword: 'pdf compressor',
@@ -475,10 +476,10 @@ export const tools: readonly ToolDefinition[] = [
   },
   {
     slug: 'pdf-merger',
-    name: 'PDF Merger',
+    name: 'Merge PDF Files',
     shortName: 'PDF Merger',
     category: 'pdf-tools',
-    title: 'Merge PDF Files',
+    title: 'Merge PDF Files — Private, No Upload',
     description:
       'Combine up to ten PDFs into one document in any order you like. Pages are copied, not re-rendered, so text stays selectable and page sizes stay exact.',
     primaryKeyword: 'merge pdf',
@@ -491,10 +492,10 @@ export const tools: readonly ToolDefinition[] = [
   },
   {
     slug: 'pdf-splitter',
-    name: 'PDF Splitter',
+    name: 'Split PDF Files',
     shortName: 'PDF Splitter',
     category: 'pdf-tools',
-    title: 'Split PDF Files',
+    title: 'Split PDF Files — Extract or Delete Pages',
     description:
       'Extract pages, split every page into its own file, cut a PDF into ranges or delete pages you do not need. Page sizes and rotation are preserved.',
     primaryKeyword: 'split pdf',
@@ -512,7 +513,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Invoice Generator',
     shortName: 'Invoice',
     category: 'business-tools',
-    title: 'Free Invoice Generator',
+    title: 'Free Invoice Generator — PDF, No Signup',
     description:
       'Build a professional invoice with line items, discounts, tax and payment terms, then print it or download a PDF. No account, no data sent anywhere.',
     primaryKeyword: 'invoice generator',
@@ -534,7 +535,7 @@ export const tools: readonly ToolDefinition[] = [
     name: 'Receipt Generator',
     shortName: 'Receipt',
     category: 'business-tools',
-    title: 'Receipt Generator',
+    title: 'Receipt Generator — Print or PDF',
     description:
       'Create a clear receipt for a payment you have taken, with line items, tax, tip, amount tendered and change. Print it or save it as a PDF.',
     primaryKeyword: 'receipt generator',

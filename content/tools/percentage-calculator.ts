@@ -82,5 +82,10 @@ export const percentageCalculatorContent: ToolContent = {
       answer:
         'The calculation is performed in double-precision arithmetic and only the displayed value is rounded, to between zero and ten decimal places as you choose. The default is two.',
     },
+    {
+      question: 'How do I find the original price before a percentage was added?',
+      answer:
+        'Divide rather than subtract. A price of 120 that includes 20% tax came from 120 \u00f7 1.20 = 100, not from 120 \u2212 20% = 96. Taking 20% off the larger number removes 20% of 120, which is more than the 20% of 100 that was added. Use mode two with the two known figures to check your answer.',
+    },
   ],
 };

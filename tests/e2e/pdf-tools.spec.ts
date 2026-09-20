@@ -46,36 +46,32 @@ test.describe('PDF merger', () => {
     await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'three-page.pdf', 'two-page.pdf');
 
-    const panel = tool(page, 'PDF Merger');
-    await expect(panel.locator('li p.truncate')).toHaveText([
-      'three-page.pdf',
-      'two-page.pdf',
-    ]);
+    const panel = tool(page, 'Merge PDF Files');
+    await expect(panel.locator('li p.truncate')).toHaveText(['three-page.pdf', 'two-page.pdf']);
 
     await page.getByRole('button', { name: /Move two-page\.pdf earlier/ }).click();
-    await expect(panel.locator('li p.truncate')).toHaveText([
-      'two-page.pdf',
-      'three-page.pdf',
-    ]);
+    await expect(panel.locator('li p.truncate')).toHaveText(['two-page.pdf', 'three-page.pdf']);
   });
 
   test('refuses an encrypted PDF, naming the file', async ({ page }) => {
     await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'three-page.pdf', 'encrypted.pdf');
 
-    const alert = tool(page, 'PDF Merger').getByRole('alert');
+    const alert = tool(page, 'Merge PDF Files').getByRole('alert');
     await expect(alert).toContainText('encrypted.pdf', { timeout: 20_000 });
     await expect(alert).toContainText(/authorised PDF editor/i);
 
     // The valid file stays in the queue.
-    await expect(tool(page, 'PDF Merger').locator('li p.truncate')).toHaveText(['three-page.pdf']);
+    await expect(tool(page, 'Merge PDF Files').locator('li p.truncate')).toHaveText([
+      'three-page.pdf',
+    ]);
   });
 
   test('fails cleanly on a corrupt PDF', async ({ page }) => {
     await gotoTool(page, '/tools/pdf-merger');
     await addPdfs(page, 'truncated.pdf');
 
-    await expect(tool(page, 'PDF Merger').getByRole('alert')).toContainText(
+    await expect(tool(page, 'Merge PDF Files').getByRole('alert')).toContainText(
       /damaged or incomplete/i,
       { timeout: 20_000 },
     );

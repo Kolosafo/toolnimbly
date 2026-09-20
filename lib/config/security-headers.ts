@@ -14,9 +14,9 @@ export type HeaderEntry = { key: string; value: string };
  * Build the Content Security Policy.
  *
  * Notes on the directives that are not obvious:
- * - `script-src 'self'` is the substantive control: no third-party script can
- *   load, because no other origin is listed. The product embeds no third-party
- *   scripts at all, so this costs nothing.
+ * - `script-src 'self'` is the default substantive control. A deployment that
+ *   explicitly enables GA4 adds only Google Tag Manager's loader origin; the
+ *   consent component still makes no request before a visitor opts in.
  * - `'unsafe-inline'` is required for React's hydration bootstrap and the
  *   inline RSC flight-data scripts, which are generated per page at build time
  *   and cannot be hashed stably. It is NOT paired with a nonce, because a
@@ -27,15 +27,31 @@ export type HeaderEntry = { key: string; value: string };
  * - There is no `'unsafe-eval'` in production.
  * - `worker-src blob:` is required because the image and PDF workers are
  *   instantiated from bundled blob URLs.
- * - `connect-src 'self'` is the directive that enforces the product's core
- *   promise: no tool payload can be sent to any other origin, because no other
- *   origin is reachable.
+ * - `connect-src 'self'` is the default that enforces the product's core
+ *   promise. Consent-gated GA4 adds its two measurement origins, but the event
+ *   contract exposes no tool payload or user-entered value to the tracker.
  */
-export function buildContentSecurityPolicy(isDev: boolean): string {
-  const scriptSrc = isDev
+export function buildContentSecurityPolicy(isDev: boolean, embeddable = false): string {
+  const ga4Enabled =
+    !embeddable &&
+    ['true', '1'].includes(process.env.NEXT_PUBLIC_ANALYTICS_ENABLED ?? '') &&
+    process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER === 'ga4' &&
+    /^G-[A-Z0-9]+$/.test(process.env.NEXT_PUBLIC_ANALYTICS_SITE_ID ?? '');
+
+  const scriptSrcBase = isDev
     ? // Next.js dev tooling (HMR, React Refresh) requires eval.
       `'self' 'unsafe-eval' 'unsafe-inline' blob:`
     : `'self' 'unsafe-inline' 'wasm-unsafe-eval'`;
+  const scriptSrc = ga4Enabled
+    ? `${scriptSrcBase} https://www.googletagmanager.com`
+    : scriptSrcBase;
+  const imageSrc = ga4Enabled
+    ? `'self' data: blob: https://www.google-analytics.com`
+    : `'self' data: blob:`;
+  const connectSrcBase = isDev ? `'self' ws: wss:` : `'self' blob: data:`;
+  const connectSrc = ga4Enabled
+    ? `${connectSrcBase} https://www.google-analytics.com https://region1.google-analytics.com`
+    : connectSrcBase;
 
   const directives: Record<string, string> = {
     'default-src': `'self'`,
@@ -44,15 +60,25 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
     // used for chart geometry. Styles cannot exfiltrate data on their own, and
     // `connect-src` blocks outbound requests regardless.
     'style-src': `'self' 'unsafe-inline'`,
-    'img-src': `'self' data: blob:`,
+    'img-src': imageSrc,
     'font-src': `'self' data:`,
-    'connect-src': isDev ? `'self' ws: wss:` : `'self' blob: data:`,
+    'connect-src': connectSrc,
     'worker-src': `'self' blob:`,
     'child-src': `'self' blob:`,
     'object-src': `'none'`,
     'base-uri': `'self'`,
     'form-action': `'self'`,
-    'frame-ancestors': `'none'`,
+    /*
+     * The embed routes exist to be framed on other people's sites, so they
+     * must permit it. Every other route refuses framing outright.
+     *
+     * Allowing any ancestor is safe here specifically because an embed page
+     * has nothing to steal: it is a prerendered calculator with no session, no
+     * cookie, no stored data and no privileged action a clickjacked click
+     * could trigger. `connect-src 'self'` still holds, so a framed tool cannot
+     * send anything anywhere.
+     */
+    'frame-ancestors': embeddable ? '*' : `'none'`,
     'frame-src': `'none'`,
     'manifest-src': `'self'`,
     'media-src': `'self' blob:`,
@@ -82,14 +108,21 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
  * response — including statically served files — and so the policy survives a
  * static-export deployment (spec §13.2).
  */
-export function securityHeaders(): HeaderEntry[] {
+export function securityHeaders(options: { embeddable?: boolean } = {}): HeaderEntry[] {
+  const { embeddable = false } = options;
   const isDev = process.env.NODE_ENV !== 'production';
 
   const headers: HeaderEntry[] = [
-    { key: 'Content-Security-Policy', value: buildContentSecurityPolicy(isDev) },
+    { key: 'Content-Security-Policy', value: buildContentSecurityPolicy(isDev, embeddable) },
     { key: 'X-Content-Type-Options', value: 'nosniff' },
     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-    { key: 'X-Frame-Options', value: 'DENY' },
+    /*
+     * Omitted on embed routes. `X-Frame-Options` has no "any origin" value —
+     * the header only expresses DENY or SAMEORIGIN — and a browser enforces
+     * whichever of it and `frame-ancestors` is stricter, so sending it at all
+     * would silently defeat the permissive CSP above.
+     */
+    ...(embeddable ? [] : [{ key: 'X-Frame-Options', value: 'DENY' }]),
     {
       key: 'Permissions-Policy',
       // Nothing in the product needs these capabilities.
@@ -110,7 +143,8 @@ export function securityHeaders(): HeaderEntry[] {
         'interest-cohort=()',
       ].join(', '),
     },
-    { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+    // Same reasoning: `same-origin` severs the embed from its framing page.
+    ...(embeddable ? [] : [{ key: 'Cross-Origin-Opener-Policy', value: 'same-origin' as const }]),
     { key: 'X-DNS-Prefetch-Control', value: 'off' },
   ];
 

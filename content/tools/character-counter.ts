@@ -79,5 +79,10 @@ export const characterCounterContent: ToolContent = {
       answer:
         'It is shown as its own statistic. It strips spaces, tabs and line breaks, which is usually what an academic word-limit or a printing constraint actually means.',
     },
+    {
+      question: 'Why does my word processor report a different number?',
+      answer:
+        'Word processors usually count the whole document, including headers, footers, footnotes and text boxes, and some exclude them from one figure but not another. They also differ on whether a paragraph mark counts. This tool counts exactly the text in the box and shows each definition separately, so you can see which one matches the limit you have been given.',
+    },
   ],
 };
