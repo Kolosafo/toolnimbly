@@ -46,7 +46,12 @@ export function buildContentSecurityPolicy(isDev: boolean, embeddable = false): 
     ? `${scriptSrcBase} https://www.googletagmanager.com`
     : scriptSrcBase;
   /*
-   * Marble's media hosts, when the blog is on.
+   * Marble's media hosts, when the blog is on. `cdn.` is the one production
+   * actually uses; the others are kept as cheap insurance.
+   *
+   * This matters beyond `next/image`: post bodies are CMS-authored HTML and
+   * can contain raw <img> tags, which bypass the optimiser and are fetched
+   * directly by the browser under this policy.
    *
    * `next.config.ts` alone is not enough: that governs which hosts
    * `next/image` will optimise, while the CSP governs whether the browser will
@@ -58,7 +63,7 @@ export function buildContentSecurityPolicy(isDev: boolean, embeddable = false): 
    */
   const blogEnabled = ['true', '1'].includes(process.env.NEXT_PUBLIC_BLOG_ENABLED ?? '');
   const marbleImages = blogEnabled
-    ? ' https://images.marblecms.com https://media.marblecms.com'
+    ? ' https://cdn.marblecms.com https://images.marblecms.com https://media.marblecms.com'
     : '';
 
   const imageSrc =
