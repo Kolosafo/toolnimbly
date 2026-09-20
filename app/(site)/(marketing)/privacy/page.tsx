@@ -84,7 +84,12 @@ export default function PrivacyPage() {
             cookies.
           </p>
         ) : (
-          <p>This site sets no tracking cookies and no advertising cookies.</p>
+          <p>
+            The ToolNimbly application does not load Google Analytics or advertising-cookie code
+            under its current configuration. Cloudflare-controlled network behavior is governed by
+            Cloudflare&apos;s service and site configuration rather than this application&apos;s
+            optional analytics flag.
+          </p>
         )}
         <p>Your browser’s local storage is used for these on-device preferences:</p>
         <ul>
@@ -112,8 +117,8 @@ export default function PrivacyPage() {
           </p>
         ) : (
           <p>
-            Because nothing here profiles you or sets a tracking identifier, there is no consent
-            banner to click through.
+            No in-app advertising or profiling integration is currently configured, so this
+            application does not display its optional analytics consent banner.
           </p>
         )}
       </Section>
