@@ -19,6 +19,18 @@ const nextConfig: NextConfig = {
      * degrading, so the blog is unusable the moment a post has a cover.
      */
     remotePatterns: [
+      /*
+       * `cdn.` is the host Marble actually serves from — verified against live
+       * post content, where every cover and in-content image is a
+       * cdn.marblecms.com URL. The integration guide named `images.` and
+       * `media.`, and production used neither: every image returned
+       * INVALID_IMAGE_OPTIMIZE_REQUEST (HTTP 400) until this was added.
+       *
+       * The other two are kept because they cost nothing and the guide's
+       * project evidently used them; if Marble moves hosts again the symptom
+       * is the same 400, so check this list first.
+       */
+      { protocol: 'https', hostname: 'cdn.marblecms.com' },
       { protocol: 'https', hostname: 'images.marblecms.com' },
       { protocol: 'https', hostname: 'media.marblecms.com' },
     ],

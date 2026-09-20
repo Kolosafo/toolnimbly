@@ -2,6 +2,8 @@ import type { Post } from '@usemarble/sdk/models';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { blogPostImageAlt } from '@/lib/marble/seo';
+
 function formatDate(value: string | Date): string {
   return new Date(value).toLocaleDateString('en-GB', {
     day: 'numeric',
@@ -22,20 +24,20 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
     <article className="group relative">
       <div
         className={
-          'flex h-full flex-col overflow-hidden rounded-xl border border-border-default bg-surface transition-colors group-hover:border-brand-border ' +
+          'border-border-default bg-surface group-hover:border-brand-border flex h-full flex-col overflow-hidden rounded-xl border transition-colors ' +
           (featured ? 'sm:flex-row' : '')
         }
       >
         {post.coverImage ? (
           <div
             className={
-              'relative aspect-[16/9] w-full shrink-0 bg-surface-sunken ' +
+              'bg-surface-sunken relative aspect-[16/9] w-full shrink-0 ' +
               (featured ? 'sm:aspect-auto sm:w-2/5' : '')
             }
           >
             <Image
               src={post.coverImage}
-              alt=""
+              alt={blogPostImageAlt(post)}
               fill
               sizes={featured ? '(max-width: 640px) 100vw, 40vw' : '(max-width: 640px) 100vw, 33vw'}
               className="object-cover"
@@ -46,7 +48,7 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
 
         <div className="flex flex-1 flex-col p-5">
           {featured ? (
-            <p className="text-xs font-medium tracking-wide text-brand uppercase">Featured</p>
+            <p className="text-brand text-xs font-medium tracking-wide uppercase">Featured</p>
           ) : null}
           <h3 className={featured ? 'mt-2 text-xl font-semibold' : 'text-base font-semibold'}>
             <Link href={`/blog/${post.slug}`} className="after:absolute after:inset-0">
@@ -54,9 +56,9 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
             </Link>
           </h3>
           {post.description ? (
-            <p className="measure mt-2 text-sm text-muted">{post.description}</p>
+            <p className="measure text-muted mt-2 text-sm">{post.description}</p>
           ) : null}
-          <p className="mt-4 text-xs text-muted">
+          <p className="text-muted mt-4 text-xs">
             <time dateTime={new Date(post.publishedAt).toISOString()}>
               {formatDate(post.publishedAt)}
             </time>

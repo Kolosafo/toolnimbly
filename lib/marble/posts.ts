@@ -15,6 +15,7 @@ import type { Post } from '@usemarble/sdk/models';
 import { features } from '@/lib/config/features';
 
 import { getMarbleClient } from './client';
+import { assertPublishedPostSeoReady, assertPublishedPostSet, isPublishedPost } from './seo';
 
 /** Posts in this category back the legal pages and never appear in the blog. */
 const EXCLUDED_CATEGORIES = ['legal'];
@@ -41,22 +42,29 @@ export async function listAllPosts(): Promise<Post[]> {
    */
   const client = getMarbleClient();
 
+  let posts: Post[];
   try {
-    const posts: Post[] = [];
+    posts = [];
     const pages = await client.posts.list({
       limit: PAGE_SIZE,
       excludeCategories: EXCLUDED_CATEGORIES,
+      status: 'published',
     });
 
     // The returned value is async-iterable: `limit` is the page size, not a cap.
     for await (const page of pages) {
       if (page.result.posts) posts.push(...page.result.posts);
     }
-    return posts;
   } catch (error) {
     console.error('[marble] could not list posts:', error);
     return [];
   }
+
+  // The API filter is the primary control; the local guard protects against a
+  // malformed response and keeps drafts out of pages, static params and XML.
+  const published = posts.filter(isPublishedPost);
+  assertPublishedPostSet(published);
+  return published;
 }
 
 /**
@@ -73,13 +81,20 @@ export async function getPost(slug: string): Promise<Post | null> {
   // Same split as above: configuration errors throw, request failures degrade.
   const client = getMarbleClient();
 
+  let post: Post | null;
   try {
-    const data = await client.posts.get({ identifier: slug });
-    return data?.post ?? null;
+    const data = await client.posts.get({ identifier: slug, status: 'published' });
+    post = data?.post ?? null;
   } catch (error) {
     console.error(`[marble] could not load post "${slug}":`, error);
     return null;
   }
+
+  if (!post || !isPublishedPost(post)) return null;
+  // Content errors are not outages. Let them surface so a published page can
+  // never silently degrade to a misleading 404 or an incomplete SEO template.
+  assertPublishedPostSeoReady(post);
+  return post;
 }
 
 /** The post to feature on the index, and the rest in order. */

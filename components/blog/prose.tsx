@@ -17,6 +17,10 @@ import { cn } from '@/lib/utils/cn';
  * would not stop an inline script in post content.
  */
 export function Prose({ html, className }: { html: string; className?: string }) {
+  // The page template owns the sole H1. Marble's rich-text editor may include
+  // one in pasted content, so demote body-level H1s before server rendering.
+  const articleHtml = html.replace(/<h1(\s|>)/gi, '<h2$1').replace(/<\/h1\s*>/gi, '</h2>');
+
   return (
     <div
       className={cn(
@@ -25,7 +29,7 @@ export function Prose({ html, className }: { html: string; className?: string })
         'prose-pre:overflow-x-auto',
         className,
       )}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: articleHtml }}
     />
   );
 }
