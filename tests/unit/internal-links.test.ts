@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { allIndexableRoutes, categories, tools } from '@/lib/registry';
+import { referencedBlogPostPaths } from '@/lib/registry/blog-posts';
+import { BENCHMARK_PATH, RESEARCH_INDEX_PATH, SURVEY_PATH } from '@/lib/research/publication';
 
 /**
  * Link integrity (spec §8.4): no orphan tool routes and no internal link that
@@ -45,7 +47,20 @@ function extractInternalHrefs(source: string): string[] {
  * source for links while excluding /blog from the known set reports a link
  * that is unreachable, not broken.
  */
-const knownRoutes = new Set([...allIndexableRoutes(), '/blog']);
+/*
+ * The research routes exist in `app/` whatever the publication flags say — the
+ * flags decide whether they 404 and whether they reach the sitemap, exactly as
+ * with `/blog`. The two CMS post paths come from the one list that the pages
+ * link through, so a slug cannot be changed in a page without the test noticing.
+ */
+const knownRoutes = new Set([
+  ...allIndexableRoutes(),
+  '/blog',
+  ...referencedBlogPostPaths(),
+  RESEARCH_INDEX_PATH,
+  BENCHMARK_PATH,
+  SURVEY_PATH,
+]);
 
 describe('internal links', () => {
   const files = scanDirs.flatMap((dir) => collectSourceFiles(join(projectRoot, dir)));
@@ -62,8 +77,11 @@ describe('internal links', () => {
       for (const href of extractInternalHrefs(source)) {
         // Skip anchors, metadata-only paths and the site's own asset routes.
         if (href.startsWith('/#')) continue;
-        if (href === '/icon.svg' || href === '/sitemap.xml' || href === '/opengraph-image') continue;
+        if (href === '/icon.svg' || href === '/sitemap.xml' || href === '/opengraph-image')
+          continue;
         if (href === '/manifest.webmanifest') continue;
+        // A static file served from `public/research/`, not an app route.
+        if (href.endsWith('-aggregates.csv')) continue;
         const path = href.split('#')[0]?.split('?')[0] ?? href;
         if (!knownRoutes.has(path)) {
           broken.push(`${file.replace(projectRoot + '/', '')} → ${href}`);

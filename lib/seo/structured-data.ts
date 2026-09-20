@@ -177,3 +177,50 @@ export function guideArticleSchema(guide: GuideDefinition): JsonLdObject {
     publisher: { '@id': `${site.url}/#organization` },
   };
 }
+
+/**
+ * The aggregate dataset behind the research report (SEO brief §8.2).
+ *
+ * Emitted only when the aggregate CSV is genuinely downloadable from the
+ * public origin, and carrying only properties we can substantiate. There is no
+ * DOI, no citation count, no named author beyond the publishing organisation,
+ * and no `spatialCoverage`: respondents self-selected, so a geographic claim
+ * would describe who happened to answer rather than anywhere the data covers.
+ */
+export function datasetSchema(input: {
+  readonly name: string;
+  readonly description: string;
+  readonly url: string;
+  readonly datePublished: string;
+  readonly dateModified: string;
+  /** ISO 8601 interval, e.g. `2026-07-06/2026-07-29`. */
+  readonly temporalCoverage: string;
+  readonly contentUrl: string;
+  readonly usageInfo: string;
+  readonly variableMeasured: readonly string[];
+}): JsonLdObject {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    '@id': `${input.url}#dataset`,
+    name: input.name,
+    description: input.description,
+    url: input.url,
+    inLanguage: 'en',
+    isAccessibleForFree: true,
+    creator: { '@id': `${site.url}/#organization` },
+    publisher: { '@id': `${site.url}/#organization` },
+    datePublished: input.datePublished,
+    dateModified: input.dateModified,
+    temporalCoverage: input.temporalCoverage,
+    usageInfo: input.usageInfo,
+    variableMeasured: input.variableMeasured,
+    distribution: [
+      {
+        '@type': 'DataDownload',
+        encodingFormat: 'text/csv',
+        contentUrl: input.contentUrl,
+      },
+    ],
+  };
+}

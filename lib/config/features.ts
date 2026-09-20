@@ -44,6 +44,36 @@ export const features = {
    * that have nothing to do with the CMS.
    */
   blogEnabled: flag(process.env.NEXT_PUBLIC_BLOG_ENABLED),
+
+  /**
+   * The invoice payment terms research survey.
+   *
+   * Off, and off for a reason: no survey provider and no first-party
+   * collection backend has been approved, so there is nothing to link to. With
+   * it off, `/research/invoice-payment-terms-survey` returns a real 404 and
+   * `/privacy` says nothing about collecting survey responses — which is
+   * accurate, because none are being collected.
+   *
+   * These three are necessary and not sufficient. `surveyCollection()` in
+   * lib/research/survey.ts also requires a recorded provider assurance, so a
+   * URL alone cannot turn on pages that make promises about how the provider
+   * behaves. See docs/research/data-handling.md §2.
+   */
+  researchSurveyEnabled: flag(process.env.NEXT_PUBLIC_RESEARCH_SURVEY_ENABLED),
+  /** The approved form's URL. Server-side validated; never a secret. */
+  researchSurveyUrl: process.env.NEXT_PUBLIC_RESEARCH_SURVEY_URL?.trim() ?? '',
+  /** The provider's name, stated before a participant leaves the site. */
+  researchSurveyProvider: process.env.NEXT_PUBLIC_RESEARCH_SURVEY_PROVIDER?.trim() ?? '',
+
+  /**
+   * The public benchmark report.
+   *
+   * The owner's publication switch, and only half of the gate: the route also
+   * requires a validated aggregate summary on disk. Neither alone is enough,
+   * so the report cannot ship on a flag flip with no data, nor on data alone
+   * without approval.
+   */
+  researchBenchmarkPublished: flag(process.env.NEXT_PUBLIC_RESEARCH_BENCHMARK_PUBLISHED),
 } as const;
 
 /**

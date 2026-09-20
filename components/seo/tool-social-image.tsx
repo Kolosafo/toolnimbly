@@ -1,17 +1,26 @@
 import { ImageResponse } from 'next/og';
 
-import { PRIORITY_TOOL_SOCIAL_IMAGES } from '@/lib/seo/tool-social-images';
+import { PRIORITY_TOOL_SOCIAL_IMAGES, type ToolSocialImage } from '@/lib/seo/tool-social-images';
 
 export const TOOL_SOCIAL_IMAGE_SIZE = { width: 1200, height: 630 } as const;
 
 export function renderToolSocialImage(slug: string): ImageResponse {
-  const image = PRIORITY_TOOL_SOCIAL_IMAGES[slug] ?? {
-    title: 'Free browser tools',
-    differentiator: 'Private • No signup',
-    alt: 'ToolNimbly browser tools',
-    accent: '#38bdf8',
-  };
+  return renderSocialImage(
+    PRIORITY_TOOL_SOCIAL_IMAGES[slug] ?? {
+      title: 'Free browser tools',
+      differentiator: 'Private • No signup',
+      alt: 'ToolNimbly browser tools',
+      accent: '#38bdf8',
+    },
+  );
+}
 
+/**
+ * The shared 1200×630 card. Tool pages reach it through the lookup above; the
+ * research report supplies its own values, so the two cannot drift into
+ * different-looking social cards.
+ */
+export function renderSocialImage(image: ToolSocialImage): ImageResponse {
   return new ImageResponse(
     <div
       style={{

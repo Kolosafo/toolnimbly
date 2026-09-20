@@ -5,6 +5,7 @@ import { ToolUsageTracker } from '@/components/analytics/tool-usage-tracker';
 import { EmbedDialog } from '@/components/embed/embed-dialog';
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs';
 import { RelatedTools } from '@/components/navigation/related-tools';
+import { BenchmarkCallout } from '@/components/research/benchmark-callout';
 import { FaqList } from '@/components/tool-shell/faq-list';
 import { FormulaBlock } from '@/components/tool-shell/formula-block';
 import { HowToSteps } from '@/components/tool-shell/how-to-steps';
@@ -131,6 +132,8 @@ export function ToolPageLayout({ tool, content }: { tool: ToolDefinition; conten
             <h2 id="supporting-guides-heading" className="text-xl font-semibold">
               Read more about this
             </h2>
+            {/* Renders only once the benchmark is published; null before that. */}
+            <BenchmarkCallout toolSlug={tool.slug} />
             <ul className="mt-4 space-y-3">
               {supportingGuides.map((guide) => (
                 <li key={guide.slug} className="group relative">

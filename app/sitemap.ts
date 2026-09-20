@@ -6,6 +6,8 @@ import { listAllPosts } from '@/lib/marble/posts';
 import { blogPostDates, blogPostSitemapEntries } from '@/lib/marble/seo';
 import { guides, orderedCategories, tools } from '@/lib/registry';
 import { assertRegistryValid } from '@/lib/registry/validate';
+import { BENCHMARK_PATH, RESEARCH_INDEX_PATH } from '@/lib/research/publication';
+import { benchmarkPublicationGate } from '@/lib/research/report';
 
 /**
  * Sitemap generated from the registry (spec §8.1), so a tool cannot exist
@@ -120,7 +122,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ]
     : [];
 
-  return [...staticRoutes, ...categoryRoutes, ...toolRoutes, ...guideRoutes, ...blogRoutes];
+  /*
+   * The research report enters the sitemap on publication and not a moment
+   * earlier. `benchmarkPublicationGate` is the same check the route itself
+   * runs, so an unpublished report cannot be listed here while returning a 404
+   * there — and the survey landing page is never listed at all, because it is
+   * a page for people who were sent to it, not a search result.
+   *
+   * `lastModified` is the recorded editorial review date, or the date the
+   * aggregates were built from the real export. Neither is a build timestamp.
+   */
+  const benchmark = benchmarkPublicationGate();
+  const researchRoutes: MetadataRoute.Sitemap =
+    benchmark.visibility === 'published' && benchmark.summary
+      ? [
+          {
+            url: absoluteUrl(RESEARCH_INDEX_PATH),
+            lastModified: researchUpdatedAt(benchmark.reviewedOn, benchmark.summary.generatedAt),
+            changeFrequency: 'yearly',
+            priority: 0.5,
+          },
+          {
+            url: absoluteUrl(BENCHMARK_PATH),
+            lastModified: researchUpdatedAt(benchmark.reviewedOn, benchmark.summary.generatedAt),
+            changeFrequency: 'yearly',
+            priority: 0.8,
+          },
+        ]
+      : [];
+
+  return [
+    ...staticRoutes,
+    ...categoryRoutes,
+    ...toolRoutes,
+    ...guideRoutes,
+    ...researchRoutes,
+    ...blogRoutes,
+  ];
+}
+
+function researchUpdatedAt(reviewedOn: string | null, generatedAt: string): Date {
+  return new Date(reviewedOn ? `${reviewedOn}T00:00:00Z` : generatedAt);
 }
 
 function latestDate(values: readonly string[]): Date {
