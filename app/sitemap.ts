@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 
 import { absoluteUrl } from '@/lib/config/site';
+import { features } from '@/lib/config/features';
+import { listAllPosts } from '@/lib/marble/posts';
 import { guides, orderedCategories, tools } from '@/lib/registry';
 import { assertRegistryValid } from '@/lib/registry/validate';
 
@@ -11,7 +13,7 @@ import { assertRegistryValid } from '@/lib/registry/validate';
  * Registry validation runs here as well: the sitemap is built during
  * `next build`, so a broken registry fails the build rather than shipping.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   assertRegistryValid();
 
   const editorialUpdatedAt = new Date('2026-09-20T00:00:00Z');
@@ -84,7 +86,44 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...toolRoutes, ...guideRoutes];
+  /*
+   * Blog entries come from the CMS, so this is the one part of the sitemap
+   * that can fail. `listAllPosts` already degrades to an empty array on an
+   * outage, which ships a sitemap of the code-managed routes rather than a
+   * 500 — a temporarily shorter sitemap is far better than none.
+   */
+  const posts = features.blogEnabled ? await listAllPosts() : [];
+
+  const blogRoutes: MetadataRoute.Sitemap = features.blogEnabled
+    ? [
+        {
+          url: absoluteUrl('/blog'),
+          // The index changes when its newest post does, not on every build.
+          lastModified: posts.reduce<Date>((latest, post) => {
+            const stamp = new Date(post.updatedAt ?? post.publishedAt);
+            return stamp > latest ? stamp : latest;
+          }, editorialUpdatedAt),
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        },
+        ...posts.map((post) => ({
+          url: absoluteUrl(`/blog/${post.slug}`),
+          // `updatedAt` where Marble supplies it, so an edit re-signals
+          // freshness rather than reporting the original publication date.
+          lastModified: new Date(post.updatedAt ?? post.publishedAt),
+          changeFrequency: 'monthly' as const,
+          priority: 0.6,
+        })),
+      ]
+    : [];
+
+  return [
+    ...staticRoutes,
+    ...categoryRoutes,
+    ...toolRoutes,
+    ...guideRoutes,
+    ...blogRoutes,
+  ];
 }
 
 function latestDate(values: readonly string[]): Date {

@@ -7,7 +7,6 @@ import { Container } from '@/components/ui/container';
 import { absoluteUrl } from '@/lib/config/site';
 import { guides, guidesInCategory, orderedCategories } from '@/lib/registry';
 import { buildMetadata } from '@/lib/seo/metadata';
-import { breadcrumbSchema } from '@/lib/seo/structured-data';
 
 export const metadata: Metadata = buildMetadata({
   title: 'Guides',
@@ -19,11 +18,16 @@ export const metadata: Metadata = buildMetadata({
 export default function GuidesPage() {
   return (
     <Container as="div" className="py-6 sm:py-8">
-      <Breadcrumbs entries={[{ name: 'Home', path: '/' }, { name: 'Guides', path: '/guides' }]} />
+      <Breadcrumbs
+        entries={[
+          { name: 'Home', path: '/' },
+          { name: 'Guides', path: '/guides' },
+        ]}
+      />
 
       <header className="mt-4">
         <h1 className="text-3xl font-bold sm:text-4xl">Guides</h1>
-        <p className="measure mt-3 text-lg text-muted">
+        <p className="measure text-muted mt-3 text-lg">
           The tools do the arithmetic. These explain what the arithmetic means — why a loan&rsquo;s
           early payments are mostly interest, why a scanned PDF is enormous, why length beats
           symbols in a password.
@@ -45,7 +49,7 @@ export default function GuidesPage() {
               <ul className="mt-4 grid gap-4 sm:grid-cols-2">
                 {inCategory.map((guide) => (
                   <li key={guide.slug} className="group relative">
-                    <div className="h-full rounded-lg border border-border-default bg-surface p-5 transition-colors group-hover:border-brand-border">
+                    <div className="border-border-default bg-surface group-hover:border-brand-border h-full rounded-lg border p-5 transition-colors">
                       <h3 className="font-medium">
                         <Link
                           href={`/guides/${guide.slug}`}
@@ -54,7 +58,7 @@ export default function GuidesPage() {
                           {guide.name}
                         </Link>
                       </h3>
-                      <p className="mt-2 text-sm text-muted">{guide.description}</p>
+                      <p className="text-muted mt-2 text-sm">{guide.description}</p>
                     </div>
                   </li>
                 ))}
@@ -65,23 +69,17 @@ export default function GuidesPage() {
       </div>
 
       <JsonLd
-        data={[
-          breadcrumbSchema([
-            { name: 'Home', path: '/' },
-            { name: 'Guides', path: '/guides' },
-          ]),
-          {
-            '@context': 'https://schema.org',
-            '@type': 'CollectionPage',
-            name: 'Guides',
-            url: absoluteUrl('/guides'),
-            hasPart: guides.map((guide) => ({
-              '@type': 'Article',
-              headline: guide.name,
-              url: absoluteUrl(`/guides/${guide.slug}`),
-            })),
-          },
-        ]}
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: 'Guides',
+          url: absoluteUrl('/guides'),
+          hasPart: guides.map((guide) => ({
+            '@type': 'Article',
+            headline: guide.name,
+            url: absoluteUrl(`/guides/${guide.slug}`),
+          })),
+        }}
       />
     </Container>
   );

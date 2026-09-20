@@ -2,7 +2,7 @@
   "name": "toolnimbly",
   "version": "0.1.0",
   "private": true,
-  "description": "ToolNimbly \u2014 fast, privacy-respecting browser utilities. All processing stays on the device.",
+  "description": "ToolNimbly — fast, privacy-respecting browser utilities. All processing stays on the device.",
   "engines": {
     "node": ">=22.11.0",
     "pnpm": ">=10"
@@ -30,6 +30,7 @@
     "check:bundles": "node scripts/check-bundles.mjs"
   },
   "dependencies": {
+    "@usemarble/sdk": "^1.3.0",
     "big.js": "^7.0.1",
     "fflate": "^0.8.2",
     "lucide-react": "^0.548.0",
@@ -39,6 +40,7 @@
     "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
     "zod": "^4.1.13"
   },
   "devDependencies": {
@@ -46,6 +48,7 @@
     "@next/bundle-analyzer": "16.3.5",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/typography": "^0.5.20",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",

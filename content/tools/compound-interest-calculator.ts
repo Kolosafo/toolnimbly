@@ -3,7 +3,7 @@ import type { ToolContent } from '../types';
 export const compoundInterestCalculatorContent: ToolContent = {
   slug: 'compound-interest-calculator',
   valueProposition:
-    'Model real savings growth, with regular contributions applied on the schedule you actually use.',
+    'Calculate how savings can grow with compound interest and regular weekly, monthly or annual contributions. Compare deposits, interest earned and the projected balance year by year.',
   intro:
     'Compound interest is interest earned on interest already earned, and over long periods it dominates the result. This calculator projects a balance from a starting amount, an annual rate and a compounding frequency, and it models recurring contributions properly — applying each one on its own schedule rather than treating a year of deposits as a single lump sum. The yearly table shows contributions and interest separately so you can see which is doing the work.',
   steps: [
@@ -51,6 +51,8 @@ export const compoundInterestCalculatorContent: ToolContent = {
       'A 0% rate is valid and simply returns the sum of the starting amount and the contributions.',
       'Negative rates below −100% per period are rejected, because a balance cannot compound through zero.',
     ],
+    sourceNote:
+      'ToolNimbly performs its own calculation locally. The Investor.gov links below explain compound interest and provide a separate reference; they are not endorsements of this calculator.',
   },
   limitations: [
     'This is a projection at a constant rate, not a forecast. Real investment returns vary year to year and can be negative.',
@@ -62,6 +64,16 @@ export const compoundInterestCalculatorContent: ToolContent = {
     'Balances, rates and contribution amounts are calculated in your browser and never transmitted.',
   resultDisclaimer:
     'This is an illustrative projection, not investment advice and not a guarantee of returns. Investments can fall as well as rise. Speak to a qualified financial adviser about your own situation.',
+  sources: [
+    {
+      label: 'Investor.gov — Compound Interest Calculator',
+      url: 'https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator',
+    },
+    {
+      label: 'Investor.gov — Compound Interest definition',
+      url: 'https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest',
+    },
+  ],
   faqs: [
     {
       question: 'Does compounding frequency make much difference?',

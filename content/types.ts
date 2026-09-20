@@ -34,6 +34,8 @@ export type ContentMethod = {
   readonly formulas?: readonly string[];
   /** Notes that follow the formula block. */
   readonly notes?: readonly string[];
+  /** Context for external references and assumptions shown beside the method. */
+  readonly sourceNote?: string;
 };
 
 export type ContentFaq = {

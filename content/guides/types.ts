@@ -8,6 +8,7 @@
  */
 
 import type { ContentFaq } from '@/content/types';
+import type { ContentSource } from '@/content/types';
 
 export type GuideSection = {
   /** Rendered as an `h2`. */
@@ -25,6 +26,15 @@ export type GuideContent = {
   /** Opening paragraphs, before the first subheading. */
   readonly intro: readonly string[];
   readonly sections: readonly GuideSection[];
+  /** Authoritative references used for factual claims in the article. */
+  readonly sources?: readonly ContentSource[];
+  /** One relevant next action, rendered as a visible contextual link. */
+  readonly cta?: {
+    readonly heading: string;
+    readonly body: string;
+    readonly label: string;
+    readonly href: string;
+  };
   /** Four to six questions, wired to FAQPage schema like the tool pages. */
   readonly faqs: readonly ContentFaq[];
   /** Short summary, rendered at the end. */

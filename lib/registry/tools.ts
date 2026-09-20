@@ -32,12 +32,12 @@ export const tools: readonly ToolDefinition[] = [
   },
   {
     slug: 'loan-calculator',
-    name: 'Loan Calculator',
+    name: 'Loan Calculator with Extra Payments',
     shortName: 'Loan',
     category: 'calculators',
-    title: 'Loan Calculator — Payment and Interest',
+    title: 'Loan Calculator with Extra Payments & Amortization',
     description:
-      'Calculate a fixed-rate loan payment, total interest and full amortisation schedule. Add an extra monthly payment to see how much sooner it clears.',
+      'Calculate monthly loan payments, total interest and a full amortization schedule. Add extra payments to compare payoff time and savings.',
     primaryKeyword: 'loan calculator',
     relatedSlugs: [
       'mortgage-calculator',
@@ -49,7 +49,7 @@ export const tools: readonly ToolDefinition[] = [
     localProcessing: true,
     featured: true,
     componentKey: 'loan-calculator',
-    updatedAt: '2026-09-16',
+    updatedAt: '2026-09-20',
   },
   {
     slug: 'mortgage-calculator',
@@ -74,12 +74,12 @@ export const tools: readonly ToolDefinition[] = [
   },
   {
     slug: 'compound-interest-calculator',
-    name: 'Compound Interest Calculator',
+    name: 'Compound Interest Calculator with Contributions',
     shortName: 'Compound Interest',
     category: 'calculators',
-    title: 'Compound Interest Calculator — Growth',
+    title: 'Compound Interest Calculator with Contributions',
     description:
-      'Project savings growth with any compounding frequency and regular contributions. Shows the yearly balance, total contributions and interest earned.',
+      'Calculate compound interest with regular contributions and daily, monthly or annual compounding. See yearly growth and download the results.',
     primaryKeyword: 'compound interest calculator',
     relatedSlugs: [
       'loan-calculator',
@@ -91,16 +91,16 @@ export const tools: readonly ToolDefinition[] = [
     localProcessing: true,
     featured: false,
     componentKey: 'compound-interest-calculator',
-    updatedAt: '2026-09-16',
+    updatedAt: '2026-09-20',
   },
   {
     slug: 'salary-calculator',
-    name: 'Salary Calculator',
+    name: 'Salary to Hourly Calculator',
     shortName: 'Salary',
     category: 'calculators',
-    title: 'Salary Calculator — Hourly to Annual',
+    title: 'Salary to Hourly & Hourly to Salary Calculator',
     description:
-      'Convert pay between hourly, daily, weekly, biweekly, semimonthly, monthly and annual rates using your own hours and paid weeks. Gross pay only.',
+      'Convert annual salary to hourly, monthly, weekly, biweekly or daily gross pay—or convert an hourly wage back to annual salary.',
     primaryKeyword: 'salary calculator',
     relatedSlugs: [
       'percentage-calculator',
@@ -112,7 +112,7 @@ export const tools: readonly ToolDefinition[] = [
     localProcessing: true,
     featured: true,
     componentKey: 'salary-calculator',
-    updatedAt: '2026-09-16',
+    updatedAt: '2026-09-20',
   },
   {
     slug: 'age-calculator',
@@ -510,12 +510,12 @@ export const tools: readonly ToolDefinition[] = [
   // --- Business (29–30) ----------------------------------------------------
   {
     slug: 'invoice-generator',
-    name: 'Invoice Generator',
+    name: 'Free Invoice Generator',
     shortName: 'Invoice',
     category: 'business-tools',
     title: 'Free Invoice Generator — PDF, No Signup',
     description:
-      'Build a professional invoice with line items, discounts, tax and payment terms, then print it or download a PDF. No account, no data sent anywhere.',
+      'Create a professional PDF invoice with line items, tax, discounts and payment terms. Free, no signup, and processed in your browser.',
     primaryKeyword: 'invoice generator',
     relatedSlugs: [
       'receipt-generator',
@@ -528,23 +528,23 @@ export const tools: readonly ToolDefinition[] = [
     localProcessing: true,
     featured: true,
     componentKey: 'invoice-generator',
-    updatedAt: '2026-09-16',
+    updatedAt: '2026-09-20',
   },
   {
     slug: 'receipt-generator',
-    name: 'Receipt Generator',
+    name: 'Free Receipt Generator',
     shortName: 'Receipt',
     category: 'business-tools',
-    title: 'Receipt Generator — Print or PDF',
+    title: 'Free Receipt Generator — Payment Receipt PDF',
     description:
-      'Create a clear receipt for a payment you have taken, with line items, tax, tip, amount tendered and change. Print it or save it as a PDF.',
+      'Create a printable payment receipt with line items, tax, tips and change, then print or download a PDF. Free, private and no signup.',
     primaryKeyword: 'receipt generator',
     relatedSlugs: ['invoice-generator', 'percentage-calculator', 'image-to-pdf', 'pdf-compressor'],
     icon: 'Receipt',
     localProcessing: true,
     featured: false,
     componentKey: 'receipt-generator',
-    updatedAt: '2026-09-16',
+    updatedAt: '2026-09-20',
   },
 ] as const;
 

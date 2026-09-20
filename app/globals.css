@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* Typography styles for CMS-authored post bodies (components/blog/prose.tsx). */
+@plugin "@tailwindcss/typography";
 
 /* Explicit theme control: `data-theme="dark"` / `data-theme="light"` on <html>
    overrides the system preference; absent, the system preference wins. */

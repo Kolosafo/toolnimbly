@@ -13,13 +13,7 @@ import type { GuideDefinition } from '@/lib/registry/guides';
  * panel, and the tools it supports arriving at the end, once the reader knows
  * enough to want one.
  */
-export function GuideLayout({
-  guide,
-  content,
-}: {
-  guide: GuideDefinition;
-  content: GuideContent;
-}) {
+export function GuideLayout({ guide, content }: { guide: GuideDefinition; content: GuideContent }) {
   const category = getCategory(guide.category);
   const tools = guide.relatedToolSlugs.map((slug) => getTool(slug));
 
@@ -29,17 +23,15 @@ export function GuideLayout({
         entries={[
           { name: 'Home', path: '/' },
           { name: 'Guides', path: '/guides' },
-          { name: category.shortName, path: `/${category.slug}` },
+          { name: guide.name, path: `/guides/${guide.slug}` },
         ]}
       />
 
       <article className="mt-4">
         <header>
-          <p className="text-sm font-medium tracking-wide text-brand uppercase">
-            {category.name}
-          </p>
+          <p className="text-brand text-sm font-medium tracking-wide uppercase">{category.name}</p>
           <h1 className="mt-2 text-3xl font-bold sm:text-4xl">{guide.name}</h1>
-          <p className="measure mt-3 text-lg text-muted">{content.standfirst}</p>
+          <p className="measure text-muted mt-3 text-lg">{content.standfirst}</p>
         </header>
 
         <div className="measure mt-8 space-y-4">
@@ -62,10 +54,10 @@ export function GuideLayout({
               {section.bullets && section.bullets.length > 0 ? (
                 <ul className="measure mt-4 space-y-2">
                   {section.bullets.map((bullet) => (
-                    <li key={bullet} className="flex gap-2 text-sm text-muted">
+                    <li key={bullet} className="text-muted flex gap-2 text-sm">
                       <span
                         aria-hidden="true"
-                        className="mt-2 size-1 shrink-0 rounded-full bg-subtle"
+                        className="bg-subtle mt-2 size-1 shrink-0 rounded-full"
                       />
                       <span>{bullet}</span>
                     </li>
@@ -80,15 +72,55 @@ export function GuideLayout({
           <h2 id="key-points-heading" className="text-xl font-semibold">
             In short
           </h2>
-          <ul className="measure mt-4 space-y-2 rounded-xl border border-border-default bg-surface-sunken p-5">
+          <ul className="measure border-border-default bg-surface-sunken mt-4 space-y-2 rounded-xl border p-5">
             {content.keyPoints.map((point) => (
               <li key={point} className="flex gap-2 text-sm">
-                <span aria-hidden="true" className="mt-2 size-1 shrink-0 rounded-full bg-brand" />
+                <span aria-hidden="true" className="bg-brand mt-2 size-1 shrink-0 rounded-full" />
                 <span>{point}</span>
               </li>
             ))}
           </ul>
         </section>
+
+        {content.sources && content.sources.length > 0 ? (
+          <section aria-labelledby="guide-sources-heading" className="mt-12">
+            <h2 id="guide-sources-heading" className="text-xl font-semibold">
+              Sources
+            </h2>
+            <ul className="measure text-muted mt-4 space-y-2 text-sm">
+              {content.sources.map((source) => (
+                <li key={source.url}>
+                  <a
+                    href={source.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="text-brand underline underline-offset-2 hover:no-underline"
+                  >
+                    {source.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {content.cta ? (
+          <section
+            aria-labelledby="guide-next-step-heading"
+            className="measure border-brand-border bg-brand-soft mt-12 rounded-xl border p-5"
+          >
+            <h2 id="guide-next-step-heading" className="text-xl font-semibold">
+              {content.cta.heading}
+            </h2>
+            <p className="text-muted mt-2 text-sm">{content.cta.body}</p>
+            <a
+              href={content.cta.href}
+              className="bg-brand hover:bg-brand-strong mt-4 inline-flex rounded-md px-4 py-2 text-sm font-medium text-white"
+            >
+              {content.cta.label}
+            </a>
+          </section>
+        ) : null}
 
         <div className="mt-12">
           <FaqList faqs={content.faqs} />

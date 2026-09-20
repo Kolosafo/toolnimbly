@@ -34,6 +34,43 @@ export type GuideDefinition = {
 
 export const guides: readonly GuideDefinition[] = [
   {
+    slug: 'compound-interest-with-contributions',
+    name: 'Compound interest with regular contributions',
+    title: 'Compound Interest with Contributions',
+    description:
+      'Learn how principal, compounding frequency and contribution timing shape savings growth, with a worked monthly-contribution example.',
+    category: 'calculators',
+    primaryKeyword: 'compound interest with contributions',
+    relatedToolSlugs: [
+      'compound-interest-calculator',
+      'percentage-calculator',
+      'salary-calculator',
+    ],
+    updatedAt: '2026-09-20',
+  },
+  {
+    slug: 'how-extra-loan-payments-save-interest',
+    name: 'How extra loan payments save interest',
+    title: 'How Extra Loan Payments Save Interest',
+    description:
+      'See why paying principal earlier can shorten a fixed-rate loan and reduce later interest, with a worked example and lender caveats.',
+    category: 'calculators',
+    primaryKeyword: 'how extra loan payments save interest',
+    relatedToolSlugs: ['loan-calculator', 'mortgage-calculator', 'percentage-calculator'],
+    updatedAt: '2026-09-20',
+  },
+  {
+    slug: 'how-to-convert-salary-to-hourly',
+    name: 'How to convert salary to hourly pay',
+    title: 'How to Convert Salary to Hourly Pay',
+    description:
+      'Convert annual salary to an hourly rate—or hourly pay to annual salary—using realistic hours, paid weeks and gross-pay assumptions.',
+    category: 'calculators',
+    primaryKeyword: 'how to convert salary to hourly',
+    relatedToolSlugs: ['salary-calculator', 'percentage-calculator', 'date-difference-calculator'],
+    updatedAt: '2026-09-20',
+  },
+  {
     slug: 'how-loan-interest-works',
     name: 'How loan interest actually works',
     title: 'How Loan Interest Works',
@@ -98,6 +135,17 @@ export const guides: readonly GuideDefinition[] = [
     updatedAt: '2026-09-19',
   },
   {
+    slug: 'what-a-payment-receipt-should-include',
+    name: 'What a payment receipt should include',
+    title: 'What a Payment Receipt Should Include',
+    description:
+      'Learn the common fields on a useful payment receipt, how it differs from an invoice, and where local numbering and record rules apply.',
+    category: 'business-tools',
+    primaryKeyword: 'what should a payment receipt include',
+    relatedToolSlugs: ['receipt-generator', 'invoice-generator', 'percentage-calculator'],
+    updatedAt: '2026-09-20',
+  },
+  {
     slug: 'what-an-invoice-must-contain',
     name: 'What an invoice needs to contain',
     title: 'What to Include on an Invoice',
@@ -132,4 +180,4 @@ export const guides: readonly GuideDefinition[] = [
   },
 ];
 
-export const EXPECTED_GUIDE_COUNT = 7;
+export const EXPECTED_GUIDE_COUNT = 11;

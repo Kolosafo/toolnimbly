@@ -43,7 +43,7 @@ export function ToolPageLayout({ tool, content }: { tool: ToolDefinition; conten
           entries={[
             { name: 'Home', path: '/' },
             { name: category.name, path: `/${category.slug}` },
-            { name: tool.shortName, path: `/tools/${tool.slug}` },
+            { name: tool.name, path: `/tools/${tool.slug}` },
           ]}
         />
 
@@ -101,7 +101,7 @@ export function ToolPageLayout({ tool, content }: { tool: ToolDefinition; conten
 
         <HowToSteps steps={content.steps} />
         <WorkedExample example={content.example} />
-        {content.method ? <FormulaBlock method={content.method} /> : null}
+        {content.method ? <FormulaBlock method={content.method} sources={content.sources} /> : null}
 
         {deepDive ? (
           <section aria-labelledby="tool-context-heading">
@@ -118,11 +118,7 @@ export function ToolPageLayout({ tool, content }: { tool: ToolDefinition; conten
 
         <AdSlot placement="in-content" />
 
-        <Limitations
-          limitations={content.limitations}
-          privacyNote={content.privacyNote}
-          sources={content.sources}
-        />
+        <Limitations limitations={content.limitations} privacyNote={content.privacyNote} />
 
         {/* 10. Visible FAQs */}
         <FaqList faqs={content.faqs} />

@@ -17,6 +17,8 @@ type BuildMetadataInput = {
   path: string;
   /** Overrides the default social image. */
   image?: string;
+  /** Descriptive alternative text for the social image. */
+  imageAlt?: string;
   /** Set for utility routes that should never be indexed. */
   noIndex?: boolean;
   /** `article`-style pages may set a type; defaults to `website`. */
@@ -30,6 +32,7 @@ export function buildMetadata({
   description,
   path,
   image = DEFAULT_OG_IMAGE,
+  imageAlt,
   noIndex = false,
   type = 'website',
 }: BuildMetadataInput): Metadata {
@@ -39,6 +42,7 @@ export function buildMetadata({
   // Preview and development deployments are never indexable, whatever the page
   // asks for. Production honours the per-page flag.
   const indexable = isIndexable && !noIndex;
+  const socialImage = { url: image, width: 1200, height: 630, alt: imageAlt ?? title };
 
   return {
     // `absolute` bypasses the root layout's title template. Returning a bare
@@ -69,13 +73,13 @@ export function buildMetadata({
       title: fullTitle,
       description,
       locale: 'en_US',
-      images: [{ url: image, width: 1200, height: 630, alt: title }],
+      images: [socialImage],
     },
     twitter: {
       card: 'summary_large_image',
       title: fullTitle,
       description,
-      images: [image],
+      images: [socialImage],
       ...(site.twitterHandle ? { creator: site.twitterHandle } : {}),
     },
   };

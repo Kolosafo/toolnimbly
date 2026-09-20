@@ -3,7 +3,7 @@ import type { ToolContent } from '../types';
 export const receiptGeneratorContent: ToolContent = {
   slug: 'receipt-generator',
   valueProposition:
-    'A clear record of a payment taken, with exact totals, change calculation and a compact or full-page layout.',
+    'Create a printable payment receipt for a completed transaction. Add business details, line items, tax, tips and payment information, then print it or download a PDF.',
   intro:
     'A receipt records a payment that has already been made, which is what distinguishes it from an invoice. This tool builds one with line items, tax, tip or service charge, the amount tendered and the change given. Totals use exact decimal arithmetic, so the printed figures always reconcile. Choose a compact till-style layout or a full page, preview it, then print or save a PDF — with nothing sent to a server.',
   steps: [

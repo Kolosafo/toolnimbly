@@ -3,7 +3,7 @@ import type { ToolContent } from '../types';
 export const loanCalculatorContent: ToolContent = {
   slug: 'loan-calculator',
   valueProposition:
-    'See the payment, the total interest, and exactly how much sooner an extra payment clears the balance.',
+    'Calculate monthly loan payments, total interest and a full amortization schedule. Add an extra payment to see how much interest and repayment time it could save.',
   intro:
     'Enter a loan amount, an interest rate and a term, and this calculator returns the scheduled payment along with the part of it that is interest rather than principal. The full amortisation schedule is shown payment by payment and summarised year by year, and you can download it as CSV. Adding an optional extra monthly payment recalculates the payoff date and shows how much interest that extra money saves.',
   steps: [
@@ -31,7 +31,10 @@ export const loanCalculatorContent: ToolContent = {
       { label: 'Monthly payment', value: '500.95' },
       { label: 'Total interest', value: '5,056.92' },
       { label: 'Total paid', value: '30,056.92' },
-      { label: 'With 100 extra per month', value: 'Paid off 11 months early, saving 1,013.61 in interest' },
+      {
+        label: 'With 100 extra per month',
+        value: 'Paid off 11 months early, saving 1,013.61 in interest',
+      },
     ],
     conclusion:
       'The first payment is mostly interest — about 156.25 of the 500.95 — and the balance only starts falling quickly in the final two years. The schedule makes that shift visible.',
@@ -50,6 +53,8 @@ export const loanCalculatorContent: ToolContent = {
       'The final payment is capped at the outstanding balance plus that month’s interest, so the schedule ends at exactly zero rather than a few cents either side.',
       'Extra payments are applied to principal immediately after the scheduled payment, which is how most lenders treat them — but confirm this with your own lender.',
     ],
+    sourceNote:
+      'The CFPB reference below discusses mortgages, but its explanation of how fixed payments divide between principal and interest illustrates the amortization mechanism used here. It does not validate or endorse ToolNimbly results.',
   },
   limitations: [
     'Origination fees, late fees, insurance and any other lender charges are excluded. A loan with fees costs more than this calculator shows.',
@@ -61,6 +66,12 @@ export const loanCalculatorContent: ToolContent = {
     'Loan amounts, rates and dates stay in your browser. Nothing you type here is transmitted, stored or logged.',
   resultDisclaimer:
     'These figures are an estimate for information only, not a loan offer or financial advice. Confirm every number with your lender before making a decision.',
+  sources: [
+    {
+      label: 'Consumer Financial Protection Bureau — How paying down a mortgage works',
+      url: 'https://www.consumerfinance.gov/ask-cfpb/how-does-paying-down-a-mortgage-work-en-1943/',
+    },
+  ],
   faqs: [
     {
       question: 'Why is so much of my early payment going to interest?',

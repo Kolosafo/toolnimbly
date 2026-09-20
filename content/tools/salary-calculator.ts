@@ -3,7 +3,7 @@ import type { ToolContent } from '../types';
 export const salaryCalculatorContent: ToolContent = {
   slug: 'salary-calculator',
   valueProposition:
-    'Convert any pay rate into every other pay period, using your real hours and paid weeks.',
+    'Convert annual salary to hourly, monthly, weekly, biweekly or daily gross pay. You can also convert an hourly wage back to annual salary using your actual working hours and paid weeks.',
   intro:
     'Job listings quote pay in whatever unit suits them: an hourly rate, a monthly figure, an annual salary. This tool converts between all of them so you can compare like with like. Enter any one rate and it derives the annual equivalent first, then divides that into hourly, daily, weekly, biweekly, semimonthly and monthly figures. Hours per week, workdays per week and paid weeks per year are all adjustable, because 40 and 52 do not fit everyone.',
   steps: [
@@ -47,10 +47,13 @@ export const salaryCalculatorContent: ToolContent = {
       'monthly  = annual ÷ 12',
     ],
     notes: [
+      'The starting assumptions of 40 hours per week and 52 paid weeks per year are editable defaults, not universal rules.',
       'Biweekly means every two weeks, which is 26 pay periods in a year. Semimonthly means twice a month, which is 24.',
       'Weekly and daily figures use your paid-weeks-per-year setting; biweekly, semimonthly and monthly use the fixed calendar divisors above.',
       'Reducing paid weeks per year — for unpaid leave, say — lowers the annual figure while leaving the weekly rate unchanged.',
     ],
+    sourceNote:
+      'This is a country-neutral arithmetic conversion. It uses your entered hours and paid weeks and does not apply tax, overtime law or payroll rules.',
   },
   limitations: [
     'Every figure is gross pay. Income tax, national insurance or payroll taxes, pension contributions and other deductions are not calculated.',

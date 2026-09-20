@@ -37,7 +37,15 @@ function extractInternalHrefs(source: string): string[] {
   return hrefs;
 }
 
-const knownRoutes = new Set(allIndexableRoutes());
+/*
+ * Routes that exist in the codebase, which is not the same set as the routes
+ * currently indexed. `/blog` is built from `app/(site)/blog/` whatever
+ * NEXT_PUBLIC_BLOG_ENABLED says; the flag decides whether it 404s and whether
+ * it reaches the sitemap, not whether the source file exists. Scanning blog
+ * source for links while excluding /blog from the known set reports a link
+ * that is unreachable, not broken.
+ */
+const knownRoutes = new Set([...allIndexableRoutes(), '/blog']);
 
 describe('internal links', () => {
   const files = scanDirs.flatMap((dir) => collectSourceFiles(join(projectRoot, dir)));
