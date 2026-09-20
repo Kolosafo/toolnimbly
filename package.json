@@ -4,7 +4,7 @@
   "private": true,
   "description": "ToolNimbly — fast, privacy-respecting browser utilities. All processing stays on the device.",
   "engines": {
-    "node": ">=22.11.0",
+    "node": ">=22.13.0",
     "pnpm": ">=10"
   },
   "packageManager": "pnpm@11.21.0",

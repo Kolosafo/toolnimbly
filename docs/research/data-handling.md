@@ -125,6 +125,11 @@ pnpm research:build      # validate, then write the aggregate outputs
 pnpm research:publish    # copy the aggregate CSV into public/, if the gate allows
 ```
 
+These scripts import the pipeline through an explicit `.ts` specifier and rely
+on Node's built-in TypeScript type stripping, which is unflagged from Node
+22.18. The repository pins 22.23.2 in `.nvmrc`, so they run as written; on an
+older Node 22 you would need `--experimental-strip-types`.
+
 Both read `data/research/private/invoice-payment-terms-responses.private.csv`
 unless `--input` says otherwise. `pnpm research:build` writes:
 
