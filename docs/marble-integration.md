@@ -9,11 +9,11 @@ guide, the reason is recorded below.
 
 ## Configuration
 
-| Variable | Scope | Purpose |
-|---|---|---|
-| `NEXT_PUBLIC_BLOG_ENABLED` | public | Master switch. Default `false`. |
-| `MARBLE_API_KEY` | **server only** | Workspace API key. |
-| `MARBLE_WEBHOOK_SECRET` | **server only** | Signs the revalidation webhook. |
+| Variable                   | Scope           | Purpose                         |
+| -------------------------- | --------------- | ------------------------------- |
+| `NEXT_PUBLIC_BLOG_ENABLED` | public          | Master switch. Default `false`. |
+| `MARBLE_API_KEY`           | **server only** | Workspace API key.              |
+| `MARBLE_WEBHOOK_SECRET`    | **server only** | Signs the revalidation webhook. |
 
 Neither secret carries a `NEXT_PUBLIC_` prefix, so Next.js never inlines them
 into a client bundle. `lib/marble/client.ts` imports `server-only`, which turns
@@ -33,17 +33,18 @@ variable and the flag. This is intentional — see the divergence note below.
 
 ## Files
 
-| File | Purpose |
-|---|---|
-| `lib/marble/client.ts` | Lazily-created SDK client, tagged fetch |
-| `lib/marble/cache-tag.ts` | The cache tag, free of `server-only` so it is testable |
-| `lib/marble/posts.ts` | List/get helpers, and the featured/rest split |
-| `lib/marble/webhook.ts` | HMAC verification and revalidation |
-| `app/api/revalidate/route.ts` | `POST /api/revalidate` |
-| `app/(site)/blog/page.tsx` | Index |
-| `app/(site)/blog/[slug]/page.tsx` | Post, with `BlogPosting` schema |
-| `components/blog/prose.tsx` | Renders CMS HTML |
-| `components/blog/post-card.tsx` | Index card |
+| File                              | Purpose                                                       |
+| --------------------------------- | ------------------------------------------------------------- |
+| `lib/marble/client.ts`            | Lazily-created SDK client, tagged fetch                       |
+| `lib/marble/cache-tag.ts`         | The cache tag, free of `server-only` so it is testable        |
+| `lib/marble/posts.ts`             | Published-only list/get helpers, and the featured/rest split  |
+| `lib/marble/seo.ts`               | CMS SEO validation, metadata, post schema and sitemap entries |
+| `lib/marble/webhook.ts`           | HMAC verification and revalidation                            |
+| `app/api/revalidate/route.ts`     | `POST /api/revalidate`                                        |
+| `app/(site)/blog/page.tsx`        | Index                                                         |
+| `app/(site)/blog/[slug]/page.tsx` | Post, with `BlogPosting` schema                               |
+| `components/blog/prose.tsx`       | Renders CMS HTML                                              |
+| `components/blog/post-card.tsx`   | Index card                                                    |
 
 ## Webhook
 
@@ -75,7 +76,7 @@ concept is how those drift apart.
 
 **The client does not throw on import.** The guide constructs the SDK at module
 scope and throws when the key is missing, so a key-less build fails loudly
-rather than rendering empty pages. That is right for a site which *is* the
+rather than rendering empty pages. That is right for a site which _is_ the
 blog. Here it would break `next build`, the test suite and CI for everyone
 until a key existed — including for work that never touches the CMS. The
 failure is moved, not removed: `blogEnabled` decides whether the blog is built,
@@ -87,13 +88,12 @@ and degrades to an empty list. Catching both together reproduces exactly the
 silent empty-blog the guide warns about.
 
 **`dynamicParams` stays `true` for posts.** Every other dynamic route here sets
-it to `false`, because its registry is code and an unknown slug really is a
-404. Posts are not: one published after the last deploy has no build-time
+it to `false`, because its registry is code and an unknown slug really is a 404. Posts are not: one published after the last deploy has no build-time
 entry, and `false` would 404 a URL the editor can see live.
 
 **The `regularPosts` filter is fixed.** The guide flags its own bug — the
 filter reads `!featured?.id && post.id !== featured?.id`, which is true only
-when there is *no* featured post, so the list empties the moment one exists.
+when there is _no_ featured post, so the list empties the moment one exists.
 `splitFeatured` excludes by id, which is all that was intended.
 
 **CSP, which the guide does not mention.** Its source project has no Content
@@ -129,6 +129,28 @@ body: a public endpoint should not tell someone probing it how close they are.
 
 ## Content model expected in Marble
 
-- **Posts** with `title`, `slug`, `description`, `coverImage`, `content` (HTML),
-  `publishedAt`, `authors`, `category`, `tags`, and optionally `featured`.
+- **Posts** with `title`, `slug`, a unique `description`, `coverImage`, `content`
+  (HTML), `publishedAt`, `updatedAt`, `category`, `tags`, and optionally
+  `featured`. Titles, descriptions and slugs must be unique among published
+  posts. The integration rejects drafts at the API boundary and validates
+  those uniqueness rules before a published collection is rendered or added
+  to the sitemap.
+- Two custom text fields on posts: **`relatedToolSlug`** and
+  **`relatedGuideSlug`**. Values can be a slug or canonical URL. They drive the
+  visible contextual links at the end of every article. Existing posts whose
+  titles, slugs or tags clearly name a registered tool can be inferred, but
+  setting both fields is the reliable editorial workflow.
+- Optional **`coverImageAlt`** custom text field. When omitted, the article
+  title is used to produce descriptive cover and social-image alternative
+  text.
 - A **`legal`** category, excluded from the index via `excludeCategories`.
+
+Post bodies are fetched in Server Components and emitted in the initial HTML.
+There is no browser-side CMS request. `publishedAt` and `updatedAt` are used
+verbatim for visible dates, Open Graph, JSON-LD and sitemap `lastmod`; they are
+never replaced with the deployment date.
+
+There are no public blog tag, category, admin, preview or search-result routes.
+Consequently none enter the sitemap and no archive needs a temporary
+`noindex,follow`. Tracking-query variants remain crawlable so bots can read the
+clean self-referencing canonical; `robots.txt` does not hide those variants.
