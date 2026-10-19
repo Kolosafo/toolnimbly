@@ -1,16 +1,15 @@
 /**
  * Marble data access (docs/marble-integration.md §5, §8).
  *
- * Every function here is defensive in the same way: a CMS outage degrades the
- * blog rather than failing the build or 500-ing the site. `generateStaticParams`
- * falling back to an empty list means posts render on demand instead of at
- * build time; the sitemap falling back means it ships the code-managed routes
- * without the posts.
+ * Failed CMS requests must not become successful empty pages or false 404s.
+ * Throwing lets Next.js retain the last successful ISR result and retry,
+ * instead of replacing the blog or sitemap with incomplete content.
  */
 
 import 'server-only';
 
 import type { Post } from '@usemarble/sdk/models';
+import { MarbleError } from '@usemarble/sdk/models/errors';
 
 import { features } from '@/lib/config/features';
 
@@ -26,20 +25,13 @@ const PAGE_SIZE = 100;
 /**
  * Every published post, following pagination to the end.
  *
- * Returns an empty array when the blog is disabled or the CMS is unreachable.
- * The caller decides what an empty list means — an empty index, or a sitemap
- * with no post entries.
+ * An empty array means the blog is disabled or the CMS returned no posts.
+ * Request failures propagate, including a failure on a later page.
  */
 export async function listAllPosts(): Promise<Post[]> {
   if (!features.blogEnabled) return [];
 
-  /*
-   * Deliberately outside the try. A missing API key is a configuration error,
-   * not a CMS outage: swallowing it would render an empty blog that looks
-   * merely unpopulated, which is the silent failure this whole arrangement is
-   * meant to avoid. Network and API failures below are a different matter and
-   * do degrade.
-   */
+  // Configuration errors retain the actionable message from the client.
   const client = getMarbleClient();
 
   let posts: Post[];
@@ -53,11 +45,11 @@ export async function listAllPosts(): Promise<Post[]> {
 
     // The returned value is async-iterable: `limit` is the page size, not a cap.
     for await (const page of pages) {
-      if (page.result.posts) posts.push(...page.result.posts);
+      if (!Array.isArray(page.result.posts)) throw new Error('Missing posts collection');
+      posts.push(...page.result.posts);
     }
   } catch (error) {
-    console.error('[marble] could not list posts:', error);
-    return [];
+    throw cmsRequestError('list posts', error);
   }
 
   // The API filter is the primary control; the local guard protects against a
@@ -70,24 +62,24 @@ export async function listAllPosts(): Promise<Post[]> {
 /**
  * One post by slug, or `null`.
  *
- * `posts.get` does not reliably throw for a missing slug, so the shape of the
- * response is checked rather than trusted. Both the page and its
+ * Only a real missing or unpublished post returns null. Both the page and its
  * `generateMetadata` call this with the same argument; Next.js dedupes that
  * within a request, so it is one network call.
  */
 export async function getPost(slug: string): Promise<Post | null> {
   if (!features.blogEnabled) return null;
 
-  // Same split as above: configuration errors throw, request failures degrade.
+  // Configuration errors retain the actionable message from the client.
   const client = getMarbleClient();
 
   let post: Post | null;
   try {
     const data = await client.posts.get({ identifier: slug, status: 'published' });
+    if (!data || !('post' in data)) throw new Error('Missing post response');
     post = data?.post ?? null;
   } catch (error) {
-    console.error(`[marble] could not load post "${slug}":`, error);
-    return null;
+    if (error instanceof MarbleError && error.statusCode === 404) return null;
+    throw cmsRequestError('load post', error);
   }
 
   if (!post || !isPublishedPost(post)) return null;
@@ -95,6 +87,12 @@ export async function getPost(slug: string): Promise<Post | null> {
   // never silently degrade to a misleading 404 or an incomplete SEO template.
   assertPublishedPostSeoReady(post);
   return post;
+}
+
+/** SDK errors can include raw response data; expose only the operation/status. */
+function cmsRequestError(operation: string, error: unknown): Error {
+  const status = error instanceof MarbleError ? ` (HTTP ${error.statusCode})` : '';
+  return new Error(`[marble] could not ${operation}${status}`);
 }
 
 /** The post to feature on the index, and the rest in order. */

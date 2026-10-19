@@ -98,9 +98,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   /*
    * Blog entries come from the CMS, so this is the one part of the sitemap
-   * that can fail. `listAllPosts` already degrades to an empty array on an
-   * outage, which ships a sitemap of the code-managed routes rather than a
-   * 500 — a temporarily shorter sitemap is far better than none.
+   * that can fail. Let failures propagate so ISR keeps the last successful
+   * sitemap rather than replacing it with a version missing published posts.
    */
   const posts = features.blogEnabled ? await listAllPosts() : [];
 
