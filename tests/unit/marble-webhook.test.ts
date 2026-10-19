@@ -10,7 +10,7 @@ import { verifySignature } from '@/lib/marble/webhook';
  * the failure modes matter more than the happy path.
  */
 const SECRET = 'whsec_test_secret_value';
-const BODY = '{"event":"post.published","data":{"id":"1","slug":"hello","title":"Hello"}}';
+const BODY = '{"type":"post.published","data":{"id":"1","slug":"hello","title":"Hello"}}';
 
 function sign(body: string, secret = SECRET): string {
   return createHmac('sha256', secret).update(body, 'utf8').digest('hex');

@@ -48,16 +48,22 @@ variable and the flag. This is intentional — see the divergence note below.
 
 ## Webhook
 
-Marble dashboard → Settings → Webhooks:
+Marble dashboard → Workspace → Settings → Developers → Webhooks:
 
 - Endpoint `https://<your-domain>/api/revalidate`
-- Events `post.published`, `post.updated`, `post.deleted`
-- Copy the signing secret into `MARBLE_WEBHOOK_SECRET`
+- Format **JSON**, webhook enabled
+- Events `post.published`, `post.updated`, `post.unpublished`, `post.deleted`
+- Copy the signing secret into the deployment's `MARBLE_WEBHOOK_SECRET`
 
-Test it against a production build (revalidation is a no-op in `next dev`):
+The [current Marble envelope](https://docs.marblecms.com/features/webhooks)
+identifies the event in **`type`**, not `event`. The signature covers the exact
+raw JSON body. Other envelope fields may be present; the receiver only needs
+`type` and `data.slug` to invalidate cached content.
+
+Test it against a production build so caching matches the deployed site:
 
 ```bash
-BODY='{"event":"post.published","data":{"id":"1","slug":"hello","title":"Hello"}}'
+BODY='{"type":"post.published","data":{"id":"1","slug":"hello","title":"Hello"}}'
 SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$MARBLE_WEBHOOK_SECRET" | awk '{print $2}')
 curl -X POST http://127.0.0.1:3200/api/revalidate \
   -H 'Content-Type: application/json' \
@@ -65,9 +71,21 @@ curl -X POST http://127.0.0.1:3200/api/revalidate \
   -d "$BODY"
 ```
 
-Expect `{"revalidated":true,...}`.
+Expect `{"revalidated":true,...}`. After deployment, use **Send test webhook**
+in Marble and inspect its delivery response. Then request `/blog`, the affected
+article and `/sitemap.xml` to confirm their content: successful invalidation
+marks these caches for regeneration on their next request.
+
+A 400 response indicates a malformed JSON envelope, 401 indicates missing or
+invalid authentication, and 404 can indicate that the blog is disabled or the
+endpoint is wrong. Inspect delivery history and the webhook's enabled state
+when diagnosing missing updates; do not republish articles to test delivery.
 
 ## Where this diverges from the guide, and why
+
+**Webhook events use `type`.** The local `marble_integration_doc.md` guide's
+`event` field does not match Marble's current JSON envelope. Requiring it
+rejects otherwise valid signed deliveries before any cache is invalidated.
 
 **`NEXT_PUBLIC_SITE_URL`, not `NEXT_PUBLIC_APP_URL`.** This project already had
 a variable naming the canonical origin, and it drives canonical tags, the
