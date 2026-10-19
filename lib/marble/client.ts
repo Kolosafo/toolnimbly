@@ -16,10 +16,11 @@ import { MARBLE_CACHE_TAG } from './cache-tag';
  * The SDK performs its own `fetch` internally, so injecting a fetcher is the
  * only way to attach a Next.js cache tag to its requests. Tagging them all
  * lets the publish webhook invalidate every piece of CMS data — the blog
- * index, each post, the sitemap — with a single `revalidateTag`.
+ * index, each post, the sitemap — with a single `revalidateTag`. Give the
+ * data its own expiry too, including when fetched outside a page render.
  */
 const marbleFetcher = (input: RequestInfo | URL, init?: RequestInit) =>
-  fetch(input, { ...init, next: { tags: [MARBLE_CACHE_TAG] } });
+  fetch(input, { ...init, next: { tags: [MARBLE_CACHE_TAG], revalidate: 600 } });
 
 let client: Marble | undefined;
 

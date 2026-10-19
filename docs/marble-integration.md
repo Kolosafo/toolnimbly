@@ -82,10 +82,16 @@ until a key existed — including for work that never touches the CMS. The
 failure is moved, not removed: `blogEnabled` decides whether the blog is built,
 and building it without a key still throws.
 
-**`getMarbleClient()` is called outside the `try`.** A missing key is a
-configuration error and must propagate; a network or API failure is an outage
-and degrades to an empty list. Catching both together reproduces exactly the
-silent empty-blog the guide warns about.
+**CMS failures propagate.** A missing key retains its actionable configuration
+error. Network, API and response-validation failures throw instead of returning
+an empty list or a missing post. During ISR, Next.js can keep the last successful
+page or sitemap and retry regeneration. With no successful cached result, the
+request fails visibly. Only a genuine CMS 404 or an unpublished post becomes a
+missing article. SDK response bodies and headers are not included in our errors.
+
+**CMS data expires after ten minutes.** Fetches carry both the shared cache tag
+and `next.revalidate: 600`. The signed webhook still invalidates content sooner;
+the explicit data lifetime also covers sitemap and build-time requests.
 
 **`dynamicParams` stays `true` for posts.** Every other dynamic route here sets
 it to `false`, because its registry is code and an unknown slug really is a 404. Posts are not: one published after the last deploy has no build-time
@@ -138,8 +144,12 @@ body: a public endpoint should not tell someone probing it how close they are.
 - Two custom text fields on posts: **`relatedToolSlug`** and
   **`relatedGuideSlug`**. Values can be a slug or canonical URL. They drive the
   visible contextual links at the end of every article. Existing posts whose
-  titles, slugs or tags clearly name a registered tool can be inferred, but
-  setting both fields is the reliable editorial workflow.
+  titles, slugs or tags clearly name a registered tool can be inferred. As a
+  fallback, existing article links to registered tools or guides can establish
+  the relationship, with the tool's registered guide used when needed. Only
+  relative links and absolute links to the configured or production site are
+  accepted, so production article links also work in local previews. Setting
+  both fields remains the reliable editorial workflow.
 - Optional **`coverImageAlt`** custom text field. When omitted, the article
   title is used to produce descriptive cover and social-image alternative
   text.

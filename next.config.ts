@@ -33,6 +33,13 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'cdn.marblecms.com' },
       { protocol: 'https', hostname: 'images.marblecms.com' },
       { protocol: 'https', hostname: 'media.marblecms.com' },
+      // Licensed Pexels cover photos in the compound-interest draft series.
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        pathname: '/photos/**',
+        search: '?auto=compress&dpr=1&h=750&w=1260',
+      },
     ],
   },
   poweredByHeader: false,

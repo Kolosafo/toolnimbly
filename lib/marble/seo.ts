@@ -1,7 +1,7 @@
 import type { Metadata, MetadataRoute } from 'next';
 import type { Post } from '@usemarble/sdk/models';
 
-import { absoluteUrl, site } from '@/lib/config/site';
+import { absoluteUrl, PRODUCTION_URL, site } from '@/lib/config/site';
 import {
   findGuide,
   findTool,
@@ -70,16 +70,23 @@ export function blogPostDates(post: Pick<Post, 'publishedAt' | 'updatedAt'>): {
  * Resolve the two editorial links each published post must carry.
  *
  * Editors should set `relatedToolSlug` and `relatedGuideSlug` in Marble. The
- * inference path keeps older posts working when their title, slug or tags name
- * a registered tool; validation still rejects a published post whose
+ * inference path keeps older posts working when their metadata or existing
+ * internal links name a registered tool; validation still rejects a post whose
  * relationship cannot be established rather than adding arbitrary links.
  */
 export function relatedBlogContent(post: Post): RelatedBlogContent | null {
   const explicitTool = findTool(fieldSlug(post, 'relatedToolSlug', 'tools'));
   const explicitGuide = findGuide(fieldSlug(post, 'relatedGuideSlug', 'guides'));
 
-  let tool = explicitTool ?? inferTool(post);
-  let guide = explicitGuide ?? inferGuide(post);
+  const linkedPaths = internalArticlePaths(post.content);
+  let tool =
+    explicitTool ??
+    inferTool(post) ??
+    tools.find((candidate) => linkedPaths.has(`/tools/${candidate.slug}`));
+  let guide =
+    explicitGuide ??
+    inferGuide(post) ??
+    guides.find((candidate) => linkedPaths.has(`/guides/${candidate.slug}`));
 
   if (!tool && guide) tool = findTool(guide.relatedToolSlugs[0] ?? '');
   if (!guide && tool) guide = guidesForTool(tool.slug)[0];
@@ -238,6 +245,27 @@ function inferTool(post: Post): ToolDefinition | undefined {
     tool.shortName,
     tool.primaryKeyword,
   ]);
+}
+
+/** Only links to this site's registered content can supply a relationship. */
+function internalArticlePaths(content: string): Set<string> {
+  // CMS bodies retain production links in local and preview environments.
+  const origins = new Set([new URL(site.url).origin, new URL(PRODUCTION_URL).origin]);
+  const paths = new Set<string>();
+
+  for (const match of content.matchAll(/<a\b[^>]*\shref\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) {
+    const href = match[1] ?? match[2];
+    if (!href) continue;
+
+    try {
+      const url = new URL(href, site.url);
+      if (origins.has(url.origin)) paths.add(url.pathname.replace(/\/$/, ''));
+    } catch {
+      // Malformed links do not establish a relationship.
+    }
+  }
+
+  return paths;
 }
 
 function inferGuide(post: Post): GuideDefinition | undefined {
