@@ -41,7 +41,15 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json({ error: 'Malformed body' }, { status: 400 });
   }
 
-  if (typeof payload?.event !== 'string' || typeof payload?.data !== 'object' || !payload.data) {
+  // Marble's JSON envelope names the event `type`; `event` is not sent.
+  if (
+    typeof payload?.type !== 'string' ||
+    !payload.type ||
+    typeof payload?.data !== 'object' ||
+    !payload.data ||
+    Array.isArray(payload.data) ||
+    (payload.data.slug !== undefined && typeof payload.data.slug !== 'string')
+  ) {
     return NextResponse.json({ error: 'Malformed body' }, { status: 400 });
   }
 

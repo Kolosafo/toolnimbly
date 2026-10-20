@@ -16,7 +16,7 @@ import { MARBLE_CACHE_TAG } from './cache-tag';
 export const SIGNATURE_HEADER = 'x-marble-signature';
 
 export type MarbleWebhookPayload = {
-  event: string;
+  type: string;
   data: { id?: string; slug?: string; title?: string; userId?: string };
 };
 
@@ -68,8 +68,8 @@ export type WebhookResult = {
 export async function handleWebhookEvent(
   payload: MarbleWebhookPayload,
 ): Promise<WebhookResult> {
-  if (!payload.event.startsWith('post')) {
-    return { revalidated: false, now: Date.now(), message: `Ignored event ${payload.event}` };
+  if (!payload.type.startsWith('post.')) {
+    return { revalidated: false, now: Date.now(), message: `Ignored event ${payload.type}` };
   }
 
   revalidatePath('/blog');
@@ -84,5 +84,5 @@ export async function handleWebhookEvent(
   // The sitemap lists post URLs, so a publish or a deletion changes it.
   revalidatePath('/sitemap.xml');
 
-  return { revalidated: true, now: Date.now(), message: `Handled ${payload.event}` };
+  return { revalidated: true, now: Date.now(), message: `Handled ${payload.type}` };
 }
