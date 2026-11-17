@@ -6,30 +6,26 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 
 import { Button } from '@/components/ui/button';
-
-const CONSENT_KEY = 'toolnimbly:analytics-consent';
-const CONSENT_EVENT = 'toolnimbly:analytics-consent-change';
+import { toolSlugFromArticleClick } from '@/lib/analytics/blog-tool-click';
+import {
+  ANALYTICS_CONSENT_EVENT,
+  announceAnalyticsReady,
+  isAnalyticsReady,
+  readAnalyticsConsent,
+  resetAnalyticsReady,
+  setAnalyticsConsent,
+  trackAnalyticsEvent,
+} from '@/lib/analytics/track';
 
 type Consent = 'loading' | 'unset' | 'allowed' | 'denied';
-let memoryConsent: 'allowed' | 'denied' | undefined;
 
 function subscribeToConsent(onStoreChange: () => void): () => void {
   window.addEventListener('storage', onStoreChange);
-  window.addEventListener(CONSENT_EVENT, onStoreChange);
+  window.addEventListener(ANALYTICS_CONSENT_EVENT, onStoreChange);
   return () => {
     window.removeEventListener('storage', onStoreChange);
-    window.removeEventListener(CONSENT_EVENT, onStoreChange);
+    window.removeEventListener(ANALYTICS_CONSENT_EVENT, onStoreChange);
   };
-}
-
-function readConsent(): Consent {
-  if (memoryConsent) return memoryConsent;
-  try {
-    const stored = window.localStorage.getItem(CONSENT_KEY);
-    return stored === 'allowed' || stored === 'denied' ? stored : 'unset';
-  } catch {
-    return 'unset';
-  }
 }
 
 /**
@@ -42,29 +38,45 @@ function readConsent(): Consent {
  */
 export function GoogleAnalytics({ measurementId }: { measurementId: string }) {
   const pathname = usePathname();
-  const consent = useSyncExternalStore(subscribeToConsent, readConsent, () => 'loading');
-  const [ready, setReady] = useState(false);
+  const consent: Consent = useSyncExternalStore(
+    subscribeToConsent,
+    readAnalyticsConsent,
+    () => 'loading',
+  );
+  const [readyVersion, setReadyVersion] = useState(0);
 
   useEffect(() => {
-    if (!ready || consent !== 'allowed' || !window.gtag) return;
-    window.gtag('event', 'page_view', {
+    if (consent === 'loading') return;
+    // A choice made in another tab must also stop the already-loaded Google tag.
+    (window as unknown as Record<string, boolean>)[`ga-disable-${measurementId}`] =
+      consent !== 'allowed';
+    if (consent !== 'allowed') resetAnalyticsReady();
+  }, [consent, measurementId]);
+
+  useEffect(() => {
+    if (!readyVersion || consent !== 'allowed' || !isAnalyticsReady()) return;
+    window.gtag?.('event', 'page_view', {
       page_path: pathname,
       page_title: document.title,
     });
-  }, [consent, pathname, ready]);
+  }, [consent, pathname, readyVersion]);
 
-  function choose(next: 'allowed' | 'denied') {
-    memoryConsent = next;
-    try {
-      window.localStorage.setItem(CONSENT_KEY, next);
-    } catch {
-      // A privacy mode may deny storage. Honour the choice for this page even
-      // when it cannot be remembered for the next visit.
-    }
-    window.dispatchEvent(new Event(CONSENT_EVENT));
-  }
+  useEffect(() => {
+    if (!/^\/blog\/[a-z0-9-]+\/?$/.test(pathname)) return;
+
+    const onArticleLinkClick = (event: MouseEvent) => {
+      const tool = toolSlugFromArticleClick(event.target);
+      if (tool) trackAnalyticsEvent({ name: 'blog_tool_click', tool });
+    };
+
+    document.addEventListener('click', onArticleLinkClick, true);
+    return () => document.removeEventListener('click', onArticleLinkClick, true);
+  }, [pathname]);
 
   function initialize() {
+    if (readAnalyticsConsent() !== 'allowed') return;
+    const firstReady = !isAnalyticsReady();
+    (window as unknown as Record<string, boolean>)[`ga-disable-${measurementId}`] = false;
     window.dataLayer = window.dataLayer ?? [];
     window.gtag = (...args: unknown[]) => {
       window.dataLayer?.push(args);
@@ -74,7 +86,8 @@ export function GoogleAnalytics({ measurementId }: { measurementId: string }) {
       send_page_view: false,
       anonymize_ip: true,
     });
-    setReady(true);
+    announceAnalyticsReady();
+    if (firstReady) setReadyVersion((version) => version + 1);
   }
 
   return (
@@ -104,10 +117,10 @@ export function GoogleAnalytics({ measurementId }: { measurementId: string }) {
             .
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => choose('allowed')}>
+            <Button size="sm" onClick={() => setAnalyticsConsent('allowed')}>
               Allow analytics
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => choose('denied')}>
+            <Button variant="secondary" size="sm" onClick={() => setAnalyticsConsent('denied')}>
               No thanks
             </Button>
           </div>

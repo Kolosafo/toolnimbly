@@ -41,4 +41,5 @@ export type AnalyticsEvent =
   | { name: 'tool_error'; tool: string; code: AllowedErrorCode }
   | { name: 'tool_copy'; tool: string }
   | { name: 'tool_download'; tool: string; outputKind: AllowedOutputKind }
+  | { name: 'blog_tool_click'; tool: string }
   | { name: 'related_tool_click'; from: string; to: string };

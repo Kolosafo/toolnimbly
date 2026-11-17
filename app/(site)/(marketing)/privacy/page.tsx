@@ -143,11 +143,12 @@ export default function PrivacyPage() {
         </p>
         {features.analyticsEnabled ? (
           <p>
-            This deployment may also record broad tool actions through the configured{' '}
-            {features.analyticsProvider} integration, subject to the controls described below. Its
-            event format permits a tool identifier and a predefined action or error code—not raw
-            inputs, pasted text, filenames, document contents, customer data or exact financial
-            amounts.
+            This deployment may also record broad tool actions and clicks from blog articles to
+            tools through the configured {features.analyticsProvider} integration, subject to the
+            controls described below. Custom events carry a tool identifier and a predefined action
+            or error code; the provider also receives the current page location as standard web
+            event context. Raw inputs, pasted text, filenames, document contents, customer data and
+            exact financial amounts are never added to those custom events.
           </p>
         ) : null}
       </Section>

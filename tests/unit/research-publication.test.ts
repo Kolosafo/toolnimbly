@@ -538,14 +538,17 @@ describe('the whole feature avoids unsupportable claims', () => {
 });
 
 describe('links to CMS posts', () => {
-  it('names the two supporting articles by slug in one place', () => {
+  it('names the supporting articles by slug in one place', () => {
+    expect(REFERENCED_BLOG_POSTS.ruleOf72.slug).toBe(
+      'the-rule-of-72-estimate-how-long-it-takes-money-to-double',
+    );
     expect(REFERENCED_BLOG_POSTS.invoicePaymentTerms.slug).toBe(
       'invoice-payment-terms-explained-due-on-receipt-net-7-net-15-and-net-30',
     );
     expect(REFERENCED_BLOG_POSTS.invoiceVsReceipt.slug).toBe(
       'invoice-vs-receipt-what-is-the-difference-and-when-do-you-use-each',
     );
-    expect(referencedBlogPostPaths()).toHaveLength(2);
+    expect(referencedBlogPostPaths()).toHaveLength(3);
   });
 
   it('renders them only when the blog is switched on', () => {
