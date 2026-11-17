@@ -3,7 +3,12 @@
 import { useEffect, useRef } from 'react';
 
 import type { AllowedOutputKind } from '@/lib/analytics/events';
-import { COPY_EVENT, DOWNLOAD_EVENT, trackAnalyticsEvent } from '@/lib/analytics/track';
+import {
+  ANALYTICS_READY_EVENT,
+  COPY_EVENT,
+  DOWNLOAD_EVENT,
+  trackAnalyticsEvent,
+} from '@/lib/analytics/track';
 
 /**
  * Measures use without reading values.
@@ -17,9 +22,16 @@ export function ToolUsageTracker({ tool, children }: { tool: string; children: R
   const rootRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
   const successRef = useRef(false);
+  const viewSentForToolRef = useRef<string | null>(null);
 
   useEffect(() => {
-    trackAnalyticsEvent({ name: 'tool_view', tool });
+    const sendView = () => {
+      if (viewSentForToolRef.current === tool) return;
+      if (trackAnalyticsEvent({ name: 'tool_view', tool })) viewSentForToolRef.current = tool;
+    };
+    window.addEventListener(ANALYTICS_READY_EVENT, sendView);
+    sendView();
+    return () => window.removeEventListener(ANALYTICS_READY_EVENT, sendView);
   }, [tool]);
 
   useEffect(() => {

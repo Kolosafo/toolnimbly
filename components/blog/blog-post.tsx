@@ -92,21 +92,21 @@ export function BlogPost({ post }: { post: Post }) {
             Put this into practice
           </h2>
           <p className="measure text-muted mt-2 text-sm">
-            Use the{' '}
+            Try the{' '}
             <Link
               href={`/tools/${related.tool.slug}`}
               className="text-brand underline underline-offset-2"
             >
               {related.tool.shortName} tool
             </Link>{' '}
-            for the calculation, then read{' '}
+            and read{' '}
             <Link
               href={`/guides/${related.guide.slug}`}
               className="text-brand underline underline-offset-2"
             >
               {related.guide.name}
             </Link>{' '}
-            for the supporting explanation.
+            for more context.
           </p>
         </section>
       </article>

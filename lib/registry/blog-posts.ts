@@ -2,14 +2,13 @@
  * CMS-authored posts that code links to by slug.
  *
  * Blog posts live in Marble, so they cannot be enumerated from this repository
- * the way tools and guides can. When a code-managed page wants to link to one —
- * the research report does — the slug has to be written down somewhere, and
- * this is that somewhere: one list, referenced by the pages that link and by
- * the link-integrity test, rather than a slug string buried in JSX.
+ * the way tools and guides can. When a code-managed page wants to link to one,
+ * the slug has to be written down somewhere. This list is used by the pages
+ * that link and by the link-integrity test, rather than burying slugs in JSX.
  *
  * These links render only when `NEXT_PUBLIC_BLOG_ENABLED` is on. With the blog
  * off the routes are not built at all, and an unconditional link would be a
- * 404 in the middle of a research report.
+ * 404 on a tool or research page.
  */
 
 export type ReferencedBlogPost = {
@@ -20,6 +19,10 @@ export type ReferencedBlogPost = {
 };
 
 export const REFERENCED_BLOG_POSTS = {
+  ruleOf72: {
+    slug: 'the-rule-of-72-estimate-how-long-it-takes-money-to-double',
+    summary: 'A quick estimate of how long a balance takes to double at a fixed rate.',
+  },
   invoicePaymentTerms: {
     slug: 'invoice-payment-terms-explained-due-on-receipt-net-7-net-15-and-net-30',
     summary: 'What due on receipt, Net 7, Net 15 and Net 30 ask of a customer.',

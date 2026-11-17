@@ -17,8 +17,10 @@ import { WorkedExample } from '@/components/tool-shell/worked-example';
 import { Container } from '@/components/ui/container';
 import { findToolDeepDive } from '@/content/tool-deep-dives';
 import type { ToolContent } from '@/content/types';
+import { features } from '@/lib/config/features';
 import { buildEmbedSnippet } from '@/lib/embed/snippet';
 import { getCategory, guidesForTool, relatedTools } from '@/lib/registry';
+import { REFERENCED_BLOG_POSTS } from '@/lib/registry/blog-posts';
 import type { ToolDefinition } from '@/lib/registry/types';
 
 /**
@@ -123,6 +125,18 @@ export function ToolPageLayout({ tool, content }: { tool: ToolDefinition; conten
 
         {/* 10. Visible FAQs */}
         <FaqList faqs={content.faqs} />
+        {tool.slug === 'compound-interest-calculator' && features.blogEnabled ? (
+          <p className="measure text-muted text-sm">
+            Want a quick estimate of how long a balance takes to double? Read our{' '}
+            <Link
+              href={`/blog/${REFERENCED_BLOG_POSTS.ruleOf72.slug}`}
+              className="text-brand underline underline-offset-2"
+            >
+              Rule of 72 article
+            </Link>
+            . The calculator above projects the balance for the duration you enter.
+          </p>
+        ) : null}
       </div>
 
       {/* 11. Curated related tools, and the articles that explain them */}

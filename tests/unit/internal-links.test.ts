@@ -50,7 +50,7 @@ function extractInternalHrefs(source: string): string[] {
 /*
  * The research routes exist in `app/` whatever the publication flags say — the
  * flags decide whether they 404 and whether they reach the sitemap, exactly as
- * with `/blog`. The two CMS post paths come from the one list that the pages
+ * with `/blog`. The CMS post paths come from the one list that the pages
  * link through, so a slug cannot be changed in a page without the test noticing.
  */
 const knownRoutes = new Set([
